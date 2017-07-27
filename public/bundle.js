@@ -22660,6 +22660,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.postUserAction = postUserAction;
 exports.loginUserAction = loginUserAction;
+exports.getCurrentUser = getCurrentUser;
 
 var _axios = __webpack_require__(54);
 
@@ -22683,6 +22684,16 @@ function loginUserAction(user) {
       dispatch({ type: "LOGIN_USER", payload: response.data });
     }).catch(function (err) {
       dispatch({ type: "LOGIN_USER_REJECTED", payload: "Could not login user" });
+    });
+  };
+}
+
+function getCurrentUser() {
+  return function (dispatch) {
+    _axios2.default.get("/api/user").then(function (response) {
+      dispatch({ type: "GET_USER", payload: response.data });
+    }).catch(function (err) {
+      dispatch({ type: "GET_USER_REJECTED", payload: "Aomething went wrong when getting the user" });
     });
   };
 }
@@ -38581,7 +38592,10 @@ function usersReducers() {
       return _extends({}, state, action.payload);
       break;
     case "LOGIN_USER":
-      return _extends({}, state, action.payload);
+      return _extends({}, state, {
+        loggedInUser: action.payload });
+    case "GET_USER":
+      return _extends({}, state, { loggedInUser: action.payload });
       break;
   }
   return state;
@@ -50474,6 +50488,12 @@ var _footer2 = _interopRequireDefault(_footer);
 
 var _reactRedux = __webpack_require__(35);
 
+var _redux = __webpack_require__(32);
+
+var _addToCartAction = __webpack_require__(125);
+
+var _userActions = __webpack_require__(256);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -50492,6 +50512,12 @@ var Main = function (_React$Component) {
   }
 
   _createClass(Main, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      this.props.getCart();
+      this.props.getCurrentUser();
+    }
+  }, {
     key: "render",
     value: function render() {
       return _react2.default.createElement(
@@ -50499,7 +50525,8 @@ var Main = function (_React$Component) {
         null,
         _react2.default.createElement(_Menu2.default, {
           itemNumber: this.props.numberOfItems,
-          userEmail: this.props.userEmail }),
+          userEmail: this.props.userEmail,
+          loggedInUser: this.props.loggedInUser }),
         this.props.children,
         _react2.default.createElement(_footer2.default, null)
       );
@@ -50512,11 +50539,17 @@ var Main = function (_React$Component) {
 function mapStateToProps(state) {
   return {
     numberOfItems: state.cart.totalQuantity,
-    userEmail: state.user.email
+    userEmail: state.user.email,
+    loggedInUser: state.user.loggedInUser
   };
 }
 
-exports.default = (0, _reactRedux.connect)(mapStateToProps)(Main);
+function mapDispatchToProps(dispatch) {
+  return (0, _redux.bindActionCreators)({ getCart: _addToCartAction.getCart,
+    getCurrentUser: _userActions.getCurrentUser }, dispatch);
+}
+
+exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Main);
 
 /***/ }),
 /* 570 */
@@ -50594,7 +50627,11 @@ var Menu = function (_React$Component) {
           _react2.default.createElement(
             _reactBootstrap.Nav,
             { pullRight: true },
-            _react2.default.createElement(
+            this.props.loggedInUser != null ? _react2.default.createElement(
+              _reactBootstrap.NavItem,
+              { eventKey: 1, href: "/logout" },
+              "logout"
+            ) : _react2.default.createElement(
               _reactBootstrap.NavItem,
               { eventKey: 1, href: "/login" },
               "Login"
@@ -50619,10 +50656,10 @@ var Menu = function (_React$Component) {
                 this.props.itemNumber
               )
             ) : "",
-            this.props.userEmail != "" ? _react2.default.createElement(
+            this.props.loggedInUser != null ? _react2.default.createElement(
               _reactBootstrap.NavItem,
               { eventKey: 5, href: "/login" },
-              this.props.userEmail
+              this.props.loggedInUser.email
             ) : ""
           )
         )

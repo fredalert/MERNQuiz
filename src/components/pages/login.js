@@ -16,10 +16,7 @@ handleLogin(){
     password:findDOMNode(this.refs.password).value,
     }
   this.props.loginUserAction(user);
-
 }
-
-
 
 render(){
 return(

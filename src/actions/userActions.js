@@ -22,3 +22,14 @@ return function(dispatch){
       dispatch({type:"LOGIN_USER_REJECTED", payload:"Could not login user"})
     })
 }}
+
+export function getCurrentUser(){
+  return function(dispatch){
+  axios.get("/api/user")
+  .then(function(response){
+    dispatch({type:"GET_USER", payload:response.data})
+  })
+  .catch(function(err){
+    dispatch({type:"GET_USER_REJECTED", payload:"Aomething went wrong when getting the user"})
+  })
+}}

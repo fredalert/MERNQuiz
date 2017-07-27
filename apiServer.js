@@ -106,8 +106,8 @@ if (req.body.email && req.body.password) {
         err.status = 401;
         return next(err);
       }  else {
-        req.session.userId = user._id;
-
+        req.session.loggedInUserId=user._id;
+        return res.json(user);
       }
     });
   } else {
@@ -117,7 +117,17 @@ if (req.body.email && req.body.password) {
   }
 });
 
-
+//-------GET-USER-------------------------//
+app.get("/user/", function(req, res, next){
+  Users.findById(req.session.loggedInUserId)
+  .exec(function (error, user) {
+          if (error) {
+            return next(error);
+          } else {
+            return res.json(user);
+          }
+        });
+  });
 //>>>>>>>>BOOKS-API<<<<<<<<<<<//
 
 //-------CREATE-BOOKS-------------------------//
