@@ -10,8 +10,9 @@ import {getCurrentUser} from "../../actions/userActions"
 
 class Main extends React.Component{
 componentDidMount(){
-  this.props.getCart();
   this.props.getCurrentUser();
+  this.props.getCart();
+
 }
 
   render(){

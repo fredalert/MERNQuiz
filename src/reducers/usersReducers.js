@@ -1,3 +1,4 @@
+
 "use strict"
 export function usersReducers(state={user:{}}, action){
 switch(action.type){
@@ -8,7 +9,8 @@ switch(action.type){
   return {...state,
     loggedInUser:action.payload}
   case "GET_USER":
-  return {...state, loggedInUser:action.payload}
+  return {...state,
+    loggedInUser:action.payload}
   break;
 }
 return state;

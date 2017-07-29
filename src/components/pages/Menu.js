@@ -23,7 +23,7 @@ class Menu extends React.Component{
       <NavItem eventKey={2} href="/register">Register</NavItem>
        <NavItem eventKey={3} href="/admin">Admin</NavItem>
        {(this.props.itemNumber>0)?(<NavItem eventKey={4} href="/cart">My cart <Badge className="badge">{this.props.itemNumber}</Badge></NavItem>):("")}
-      {(this.props.loggedInUser!=null)?(<NavItem eventKey={5} href="/login">{this.props.loggedInUser.email}</NavItem>):("")}
+      {(this.props.loggedInUser!=null)?(<NavItem eventKey={5} href="/profile">{this.props.loggedInUser.email}</NavItem>):("")}
 
      </Nav>
    </Navbar.Collapse>
