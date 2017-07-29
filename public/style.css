@@ -16,3 +16,9 @@ body {
 .container .footer-text{
   margin:20px 0px;
 }
+
+h6{
+  font-size: 20px;
+  display: inline;
+  margin-left: 30px;
+}

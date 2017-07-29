@@ -7,7 +7,6 @@ class Profile extends React.Component{
 
 
 
-
 render(){
 
   return(
@@ -15,7 +14,7 @@ render(){
     <Row>
       <Col xs={12} sm={6}>
           <Well>
-            <h3>{(this.props.loggedInUser!=null)?(this.props.loggedInUser.email):("")}</h3>
+      <h3>{(this.props.loggedInUser!=null)?(this.props.loggedInUser.email):("")}</h3>
 
           </Well>
       </Col>

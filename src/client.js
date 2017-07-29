@@ -23,6 +23,7 @@ import Main from "./components/pages/main";
 import Register from "./components/pages/register";
 import Login from "./components/pages/login";
 import Profile from "./components/pages/profile"
+import Quiz from "./components/pages/quiz"
 
 
 //ACTIONS
@@ -41,6 +42,7 @@ const Routes =(
         <Route path="/register" component ={Register}/>
         <Route path="/login" component ={Login}/>
         <Route path="/profile" component ={Profile}/>
+        <Route path="/quiz" component ={Quiz}/>
       </Route>
     </Router>
 
