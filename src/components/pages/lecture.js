@@ -1,19 +1,23 @@
 import React from "react";
-import {Row, Col,Well, Radio, PageHeader, Panel, FormGroup, InputGroup, FormControl} from "react-bootstrap";
+import {Row, Col,Well, Radio, Button, PageHeader, Panel, FormGroup, InputGroup, FormControl} from "react-bootstrap";
 
 
-class Quiz extends React.Component{
+class Lecture extends React.Component{
   render(){
     return(
 
     <Row>
         <Panel>
           <Col xs={12} sm={12}>
-              <PageHeader>The quiz page
-                <small>Where the quizzes are found</small>
+              <PageHeader>The Lectures page
+                <small>  Where the lectures  are found</small>
               </PageHeader>
           </Col>
           <Col xs={12} sm={12}>
+          <Well>
+            <Well>
+              <h6>So the fucking question is is this cool?</h6>
+            </Well>
             <Well>
               <FormGroup>
                     <Radio name="radioGroup" >
@@ -29,6 +33,10 @@ class Quiz extends React.Component{
                       </Radio>
               </FormGroup>
             </Well>
+            <Well>
+              <Button bsStyle="primary">Answer</Button>
+            </Well>
+            </Well>
           </Col>
       </Panel>
     </Row>
@@ -38,4 +46,4 @@ class Quiz extends React.Component{
   }}
 
 
-export default Quiz;
+export default Lecture;

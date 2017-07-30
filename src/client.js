@@ -23,7 +23,9 @@ import Main from "./components/pages/main";
 import Register from "./components/pages/register";
 import Login from "./components/pages/login";
 import Profile from "./components/pages/profile"
-import Quiz from "./components/pages/quiz"
+import Lectures from "./components/pages/lectures"
+import Logout from "./components/pages/logout"
+
 
 
 //ACTIONS
@@ -41,8 +43,9 @@ const Routes =(
         <Route path="/about" component={BooksForm}/>
         <Route path="/register" component ={Register}/>
         <Route path="/login" component ={Login}/>
+        <Route path="/logout" component ={Logout}/>
         <Route path="/profile" component ={Profile}/>
-        <Route path="/quiz" component ={Quiz}/>
+        <Route path="/lectures" component ={Lectures}/>
       </Route>
     </Router>
 

@@ -22761,9 +22761,13 @@ var _profile = __webpack_require__(574);
 
 var _profile2 = _interopRequireDefault(_profile);
 
-var _quiz = __webpack_require__(575);
+var _lectures = __webpack_require__(576);
 
-var _quiz2 = _interopRequireDefault(_quiz);
+var _lectures2 = _interopRequireDefault(_lectures);
+
+var _logout = __webpack_require__(579);
+
+var _logout2 = _interopRequireDefault(_logout);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -22792,8 +22796,9 @@ var Routes = _react2.default.createElement(
         _react2.default.createElement(_reactRouter.Route, { path: "/about", component: _booksForm2.default }),
         _react2.default.createElement(_reactRouter.Route, { path: "/register", component: _register2.default }),
         _react2.default.createElement(_reactRouter.Route, { path: "/login", component: _login2.default }),
+        _react2.default.createElement(_reactRouter.Route, { path: "/logout", component: _logout2.default }),
         _react2.default.createElement(_reactRouter.Route, { path: "/profile", component: _profile2.default }),
-        _react2.default.createElement(_reactRouter.Route, { path: "/quiz", component: _quiz2.default })
+        _react2.default.createElement(_reactRouter.Route, { path: "/lectures", component: _lectures2.default })
       )
     )
   )
@@ -38447,10 +38452,13 @@ var _cartReducers = __webpack_require__(411);
 
 var _usersReducers = __webpack_require__(412);
 
+var _lectureReducers = __webpack_require__(578);
+
 exports.default = (0, _redux.combineReducers)({
   books: _booksReducers.booksReducers,
   cart: _cartReducers.cartReducers,
-  user: _usersReducers.usersReducers
+  user: _usersReducers.usersReducers,
+  lectures: _lectureReducers.lectureReducers
 });
 
 /***/ }),
@@ -50624,8 +50632,8 @@ var Menu = function (_React$Component) {
             ),
             _react2.default.createElement(
               _reactBootstrap.NavItem,
-              { eventKey: 2, href: "/contact" },
-              "Contact"
+              { eventKey: 2, href: "/lectures" },
+              "Lectures"
             )
           ),
           _react2.default.createElement(
@@ -50640,7 +50648,7 @@ var Menu = function (_React$Component) {
               { eventKey: 1, href: "/login" },
               "Login"
             ),
-            _react2.default.createElement(
+            this.props.loggedInUser != null ? "" : _react2.default.createElement(
               _reactBootstrap.NavItem,
               { eventKey: 2, href: "/register" },
               "Register"
@@ -51068,7 +51076,8 @@ function mapStateToProps(state) {
 exports.default = (0, _reactRedux.connect)(mapStateToProps)(Profile);
 
 /***/ }),
-/* 575 */
+/* 575 */,
+/* 576 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -51086,6 +51095,16 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactBootstrap = __webpack_require__(38);
 
+var _reactRedux = __webpack_require__(34);
+
+var _redux = __webpack_require__(27);
+
+var _lectureActions = __webpack_require__(577);
+
+var _axios = __webpack_require__(54);
+
+var _axios2 = _interopRequireDefault(_axios);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -51094,18 +51113,47 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var Quiz = function (_React$Component) {
-  _inherits(Quiz, _React$Component);
+var Lectures = function (_React$Component) {
+  _inherits(Lectures, _React$Component);
 
-  function Quiz() {
-    _classCallCheck(this, Quiz);
+  function Lectures() {
+    _classCallCheck(this, Lectures);
 
-    return _possibleConstructorReturn(this, (Quiz.__proto__ || Object.getPrototypeOf(Quiz)).apply(this, arguments));
+    return _possibleConstructorReturn(this, (Lectures.__proto__ || Object.getPrototypeOf(Lectures)).apply(this, arguments));
   }
 
-  _createClass(Quiz, [{
+  _createClass(Lectures, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+
+      this.props.getLectures();
+    }
+  }, {
+    key: "renderLectures",
+    value: function renderLectures() {
+
+      return this.props.lectures[0].lectures.map(function (lecture) {
+        return _react2.default.createElement(
+          _reactBootstrap.Col,
+          { xs: 12, sm: 6, md: 4, key: lecture._id },
+          _react2.default.createElement(
+            _reactBootstrap.Well,
+            null,
+            _react2.default.createElement(
+              "h3",
+              null,
+              lecture.lecture
+            )
+          )
+        );
+      });
+    }
+  }, {
     key: "render",
     value: function render() {
+
+      console.log("lecture in render is: ", this.props.lectures[0]);
+
       return _react2.default.createElement(
         _reactBootstrap.Row,
         null,
@@ -51118,51 +51166,155 @@ var Quiz = function (_React$Component) {
             _react2.default.createElement(
               _reactBootstrap.PageHeader,
               null,
-              "The quiz page",
+              "The Lectures page",
               _react2.default.createElement(
                 "small",
                 null,
-                "Where the quizzes are found"
+                "   Where the lectures  are found"
               )
             )
           ),
           _react2.default.createElement(
             _reactBootstrap.Col,
-            { xs: 12, sm: 12 },
+            { xs: 12, sm: 12, md: 12 },
+            this.props.lectures[0] != null ? this.renderLectures() : console.log("wtf!")
+          )
+        )
+      );
+    }
+  }]);
+
+  return Lectures;
+}(_react2.default.Component);
+
+function mapDispatchToProps(dispatch) {
+  return (0, _redux.bindActionCreators)({
+    getLectures: _lectureActions.getLectures
+  }, dispatch);
+}
+
+function mapStateToProps(state) {
+  return {
+    lectures: state.lectures.lectures
+  };
+}
+
+exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Lectures);
+
+/***/ }),
+/* 577 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getLectures = getLectures;
+
+var _axios = __webpack_require__(54);
+
+var _axios2 = _interopRequireDefault(_axios);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function getLectures() {
+  return function (dispatch) {
+    _axios2.default.get("/api/lectures").then(function (response) {
+      dispatch({ type: "GET_LECTURES", payload: response.data });
+    }).catch(function (err) {
+      dispatch({ type: "GET_LECTURES_REJECTED", payload: "Aomething went wrong when getting the lectures" });
+    });
+  };
+}
+
+/***/ }),
+/* 578 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+exports.lectureReducers = lectureReducers;
+function lectureReducers() {
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { lectures: [] };
+  var action = arguments[1];
+
+  switch (action.type) {
+    case "GET_LECTURES":
+      return _extends({}, state, {
+        lectures: action.payload
+      });
+      break;
+  }
+
+  return state;
+}
+
+/***/ }),
+/* 579 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _axios = __webpack_require__(54);
+
+var _axios2 = _interopRequireDefault(_axios);
+
+var _reactBootstrap = __webpack_require__(38);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Logout = function (_React$Component) {
+  _inherits(Logout, _React$Component);
+
+  function Logout() {
+    _classCallCheck(this, Logout);
+
+    return _possibleConstructorReturn(this, (Logout.__proto__ || Object.getPrototypeOf(Logout)).apply(this, arguments));
+  }
+
+  _createClass(Logout, [{
+    key: "render",
+    value: function render() {
+      _axios2.default.get("/api/user/logout");
+      return _react2.default.createElement(
+        _reactBootstrap.Well,
+        null,
+        _react2.default.createElement(
+          _reactBootstrap.Row,
+          null,
+          _react2.default.createElement(
+            _reactBootstrap.Col,
+            null,
             _react2.default.createElement(
-              _reactBootstrap.Well,
+              "h3",
               null,
-              _react2.default.createElement(
-                _reactBootstrap.FormGroup,
-                null,
-                _react2.default.createElement(
-                  _reactBootstrap.Radio,
-                  { name: "radioGroup" },
-                  _react2.default.createElement(
-                    "h6",
-                    null,
-                    "My man"
-                  )
-                ),
-                _react2.default.createElement(
-                  _reactBootstrap.Radio,
-                  { name: "radioGroup" },
-                  _react2.default.createElement(
-                    "h6",
-                    null,
-                    "Down with the ball"
-                  )
-                ),
-                _react2.default.createElement(
-                  _reactBootstrap.Radio,
-                  { name: "radioGroup" },
-                  _react2.default.createElement(
-                    "h6",
-                    null,
-                    "If something is wrong"
-                  )
-                )
-              )
+              "You have succesfully logged out"
             )
           )
         )
@@ -51170,10 +51322,10 @@ var Quiz = function (_React$Component) {
     }
   }]);
 
-  return Quiz;
+  return Logout;
 }(_react2.default.Component);
 
-exports.default = Quiz;
+exports.default = Logout;
 
 /***/ })
 /******/ ]);

@@ -63,7 +63,7 @@ if(req.session.cart !== "undefined"){
 
 var Books =require("./model/books.js");
 var Users = require("./model/users.js");
-
+var Lectures = require("./model/lectures.js");
 //>>>>>>>>USER-API<<<<<<<<<<<//
 //-------ADD-USER-------------------------//
 
@@ -115,6 +115,14 @@ if (req.body.email && req.body.password) {
     err.status = 401;
     return next(err);
   }
+});
+
+//-------Logout-USER-------------------------//
+app.get("/user/logout", function(req, res, next){
+  if(req.session){req.destroy(function(err){
+    if(err){ throw err;}
+    return res.redirect("/")
+  })}
 });
 
 //-------GET-USER-------------------------//
@@ -188,6 +196,30 @@ app.get("/images", function(req, res){
         return res.json(imageArr);
   })
 
+})
+
+//>>>>>>>>LECTURE-API<<<<<<<<<<<//
+
+//-------GET-LECTURES-------------------------//
+app.get("/lectures", function(req, res){
+  Lectures.find(function(err, lectures){
+    if(err){
+       throw err;
+    }
+    else{
+      res.json(lectures);
+    }
+  })
+})
+//-------POST-LECTURE-------------------------//
+
+app.post('/lectures', function(req, res, next){
+  const lect =req.body
+var lectData = new Lectures(lect)
+lectData.save(function(err, lecturre){
+  if(err){throw err}
+  return res.json(lecturre)
+})
 })
 //////**************END OF API****************/////
 

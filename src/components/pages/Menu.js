@@ -16,11 +16,11 @@ class Menu extends React.Component{
    <Navbar.Collapse>
      <Nav>
        <NavItem eventKey={1} href="/about">About</NavItem>
-       <NavItem eventKey={2} href="/contact">Contact</NavItem>
+       <NavItem eventKey={2} href="/lectures">Lectures</NavItem>
      </Nav>
      <Nav pullRight>
       {(this.props.loggedInUser!=null)?(<NavItem eventKey={1} href="/logout">logout</NavItem>):(<NavItem eventKey={1} href="/login">Login</NavItem>)}
-      <NavItem eventKey={2} href="/register">Register</NavItem>
+      {(this.props.loggedInUser!=null)?(""):(<NavItem eventKey={2} href="/register">Register</NavItem>)}
        <NavItem eventKey={3} href="/admin">Admin</NavItem>
        {(this.props.itemNumber>0)?(<NavItem eventKey={4} href="/cart">My cart <Badge className="badge">{this.props.itemNumber}</Badge></NavItem>):("")}
       {(this.props.loggedInUser!=null)?(<NavItem eventKey={5} href="/profile">{this.props.loggedInUser.email}</NavItem>):("")}
