@@ -1,16 +1,38 @@
 import React from "react";
-import {Row, Col,Well, Radio, Button, PageHeader, Panel, FormGroup, InputGroup, FormControl} from "react-bootstrap";
+import {Row, Modal, Col,Well, Radio, Button, PageHeader, Panel, FormGroup, InputGroup, FormControl} from "react-bootstrap";
 
 
 class Lecture extends React.Component{
-  render(){
-    return(
 
+constructor(){
+  super()
+  this.setState=({showModal:false})
+}
+
+
+openModal(){
+  this.setState({showModal:true})
+}
+
+closeModal(){
+  this.setState({showModal:false})
+}
+
+  render(){
+
+    return(
+      <div>
+
+      <Modal bsSize="large" show={this.state.showModal.bind(this)} onHide={this.closeModal.bind(this)}>
+              <Modal.Header closeButton>
+                <Modal.Title id="contained-modal-title-sm">Modal heading</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
     <Row>
         <Panel>
           <Col xs={12} sm={12}>
-              <PageHeader>The Lectures page
-                <small>  Where the lectures  are found</small>
+              <PageHeader>{this.props.lecture}
+
               </PageHeader>
           </Col>
           <Col xs={12} sm={12}>
@@ -40,6 +62,12 @@ class Lecture extends React.Component{
           </Col>
       </Panel>
     </Row>
+    </Modal.Body>
+      <Modal.Footer>
+        <Button onClick={this.closeModal.bind(this)}>Close</Button>
+      </Modal.Footer>
+    </Modal>
+    </div>
 
 
     )

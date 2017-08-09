@@ -8,6 +8,9 @@ var MongoStore = require("connect-mongo")(session);
 
 var app = express();
 
+
+
+
 // view engine setup
 //app.set('views', path.join(__dirname, 'views'));
 //app.set('view engine', 'jade');
@@ -211,6 +214,20 @@ app.get("/lectures", function(req, res){
     }
   })
 })
+
+//-------GET-LECTURE-------------------------//
+
+app.get("/lectures/:qId", function(req, res, next){
+  console.log(req.params.qId)
+Lectures.findOne({_id:req.params.qId}, function(err, lectur){
+  if (err){return next(err)}
+  else{
+    console.log("response lecture is: ", lectur)
+    return res.json(lectur)}
+})
+})
+
+
 //-------POST-LECTURE-------------------------//
 
 app.post('/lectures', function(req, res, next){

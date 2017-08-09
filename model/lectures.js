@@ -1,9 +1,9 @@
 "use strict"
 var mongoose = require('mongoose');
 var lectureSchema = mongoose.Schema(
-{lectures:[{
+{
   lecture:{type:String},
-    questions: [{
+  questions: [{
       question:{type:String},
       correctAnswer:{type:String, default:""},
       _id:Number,
@@ -11,7 +11,7 @@ var lectureSchema = mongoose.Schema(
       image: {type:String, default:""},
       answers: [{_id:Number, answer:{type:String, default:""}}]
     }]
-  }]}
+  }
 );
 
 var Lectures = mongoose.model('Lectures',

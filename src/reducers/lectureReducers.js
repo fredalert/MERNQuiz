@@ -1,13 +1,13 @@
 "use strict";
 
-export function lectureReducers(state={lectures:[]}, action){
+export function lectureReducers(state={lecture:[]}, action){
   switch(action.type){
     case "GET_LECTURES":
     return {...state,
-      lectures:action.payload,
+      lectures:[...action.payload],
       }
     break;
 }
-  
+
   return state;
 }

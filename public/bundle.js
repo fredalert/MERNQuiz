@@ -12570,6 +12570,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.getCurrentUser = getCurrentUser;
 exports.postUserAction = postUserAction;
 exports.loginUserAction = loginUserAction;
+exports.addLectureToUserAction = addLectureToUserAction;
+exports.updateLectureToUserAction = updateLectureToUserAction;
 
 var _axios = __webpack_require__(54);
 
@@ -12603,6 +12605,28 @@ function loginUserAction(user) {
       dispatch({ type: "LOGIN_USER", payload: response.data });
     }).catch(function (err) {
       dispatch({ type: "LOGIN_USER_REJECTED", payload: "Could not login user" });
+    });
+  };
+}
+
+function addLectureToUserAction(lecture) {
+  return function (dispatch) {
+    _axios2.default.post("/api/user/lectures", lecture).then(function (response) {
+      dispatch({ type: "POST_LECTURE_TO_USER", payload: response.data });
+    }).catch(function (err) {
+      dispatch({ type: "POST_LECTURE_TO_USER_REJECTED", payload: response.data });
+    });
+  };
+}
+
+function updateLectureToUserAction(_id, lectureSchema) {
+  var updatedLecture = lectures;
+
+  return function (dispatch) {
+    _axios2.default.put("/api/user/lectures/" + id).then(function (response) {
+      dispatch({ type: "UPDATE_LECTURE_TO_USER", payload: response.data });
+    }).catch(function (err) {
+      dispatch({ type: "UPDATE_LECTURE_TO_USER_REJECTED", payload: response.data });
     });
   };
 }
@@ -22769,6 +22793,10 @@ var _logout = __webpack_require__(579);
 
 var _logout2 = _interopRequireDefault(_logout);
 
+var _lecture = __webpack_require__(580);
+
+var _lecture2 = _interopRequireDefault(_lecture);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 //STORE
@@ -22798,7 +22826,8 @@ var Routes = _react2.default.createElement(
         _react2.default.createElement(_reactRouter.Route, { path: "/login", component: _login2.default }),
         _react2.default.createElement(_reactRouter.Route, { path: "/logout", component: _logout2.default }),
         _react2.default.createElement(_reactRouter.Route, { path: "/profile", component: _profile2.default }),
-        _react2.default.createElement(_reactRouter.Route, { path: "/lectures", component: _lectures2.default })
+        _react2.default.createElement(_reactRouter.Route, { path: "/lectures", component: _lectures2.default }),
+        _react2.default.createElement(_reactRouter.Route, { path: "/lecture", component: _lecture2.default })
       )
     )
   )
@@ -51105,7 +51134,11 @@ var _axios = __webpack_require__(54);
 
 var _axios2 = _interopRequireDefault(_axios);
 
+var _reactDom = __webpack_require__(20);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -51113,32 +51146,275 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var modalBolean = false;
+var counter = 0;
+var lectureLength = 0;
+
+var currentLecture = {};
+
 var Lectures = function (_React$Component) {
   _inherits(Lectures, _React$Component);
 
   function Lectures() {
     _classCallCheck(this, Lectures);
 
-    return _possibleConstructorReturn(this, (Lectures.__proto__ || Object.getPrototypeOf(Lectures)).apply(this, arguments));
+    var _this = _possibleConstructorReturn(this, (Lectures.__proto__ || Object.getPrototypeOf(Lectures)).call(this));
+
+    _this.state = { showModal: false,
+      answeredQ: false,
+      currentLecture: {},
+      counter: 0,
+      selectedAnswer: "",
+      comment: "",
+      correction: []
+
+    };
+
+    return _this;
   }
 
   _createClass(Lectures, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-
       this.props.getLectures();
+    }
+
+    //*************HANDLE MODAL FUNCTIONS*****************////
+
+  }, {
+    key: "openModal",
+    value: function openModal() {
+      //Opens Lecture Modal
+
+      console.log("modal opens and the counter is: ", counter);
+
+      this.setState({ showModal: true });
+      var correctArray = this.state.correction;
+      lectureLength = this.state.currentLecture.questions.length;
+      if (correctArray.length < 1) {
+        for (var i = 0; i < lectureLength; i++) {
+          correctArray.push({ questionNr: i,
+            isCorrect: "" });
+        }
+        this.setState({ correction: correctArray });
+      }
+      console.log("OPEN MODAL:correction in state is: ", this.state.correction);
+    }
+  }, {
+    key: "closeModal",
+    value: function closeModal() {
+      //Closes lecture Modal
+      this.setState({ showModal: false });
+    }
+  }, {
+    key: "questionAnswered",
+    value: function questionAnswered() {
+      this.setState({ answeredQ: true });
+      var commentText = "";
+      var selected = this.state.selectedAnswer;
+      console.log("QUESTIONS ANSWERED: selected item was ", selected);
+
+      if (selected === this.state.currentLecture.questions[this.state.counter].correctAnswer) {
+        console.log("answer correct!");
+        commentText = "Correct Answer!";
+      } else {
+        commentText = "Sorry! That was incorrect!, the correct answer is: " + this.state.currentLecture.questions[this.state.counter].correctAnswer;
+
+        var currentQuestion = { questionNr: this.state.counter,
+          isCorrect: "incorrect"
+        };
+        console.log("current question is: ", currentQuestion);
+        var updatedArray = [].concat(_toConsumableArray(this.state.correction.slice(0, this.state.counter)), [currentQuestion], _toConsumableArray(this.state.correction.slice(this.state.counter + 1)));
+        console.log("counter is: ", this.state.counter);
+        console.log("updatedArray is: ", updatedArray);
+        this.setState({
+          correction: updatedArray });
+      }
+    }
+  }, {
+    key: "handlePaginatorSelect",
+    value: function handlePaginatorSelect(eventKey) {
+      eventKey = eventKey - 1;
+      this.setState({ counter: eventKey });
+    }
+  }, {
+    key: "nextQuestion",
+    value: function nextQuestion() {
+      var currentQuestionNum = this.state.counter += 1;
+      this.setState({ counter: currentQuestionNum });
+      console.log("current question is: ", this.state.counter);
+    }
+  }, {
+    key: "checkAnswer",
+    value: function checkAnswer(answer) {
+      this.setState({ selectedAnswer: answer });
+    }
+  }, {
+    key: "renderModal",
+    value: function renderModal() {
+      var radioButtons = this.state.currentLecture.questions[this.state.counter].answers.map(function (answer, index) {
+        return _react2.default.createElement(
+          _reactBootstrap.Radio,
+          { name: "radioGroup", key: index, onClick: this.checkAnswer.bind(this, answer.answer) },
+          _react2.default.createElement(
+            "h6",
+            { className: "answer" },
+            answer.answer
+          )
+        );
+      }, this);
+      return _react2.default.createElement(
+        "div",
+        null,
+        _react2.default.createElement(
+          _reactBootstrap.Modal,
+          { bsSize: "large", show: this.state.showModal, onHide: this.closeModal.bind(this) },
+          _react2.default.createElement(
+            _reactBootstrap.Modal.Header,
+            { closeButton: true },
+            _react2.default.createElement(
+              _reactBootstrap.Modal.Title,
+              { id: "contained-modal-title-sm" },
+              currentLecture.lecture
+            )
+          ),
+          _react2.default.createElement(
+            _reactBootstrap.Modal.Body,
+            null,
+            _react2.default.createElement(
+              _reactBootstrap.Row,
+              null,
+              _react2.default.createElement(
+                _reactBootstrap.Panel,
+                null,
+                _react2.default.createElement(
+                  _reactBootstrap.Col,
+                  { xs: 12, sm: 12 },
+                  _react2.default.createElement(
+                    _reactBootstrap.PageHeader,
+                    null,
+                    this.state.currentLecture.lecture
+                  )
+                ),
+                _react2.default.createElement(
+                  _reactBootstrap.Row,
+                  null,
+                  _react2.default.createElement(
+                    _reactBootstrap.Well,
+                    null,
+                    _react2.default.createElement(_reactBootstrap.Pagination, {
+                      bsSize: "large",
+                      items: this.state.currentLecture.questions.length,
+                      onSelect: this.handlePaginatorSelect.bind(this),
+                      activePage: this.state.counter + 1
+                    }),
+                    _react2.default.createElement("br", null)
+                  )
+                ),
+                _react2.default.createElement(
+                  _reactBootstrap.Row,
+                  null,
+                  _react2.default.createElement(
+                    _reactBootstrap.Well,
+                    null,
+                    _react2.default.createElement(
+                      "h6",
+                      null,
+                      this.state.comment
+                    )
+                  )
+                ),
+                _react2.default.createElement(
+                  _reactBootstrap.Col,
+                  { xs: 12, sm: 12 },
+                  _react2.default.createElement(
+                    _reactBootstrap.Well,
+                    null,
+                    _react2.default.createElement(
+                      _reactBootstrap.Well,
+                      null,
+                      _react2.default.createElement(
+                        "h6",
+                        null,
+                        this.state.currentLecture.questions[this.state.counter].question
+                      )
+                    ),
+                    _react2.default.createElement(
+                      _reactBootstrap.Well,
+                      null,
+                      _react2.default.createElement(
+                        _reactBootstrap.FormGroup,
+                        { ref: "questionsForm" },
+                        radioButtons
+                      )
+                    ),
+                    _react2.default.createElement(
+                      _reactBootstrap.Row,
+                      null,
+                      _react2.default.createElement(
+                        _reactBootstrap.Col,
+                        { xs: 6 },
+                        _react2.default.createElement(
+                          _reactBootstrap.Button,
+                          { onClick: this.questionAnswered.bind(this), bsStyle: "primary" },
+                          "Answer"
+                        )
+                      ),
+                      _react2.default.createElement(
+                        _reactBootstrap.Col,
+                        { xs: 6 },
+                        this.state.answeredQ ? _react2.default.createElement(
+                          _reactBootstrap.Button,
+                          { onClick: this.nextQuestion.bind(this), bsStyle: "primary" },
+                          "Continue"
+                        ) : _react2.default.createElement("div", null)
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          _react2.default.createElement(
+            _reactBootstrap.Modal.Footer,
+            null,
+            _react2.default.createElement(
+              _reactBootstrap.Button,
+              { onClick: this.closeModal.bind(this) },
+              "Close"
+            )
+          )
+        )
+      );
+    }
+
+    //////////////////////////////////////////////////////////////////////////
+
+  }, {
+    key: "selectLecture",
+    value: function selectLecture(lectureId) {
+      _axios2.default.get("api/lectures/" + lectureId).then(function (response) {
+
+        this.setState({ currentLecture: response.data });
+        console.log("first question is lecture is: ", this.state.currentLecture);
+        modalBolean = true;
+        this.openModal();
+        return response.data;
+      }.bind(this)).catch(function (err) {
+        throw err;
+      });
     }
   }, {
     key: "renderLectures",
     value: function renderLectures() {
 
-      return this.props.lectures[0].lectures.map(function (lecture) {
+      return this.props.lectures.map(function (lecture) {
         return _react2.default.createElement(
           _reactBootstrap.Col,
           { xs: 12, sm: 6, md: 4, key: lecture._id },
           _react2.default.createElement(
             _reactBootstrap.Well,
-            null,
+            { onClick: this.selectLecture.bind(this, lecture._id) },
             _react2.default.createElement(
               "h3",
               null,
@@ -51146,41 +51422,50 @@ var Lectures = function (_React$Component) {
             )
           )
         );
-      });
+      }, this);
+    }
+  }, {
+    key: "renderStartPage",
+    value: function renderStartPage() {
+
+      return _react2.default.createElement(
+        "div",
+        null,
+        _react2.default.createElement(
+          _reactBootstrap.Row,
+          null,
+          _react2.default.createElement(
+            _reactBootstrap.Panel,
+            null,
+            _react2.default.createElement(
+              _reactBootstrap.Col,
+              { xs: 12, sm: 12 },
+              _react2.default.createElement(
+                _reactBootstrap.PageHeader,
+                null,
+                "The Lectures page",
+                _react2.default.createElement(
+                  "small",
+                  null,
+                  "   Where the lectures  are found"
+                )
+              )
+            ),
+            _react2.default.createElement(
+              _reactBootstrap.Col,
+              { xs: 12, sm: 12, md: 12 },
+              this.props.lectures != null ? this.renderLectures() : console.log("wtf!", this.props.lectures)
+            )
+          )
+        ),
+        modalBolean ? this.renderModal() : _react2.default.createElement("div", null)
+      );
     }
   }, {
     key: "render",
     value: function render() {
 
-      console.log("lecture in render is: ", this.props.lectures[0]);
-
-      return _react2.default.createElement(
-        _reactBootstrap.Row,
-        null,
-        _react2.default.createElement(
-          _reactBootstrap.Panel,
-          null,
-          _react2.default.createElement(
-            _reactBootstrap.Col,
-            { xs: 12, sm: 12 },
-            _react2.default.createElement(
-              _reactBootstrap.PageHeader,
-              null,
-              "The Lectures page",
-              _react2.default.createElement(
-                "small",
-                null,
-                "   Where the lectures  are found"
-              )
-            )
-          ),
-          _react2.default.createElement(
-            _reactBootstrap.Col,
-            { xs: 12, sm: 12, md: 12 },
-            this.props.lectures[0] != null ? this.renderLectures() : console.log("wtf!")
-          )
-        )
-      );
+      return this.renderStartPage();
     }
   }]);
 
@@ -51243,14 +51528,17 @@ Object.defineProperty(exports, "__esModule", {
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 exports.lectureReducers = lectureReducers;
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function lectureReducers() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { lectures: [] };
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { lecture: [] };
   var action = arguments[1];
 
   switch (action.type) {
     case "GET_LECTURES":
       return _extends({}, state, {
-        lectures: action.payload
+        lectures: [].concat(_toConsumableArray(action.payload))
       });
       break;
   }
@@ -51326,6 +51614,175 @@ var Logout = function (_React$Component) {
 }(_react2.default.Component);
 
 exports.default = Logout;
+
+/***/ }),
+/* 580 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactBootstrap = __webpack_require__(38);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Lecture = function (_React$Component) {
+  _inherits(Lecture, _React$Component);
+
+  function Lecture() {
+    _classCallCheck(this, Lecture);
+
+    var _this = _possibleConstructorReturn(this, (Lecture.__proto__ || Object.getPrototypeOf(Lecture)).call(this));
+
+    _this.setState = { showModal: false };
+    return _this;
+  }
+
+  _createClass(Lecture, [{
+    key: "openModal",
+    value: function openModal() {
+      this.setState({ showModal: true });
+    }
+  }, {
+    key: "closeModal",
+    value: function closeModal() {
+      this.setState({ showModal: false });
+    }
+  }, {
+    key: "render",
+    value: function render() {
+
+      return _react2.default.createElement(
+        "div",
+        null,
+        _react2.default.createElement(
+          _reactBootstrap.Modal,
+          { bsSize: "large", show: this.state.showModal.bind(this), onHide: this.closeModal.bind(this) },
+          _react2.default.createElement(
+            _reactBootstrap.Modal.Header,
+            { closeButton: true },
+            _react2.default.createElement(
+              _reactBootstrap.Modal.Title,
+              { id: "contained-modal-title-sm" },
+              "Modal heading"
+            )
+          ),
+          _react2.default.createElement(
+            _reactBootstrap.Modal.Body,
+            null,
+            _react2.default.createElement(
+              _reactBootstrap.Row,
+              null,
+              _react2.default.createElement(
+                _reactBootstrap.Panel,
+                null,
+                _react2.default.createElement(
+                  _reactBootstrap.Col,
+                  { xs: 12, sm: 12 },
+                  _react2.default.createElement(
+                    _reactBootstrap.PageHeader,
+                    null,
+                    this.props.lecture
+                  )
+                ),
+                _react2.default.createElement(
+                  _reactBootstrap.Col,
+                  { xs: 12, sm: 12 },
+                  _react2.default.createElement(
+                    _reactBootstrap.Well,
+                    null,
+                    _react2.default.createElement(
+                      _reactBootstrap.Well,
+                      null,
+                      _react2.default.createElement(
+                        "h6",
+                        null,
+                        "So the fucking question is is this cool?"
+                      )
+                    ),
+                    _react2.default.createElement(
+                      _reactBootstrap.Well,
+                      null,
+                      _react2.default.createElement(
+                        _reactBootstrap.FormGroup,
+                        null,
+                        _react2.default.createElement(
+                          _reactBootstrap.Radio,
+                          { name: "radioGroup" },
+                          _react2.default.createElement(
+                            "h6",
+                            null,
+                            "My man"
+                          )
+                        ),
+                        _react2.default.createElement(
+                          _reactBootstrap.Radio,
+                          { name: "radioGroup" },
+                          _react2.default.createElement(
+                            "h6",
+                            null,
+                            "Down with the ball"
+                          )
+                        ),
+                        _react2.default.createElement(
+                          _reactBootstrap.Radio,
+                          { name: "radioGroup" },
+                          _react2.default.createElement(
+                            "h6",
+                            null,
+                            "If something is wrong"
+                          )
+                        )
+                      )
+                    ),
+                    _react2.default.createElement(
+                      _reactBootstrap.Well,
+                      null,
+                      _react2.default.createElement(
+                        _reactBootstrap.Button,
+                        { bsStyle: "primary" },
+                        "Answer"
+                      )
+                    )
+                  )
+                )
+              )
+            )
+          ),
+          _react2.default.createElement(
+            _reactBootstrap.Modal.Footer,
+            null,
+            _react2.default.createElement(
+              _reactBootstrap.Button,
+              { onClick: this.closeModal.bind(this) },
+              "Close"
+            )
+          )
+        )
+      );
+    }
+  }]);
+
+  return Lecture;
+}(_react2.default.Component);
+
+exports.default = Lecture;
 
 /***/ })
 /******/ ]);

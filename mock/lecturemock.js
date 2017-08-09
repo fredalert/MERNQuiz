@@ -1,11 +1,9 @@
-/*
+/*const coolQuiz={
 
-const coolQuiz={
-lectures:[{
-      lecture:"The cool quiz",
+      lecture:"The bajs3",
 
         questions: [{
-            question:"What is your favorite color?",
+            question:"Whatsda favorite color?",
             correctAnswer:"haha",
             comment: "Color is a nice thing",
             image: "cool",
@@ -16,7 +14,7 @@ lectures:[{
         },
 
         {
-            question:"What is your favorite bike?",
+            question:"Whatasde3?",
             correctAnswer:"asd",
             comment: "Biking is a nice thing",
             image: "asd",
@@ -27,24 +25,22 @@ lectures:[{
         },
 
         {
-            question:"What is your favorite year?",
-            correctAnswer:"asd",
-            comment: "Weird question",
+            question:"What is y3our favorite year?",
+            correctAnswer:"adsd",
+            comment: "W3eird question",
             image: "asd",
-            answers: [{answer:"1997"},
-                      {answer:"2007"},
-                      {answer:"1998"},
-                      {answer:"2005"}]
+            answers: [{answer:"133997"},
+                      {answer:"20sd07"},
+                      {answer:"133998"},
+                      {answer:"233005"}]
         },
         ],
 
-  }]}
-
+  }
 
   axios.post("/api/lectures", coolQuiz).
-  then(function(response){
-    console.log("succesfully added coolQuiz, then respones is: ", response.data)
-  })
-  .catch(function(err){
-    console.log("someting wrong when adding cool quiz")
-  }) */
+      then(function(response){
+        console.log("succesfully added coolQuiz, then respones is: ", response.data)
+      })
+      .catch(function(err){
+        console.log("someting wrong when adding cool quiz")})*/
