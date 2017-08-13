@@ -1,38 +1,43 @@
-/*const coolQuiz={
+const coolQuiz={
 
-      lecture:"The bajs3",
+      lecture:"The nazi quiz",
 
         questions: [{
-            question:"Whatsda favorite color?",
-            correctAnswer:"haha",
+            question:"When did Hitler die?",
+            correctAnswer:"1945",
             comment: "Color is a nice thing",
             image: "cool",
-            answers: [{answer:"Blue"},
-                      {answer:"Yellow"},
-                      {answer:"Black"},
-                      {answer:"Purple"}]
+            answers: [{answer:"1943"},
+                      {answer:"1945"},
+                      {answer:"1912"},
+                      {answer:"2003"}]
         },
 
         {
-            question:"Whatasde3?",
-            correctAnswer:"asd",
+            question:"Who was the leader of the nazis?",
+            correctAnswer:"Hitler",
             comment: "Biking is a nice thing",
             image: "asd",
             answers: [{answer:"a cool bike"},
-                      {answer:"An ugly bike"},
-                      {answer:"A shithole bike"},
-                      {answer:"Bike with nikes"}]
+                      {answer:"Hitler"},
+                      {answer:"Göring"},
+                      {answer:"A cool guy"}]
         },
 
         {
-            question:"What is y3our favorite year?",
-            correctAnswer:"adsd",
-            comment: "W3eird question",
-            image: "asd",
-            answers: [{answer:"133997"},
-                      {answer:"20sd07"},
-                      {answer:"133998"},
-                      {answer:"233005"}]
+          isVideo:true,
+          videoUrl:"/public/videos/naziVideoUrl"
+        },
+
+        {
+            question:"What is the swastika?",
+            correctAnswer:"The symbol og the reich",
+            comment: "The nazis had many symbols. One of them was the swastika.",
+            image: "",
+            answers: [{answer:"The symbol og the reich"},
+                      {answer:"A rabbit"},
+                      {answer:"Your grandma"},
+                      {answer:"A cat"}]
         },
         ],
 
@@ -43,4 +48,4 @@
         console.log("succesfully added coolQuiz, then respones is: ", response.data)
       })
       .catch(function(err){
-        console.log("someting wrong when adding cool quiz")})*/
+        console.log("someting wrong when adding cool quiz")})

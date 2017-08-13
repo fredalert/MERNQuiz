@@ -1,5 +1,5 @@
 import React from "react";
-import {Row, Modal, Badge, Pagination, Col,Well, Radio, Button, PageHeader, Panel, FormGroup, InputGroup, FormControl} from "react-bootstrap";
+import {Row, Image, Media, Modal, Badge, Pagination, Col,Well, Radio, Button, PageHeader, Panel, FormGroup, InputGroup, FormControl} from "react-bootstrap";
 import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
 import {getLectures} from "../../actions/lectureActions"
@@ -32,6 +32,38 @@ componentDidMount(){
 
 }
 //*************HANDLE MODAL FUNCTIONS*****************////
+handleQuestion(radioButtons){
+  return(
+<div>
+  <Row>
+            <Well>
+                <h6>{this.state.comment}</h6>
+            </Well>
+  </Row>
+  <Col xs={12} sm={12}>
+    <Well>
+          <Well>
+                <h6>{this.state.currentLecture.questions[this.state.counter].question}</h6>
+          </Well>
+          <Well>
+                <FormGroup ref="questionsForm" >
+                      {radioButtons}
+                </FormGroup>
+          </Well>
+        <Row>
+          <Col xs={6}>
+                <Button onClick={this.questionAnswered.bind(this)}bsStyle="primary">Answer</Button>
+          </Col >
+          <Col xs={6}>
+                {(this.state.answeredQ)?(<Button onClick={this.nextQuestion.bind(this)} bsStyle="primary">Continue</Button>):(<div></div>)}
+          </Col >
+        </Row>
+    </Well>
+  </Col>
+</div>)
+
+}
+
 openModal(){ //Opens Lecture Modal
   console.log("modal opens and the counter is: ", counter)
   this.setState({showModal:true})
@@ -129,6 +161,8 @@ var radioButtons= this.state.currentLecture.questions[this.state.counter].answer
 return(  <Radio name="radioGroup" key={index} onClick={this.checkAnswer.bind(this, answer.answer)}>
   <h6 className="answer">{answer.answer}</h6>
   </Radio>)}, this)
+
+
   return(
       <div>
       <Modal bsSize="large" show={this.state.showModal} onHide={this.closeModal.bind(this)}>
@@ -138,44 +172,23 @@ return(  <Radio name="radioGroup" key={index} onClick={this.checkAnswer.bind(thi
             <Modal.Body>
   <Row>
       <Panel>
+
         <Col xs={12} sm={12}>
             <PageHeader>
               {this.state.currentLecture.lecture}
             </PageHeader>
         </Col>
-          <Row>
-            <Well>
-              {this.handleCorrectionButtons()}
-            </Well>
-          </Row>
-        <Row>
-          <Well>
-            <h6>{this.state.comment}</h6>
-        </Well>
-      </Row>
-        <Col xs={12} sm={12}>
-        <Well>
-          <Well>
-            <h6>{this.state.currentLecture.questions[this.state.counter].question}</h6>
-          </Well>
-          <Well>
-            <FormGroup ref="questionsForm" >
-                  {radioButtons}
-            </FormGroup>
-          </Well>
-          <Row>
-            <Col xs={6}>
-            <Button onClick={this.questionAnswered.bind(this)}bsStyle="primary">Answer</Button>
-            </Col >
-            <Col xs={6}>
-            {(this.state.answeredQ)?(<Button onClick={this.nextQuestion.bind(this)} bsStyle="primary">Continue</Button>):(<div></div>)}
-            </Col >
-          </Row>
 
-          </Well>
-        </Col>
-    </Panel>
+          <Row>
+              <Well>
+                {this.handleCorrectionButtons()}
+              </Well>
+          </Row>
+        {(this.state.currentLecture.questions[this.state.counter].isVideo)?(<Media><Row><Col xs={12}><Well><video width="100%" controls><source src="/images/S2-Connect-React-to-Store.mp4" type="video/mp4"/> </video></Well></Col></Row></Media>):(this.handleQuestion(radioButtons))}
+      </Panel>
   </Row>
+
+
   </Modal.Body>
     <Modal.Footer>
       <Button onClick={this.closeModal.bind(this)}>Close</Button>

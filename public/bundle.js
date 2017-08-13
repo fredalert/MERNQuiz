@@ -51179,6 +51179,75 @@ var Lectures = function (_React$Component) {
     //*************HANDLE MODAL FUNCTIONS*****************////
 
   }, {
+    key: "handleQuestion",
+    value: function handleQuestion(radioButtons) {
+      return _react2.default.createElement(
+        "div",
+        null,
+        _react2.default.createElement(
+          _reactBootstrap.Row,
+          null,
+          _react2.default.createElement(
+            _reactBootstrap.Well,
+            null,
+            _react2.default.createElement(
+              "h6",
+              null,
+              this.state.comment
+            )
+          )
+        ),
+        _react2.default.createElement(
+          _reactBootstrap.Col,
+          { xs: 12, sm: 12 },
+          _react2.default.createElement(
+            _reactBootstrap.Well,
+            null,
+            _react2.default.createElement(
+              _reactBootstrap.Well,
+              null,
+              _react2.default.createElement(
+                "h6",
+                null,
+                this.state.currentLecture.questions[this.state.counter].question
+              )
+            ),
+            _react2.default.createElement(
+              _reactBootstrap.Well,
+              null,
+              _react2.default.createElement(
+                _reactBootstrap.FormGroup,
+                { ref: "questionsForm" },
+                radioButtons
+              )
+            ),
+            _react2.default.createElement(
+              _reactBootstrap.Row,
+              null,
+              _react2.default.createElement(
+                _reactBootstrap.Col,
+                { xs: 6 },
+                _react2.default.createElement(
+                  _reactBootstrap.Button,
+                  { onClick: this.questionAnswered.bind(this), bsStyle: "primary" },
+                  "Answer"
+                )
+              ),
+              _react2.default.createElement(
+                _reactBootstrap.Col,
+                { xs: 6 },
+                this.state.answeredQ ? _react2.default.createElement(
+                  _reactBootstrap.Button,
+                  { onClick: this.nextQuestion.bind(this), bsStyle: "primary" },
+                  "Continue"
+                ) : _react2.default.createElement("div", null)
+              )
+            )
+          )
+        )
+      );
+    }
+  }, {
     key: "openModal",
     value: function openModal() {
       //Opens Lecture Modal
@@ -51305,6 +51374,7 @@ var Lectures = function (_React$Component) {
           )
         );
       }, this);
+
       return _react2.default.createElement(
         "div",
         null,
@@ -51347,67 +51417,28 @@ var Lectures = function (_React$Component) {
                     this.handleCorrectionButtons()
                   )
                 ),
-                _react2.default.createElement(
-                  _reactBootstrap.Row,
+                this.state.currentLecture.questions[this.state.counter].isVideo ? _react2.default.createElement(
+                  _reactBootstrap.Media,
                   null,
                   _react2.default.createElement(
-                    _reactBootstrap.Well,
+                    _reactBootstrap.Row,
                     null,
                     _react2.default.createElement(
-                      "h6",
-                      null,
-                      this.state.comment
-                    )
-                  )
-                ),
-                _react2.default.createElement(
-                  _reactBootstrap.Col,
-                  { xs: 12, sm: 12 },
-                  _react2.default.createElement(
-                    _reactBootstrap.Well,
-                    null,
-                    _react2.default.createElement(
-                      _reactBootstrap.Well,
-                      null,
+                      _reactBootstrap.Col,
+                      { xs: 12 },
                       _react2.default.createElement(
-                        "h6",
+                        _reactBootstrap.Well,
                         null,
-                        this.state.currentLecture.questions[this.state.counter].question
-                      )
-                    ),
-                    _react2.default.createElement(
-                      _reactBootstrap.Well,
-                      null,
-                      _react2.default.createElement(
-                        _reactBootstrap.FormGroup,
-                        { ref: "questionsForm" },
-                        radioButtons
-                      )
-                    ),
-                    _react2.default.createElement(
-                      _reactBootstrap.Row,
-                      null,
-                      _react2.default.createElement(
-                        _reactBootstrap.Col,
-                        { xs: 6 },
                         _react2.default.createElement(
-                          _reactBootstrap.Button,
-                          { onClick: this.questionAnswered.bind(this), bsStyle: "primary" },
-                          "Answer"
+                          "video",
+                          { width: "100%", controls: true },
+                          _react2.default.createElement("source", { src: "/images/S2-Connect-React-to-Store.mp4", type: "video/mp4" }),
+                          " "
                         )
-                      ),
-                      _react2.default.createElement(
-                        _reactBootstrap.Col,
-                        { xs: 6 },
-                        this.state.answeredQ ? _react2.default.createElement(
-                          _reactBootstrap.Button,
-                          { onClick: this.nextQuestion.bind(this), bsStyle: "primary" },
-                          "Continue"
-                        ) : _react2.default.createElement("div", null)
                       )
                     )
                   )
-                )
+                ) : this.handleQuestion(radioButtons)
               )
             )
           ),
