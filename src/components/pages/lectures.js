@@ -1,5 +1,5 @@
 import React from "react";
-import {Row, Modal, Pagination, Col,Well, Radio, Button, PageHeader, Panel, FormGroup, InputGroup, FormControl} from "react-bootstrap";
+import {Row, Modal, Badge, Pagination, Col,Well, Radio, Button, PageHeader, Panel, FormGroup, InputGroup, FormControl} from "react-bootstrap";
 import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
 import {getLectures} from "../../actions/lectureActions"
@@ -24,23 +24,16 @@ constructor(){
                 selectedAnswer:"",
                 comment:"",
                 correction:[],
-
-                })
-
+              })
 }
 
 componentDidMount(){
   this.props.getLectures();
 
 }
-
-
 //*************HANDLE MODAL FUNCTIONS*****************////
-
 openModal(){ //Opens Lecture Modal
-
   console.log("modal opens and the counter is: ", counter)
-
   this.setState({showModal:true})
   let correctArray=this.state.correction
   lectureLength=this.state.currentLecture.questions.length;
@@ -54,53 +47,84 @@ openModal(){ //Opens Lecture Modal
 }
 
 closeModal(){ //Closes lecture Modal
-  this.setState({showModal:false})
-}
+  this.setState({showModal:false,
+                correction:[],
+                counter:0,
+                })}
 
+//***********FUNCTIONS HANDELING CORRECTION*******************//
 questionAnswered(){
   this.setState({answeredQ:true});
   let commentText="";
   var selected=this.state.selectedAnswer;
-    console.log("QUESTIONS ANSWERED: selected item was ", selected )
+    console.log("QUESTIONS ANSWERED: selected item was ", selected );
+    let currentQuestion={};
 
+    //CORRECT ANSWER//
   if(selected === this.state.currentLecture.questions[this.state.counter].correctAnswer){
-    console.log("answer correct!")
-    commentText="Correct Answer!"
-    }
+      console.log("answer correct!")
+      currentQuestion={questionNr:this.state.counter,
+                          isCorrect:"correct",
+                        }
+      commentText="Correct Answer!"
+      this.updateCorrection( currentQuestion, commentText);
 
+    }
+    //INCORRECT ANSWER//
   else {
     commentText = "Sorry! That was incorrect!, the correct answer is: "+this.state.currentLecture.questions[this.state.counter].correctAnswer;
-
-    let currentQuestion={questionNr:this.state.counter,
+    currentQuestion={questionNr:this.state.counter,
                         isCorrect:"incorrect",
                       }
+    this.updateCorrection( currentQuestion, commentText);
     console.log("current question is: ", currentQuestion)
-    var updatedArray= [...this.state.correction.slice(0, this.state.counter), currentQuestion, ...this.state.correction.slice(this.state.counter+1)]
-    console.log("counter is: ", this.state.counter)
-    console.log("updatedArray is: ", updatedArray)
-    this.setState({
-                  correction:updatedArray})
-
   }
-
 }
 
-handlePaginatorSelect(eventKey){
-  eventKey=eventKey-1;
-  this.setState({counter:eventKey})
+updateCorrection(currentQuestion, commentText){
+  var updatedArray= [...this.state.correction.slice(0, this.state.counter), currentQuestion, ...this.state.correction.slice(this.state.counter+1)]
+  console.log("counter is: ", this.state.counter)
+  console.log("updatedArray is: ", updatedArray)
+  this.setState({comment:commentText,
+                correction:updatedArray})
 }
 
+clearQuestioncomments(currentQuestionNum){
+  this.setState({counter:currentQuestionNum,
+                  answeredQ:false,
+                  comment:"",
+                });
+}
 nextQuestion(){
   var currentQuestionNum=this.state.counter+=1;
-  this.setState({counter:currentQuestionNum});
-  console.log("current question is: ", this.state.counter)
+
+this.clearQuestioncomments(currentQuestionNum);
 }
 
 checkAnswer(answer){
   this.setState({selectedAnswer:answer})
 }
 
+//THESE FUNCTION HANDLES THE CORRECTION-BAR//
+//If clicked the question number changes. They also change color whether the question was correctly or incorrectly answered//
+handleCorrectionButtons(){
+  return this.state.correction.map(function(item){
+    return(
+      <Badge key={item.questionNr} className={item.isCorrect} onClick={this.onCorrectionClick.bind(this, item.questionNr)}>{item.questionNr+1}</Badge>
+    )}, this)
+}
+
+onCorrectionClick(questionNr){
+  this.setState({
+    counter:questionNr,
+    comment:"",
+    answeredQ:false,
+  });
+}
+/**************************/
+
 renderModal(){
+
 var radioButtons= this.state.currentLecture.questions[this.state.counter].answers.map(function( answer, index){
 return(  <Radio name="radioGroup" key={index} onClick={this.checkAnswer.bind(this, answer.answer)}>
   <h6 className="answer">{answer.answer}</h6>
@@ -119,17 +143,11 @@ return(  <Radio name="radioGroup" key={index} onClick={this.checkAnswer.bind(thi
               {this.state.currentLecture.lecture}
             </PageHeader>
         </Col>
-        <Row>
-          <Well>
-          <Pagination
-            bsSize="large"
-            items={this.state.currentLecture.questions.length}
-            onSelect={this.handlePaginatorSelect.bind(this)}
-            activePage={this.state.counter+1}
-             />
-            <br />
-          </Well>
-        </Row>
+          <Row>
+            <Well>
+              {this.handleCorrectionButtons()}
+            </Well>
+          </Row>
         <Row>
           <Well>
             <h6>{this.state.comment}</h6>
@@ -141,7 +159,7 @@ return(  <Radio name="radioGroup" key={index} onClick={this.checkAnswer.bind(thi
             <h6>{this.state.currentLecture.questions[this.state.counter].question}</h6>
           </Well>
           <Well>
-            <FormGroup ref="questionsForm">
+            <FormGroup ref="questionsForm" >
                   {radioButtons}
             </FormGroup>
           </Well>
@@ -168,11 +186,12 @@ return(  <Radio name="radioGroup" key={index} onClick={this.checkAnswer.bind(thi
 
 
 //////////////////////////////////////////////////////////////////////////
+//HANDLES LECTURE_STARTPAGE///////
 
 selectLecture(lectureId){
 axios.get("api/lectures/"+lectureId)
   .then(function(response){
-  
+
     this.setState({currentLecture:response.data});
     console.log("first question is lecture is: ", this.state.currentLecture)
     modalBolean=true;
@@ -183,6 +202,7 @@ axios.get("api/lectures/"+lectureId)
 
 renderLectures(){
 
+console.log("this.state.correction is: ", this.state.correction)
   return this.props.lectures.map(function(lecture){
         return(
             <Col  xs={12} sm={6} md ={4} key={lecture._id} >
@@ -217,14 +237,9 @@ renderStartPage(){
 
 render(){
 
-
-
 return (
 this.renderStartPage()
 )
-
-
-
 }
 }
 

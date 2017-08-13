@@ -51167,9 +51167,7 @@ var Lectures = function (_React$Component) {
       selectedAnswer: "",
       comment: "",
       correction: []
-
     };
-
     return _this;
   }
 
@@ -51178,16 +51176,13 @@ var Lectures = function (_React$Component) {
     value: function componentDidMount() {
       this.props.getLectures();
     }
-
     //*************HANDLE MODAL FUNCTIONS*****************////
 
   }, {
     key: "openModal",
     value: function openModal() {
       //Opens Lecture Modal
-
       console.log("modal opens and the counter is: ", counter);
-
       this.setState({ showModal: true });
       var correctArray = this.state.correction;
       lectureLength = this.state.currentLecture.questions.length;
@@ -51204,8 +51199,14 @@ var Lectures = function (_React$Component) {
     key: "closeModal",
     value: function closeModal() {
       //Closes lecture Modal
-      this.setState({ showModal: false });
+      this.setState({ showModal: false,
+        correction: [],
+        counter: 0
+      });
     }
+
+    //***********FUNCTIONS HANDELING CORRECTION*******************//
+
   }, {
     key: "questionAnswered",
     value: function questionAnswered() {
@@ -51213,45 +51214,86 @@ var Lectures = function (_React$Component) {
       var commentText = "";
       var selected = this.state.selectedAnswer;
       console.log("QUESTIONS ANSWERED: selected item was ", selected);
+      var currentQuestion = {};
 
+      //CORRECT ANSWER//
       if (selected === this.state.currentLecture.questions[this.state.counter].correctAnswer) {
         console.log("answer correct!");
-        commentText = "Correct Answer!";
-      } else {
-        commentText = "Sorry! That was incorrect!, the correct answer is: " + this.state.currentLecture.questions[this.state.counter].correctAnswer;
-
-        var currentQuestion = { questionNr: this.state.counter,
-          isCorrect: "incorrect"
+        currentQuestion = { questionNr: this.state.counter,
+          isCorrect: "correct"
         };
-        console.log("current question is: ", currentQuestion);
-        var updatedArray = [].concat(_toConsumableArray(this.state.correction.slice(0, this.state.counter)), [currentQuestion], _toConsumableArray(this.state.correction.slice(this.state.counter + 1)));
-        console.log("counter is: ", this.state.counter);
-        console.log("updatedArray is: ", updatedArray);
-        this.setState({
-          correction: updatedArray });
+        commentText = "Correct Answer!";
+        this.updateCorrection(currentQuestion, commentText);
       }
+      //INCORRECT ANSWER//
+      else {
+          commentText = "Sorry! That was incorrect!, the correct answer is: " + this.state.currentLecture.questions[this.state.counter].correctAnswer;
+          currentQuestion = { questionNr: this.state.counter,
+            isCorrect: "incorrect"
+          };
+          this.updateCorrection(currentQuestion, commentText);
+          console.log("current question is: ", currentQuestion);
+        }
     }
   }, {
-    key: "handlePaginatorSelect",
-    value: function handlePaginatorSelect(eventKey) {
-      eventKey = eventKey - 1;
-      this.setState({ counter: eventKey });
+    key: "updateCorrection",
+    value: function updateCorrection(currentQuestion, commentText) {
+      var updatedArray = [].concat(_toConsumableArray(this.state.correction.slice(0, this.state.counter)), [currentQuestion], _toConsumableArray(this.state.correction.slice(this.state.counter + 1)));
+      console.log("counter is: ", this.state.counter);
+      console.log("updatedArray is: ", updatedArray);
+      this.setState({ comment: commentText,
+        correction: updatedArray });
+    }
+  }, {
+    key: "clearQuestioncomments",
+    value: function clearQuestioncomments(currentQuestionNum) {
+      this.setState({ counter: currentQuestionNum,
+        answeredQ: false,
+        comment: ""
+      });
     }
   }, {
     key: "nextQuestion",
     value: function nextQuestion() {
       var currentQuestionNum = this.state.counter += 1;
-      this.setState({ counter: currentQuestionNum });
-      console.log("current question is: ", this.state.counter);
+
+      this.clearQuestioncomments(currentQuestionNum);
     }
   }, {
     key: "checkAnswer",
     value: function checkAnswer(answer) {
       this.setState({ selectedAnswer: answer });
     }
+
+    //THESE FUNCTION HANDLES THE CORRECTION-BAR//
+    //If clicked the question number changes. They also change color whether the question was correctly or incorrectly answered//
+
+  }, {
+    key: "handleCorrectionButtons",
+    value: function handleCorrectionButtons() {
+      return this.state.correction.map(function (item) {
+        return _react2.default.createElement(
+          _reactBootstrap.Badge,
+          { key: item.questionNr, className: item.isCorrect, onClick: this.onCorrectionClick.bind(this, item.questionNr) },
+          item.questionNr + 1
+        );
+      }, this);
+    }
+  }, {
+    key: "onCorrectionClick",
+    value: function onCorrectionClick(questionNr) {
+      this.setState({
+        counter: questionNr,
+        comment: "",
+        answeredQ: false
+      });
+    }
+    /**************************/
+
   }, {
     key: "renderModal",
     value: function renderModal() {
+
       var radioButtons = this.state.currentLecture.questions[this.state.counter].answers.map(function (answer, index) {
         return _react2.default.createElement(
           _reactBootstrap.Radio,
@@ -51302,13 +51344,7 @@ var Lectures = function (_React$Component) {
                   _react2.default.createElement(
                     _reactBootstrap.Well,
                     null,
-                    _react2.default.createElement(_reactBootstrap.Pagination, {
-                      bsSize: "large",
-                      items: this.state.currentLecture.questions.length,
-                      onSelect: this.handlePaginatorSelect.bind(this),
-                      activePage: this.state.counter + 1
-                    }),
-                    _react2.default.createElement("br", null)
+                    this.handleCorrectionButtons()
                   )
                 ),
                 _react2.default.createElement(
@@ -51389,6 +51425,7 @@ var Lectures = function (_React$Component) {
     }
 
     //////////////////////////////////////////////////////////////////////////
+    //HANDLES LECTURE_STARTPAGE///////
 
   }, {
     key: "selectLecture",
@@ -51408,6 +51445,7 @@ var Lectures = function (_React$Component) {
     key: "renderLectures",
     value: function renderLectures() {
 
+      console.log("this.state.correction is: ", this.state.correction);
       return this.props.lectures.map(function (lecture) {
         return _react2.default.createElement(
           _reactBootstrap.Col,
