@@ -1,43 +1,35 @@
-const coolQuiz={
+const habaneroQuiz={
 
-      lecture:"The nazi quiz",
+      lecture:"The habanero lecture",
+      lectureImage:"images/habanero.jpg"
 
         questions: [{
-            question:"When did Hitler die?",
-            correctAnswer:"1945",
+            question:"What is the color of the habanero?",
+            correctAnswer:"Red",
             comment: "Color is a nice thing",
-            image: "cool",
-            answers: [{answer:"1943"},
-                      {answer:"1945"},
-                      {answer:"1912"},
-                      {answer:"2003"}]
+            image: "Red",
+            answers: [{answer:"Red"},
+                      {answer:"Green"},
+                      {answer:"Pink"},
+                      {answer:"Blue"}]
         },
 
-        {
-            question:"Who was the leader of the nazis?",
-            correctAnswer:"Hitler",
-            comment: "Biking is a nice thing",
-            image: "asd",
-            answers: [{answer:"a cool bike"},
-                      {answer:"Hitler"},
-                      {answer:"Göring"},
-                      {answer:"A cool guy"}]
-        },
+
 
         {
           isVideo:true,
-          videoUrl:"/public/videos/naziVideoUrl"
+          videoUrl:"/images/S2-Connect-React-to-Store.mp4"
         },
 
         {
-            question:"What is the swastika?",
-            correctAnswer:"The symbol og the reich",
-            comment: "The nazis had many symbols. One of them was the swastika.",
+            question:"Is the habanero strong?",
+            correctAnswer:"Yes",
+            comment: "",
             image: "",
-            answers: [{answer:"The symbol og the reich"},
-                      {answer:"A rabbit"},
-                      {answer:"Your grandma"},
-                      {answer:"A cat"}]
+            answers: [{answer:"Yes"},
+                      {answer:"No"},
+
+                      ]
         },
         ],
 

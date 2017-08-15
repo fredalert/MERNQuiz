@@ -6,8 +6,9 @@ var UserSchema = mongoose.Schema({
  password: String,
  passwordval:String,
  lectures:[{lectureName:String,
-            questions:[{_id:String,
-                        correct:Boolean}]}]
+            currentQuestionNum:Number,
+            progress:[{questionNr:Number,
+                      isCorrect:String}]}]
 });
 
 

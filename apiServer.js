@@ -139,6 +139,25 @@ app.get("/user/", function(req, res, next){
           }
         });
   });
+
+//-------ADD-PROGRESS-TO-USER-------------------------//
+
+app.put("/user/:_id/lectures", function(req,res, next){
+  var query= {_id:req.params._id};
+  var options={new:true}
+  var update= {$set:{
+    lectures:req.body,
+  }}
+  Users.findOneAndUpdate(query, update, options, function(err, user, next){
+    if(err){
+      return next(err);
+    }
+    else{
+      res.json(user)
+    }
+  })
+
+})
 //>>>>>>>>BOOKS-API<<<<<<<<<<<//
 
 //-------CREATE-BOOKS-------------------------//
@@ -173,7 +192,7 @@ app.delete("/books/:_id", function(req, res, next){
 app.put("/books/:_id", function(req, res, next){
     var query= {_id:req.params._id};
     var book= req.body;
-    var update= {$set:{
+    var update= {$push:{
       title:book.title,
       description:book.description,
       image:book.image,

@@ -3,10 +3,11 @@ var mongoose = require('mongoose');
 var lectureSchema = mongoose.Schema(
 {
   lecture:{type:String},
+  lectureImage:{type:String},
   questions: [{
       isVideo:{type:Boolean, default:false},
       videoUrl:{type:String, default:""},
-      
+
       question:{type:String},
       correctAnswer:{type:String, default:""},
       _id:Number,

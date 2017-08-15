@@ -34,6 +34,19 @@ h6.answer{
   background-color: red;
 }
 
+.incorrect:hover{
+  background-color: grey;
+}
 .correct{
   background-color: green;
+}
+
+.correct:hover{
+  background-color: grey;
+}
+
+.headerImage{
+  display: inline;
+  width:30%;
+  margin-left: 20%;
 }

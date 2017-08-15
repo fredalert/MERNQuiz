@@ -3,8 +3,10 @@ import {Row, Image, Media, Modal, Badge, Pagination, Col,Well, Radio, Button, Pa
 import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
 import {getLectures} from "../../actions/lectureActions"
+import {getCurrentUser} from "../../actions/userActions"
 import axios from "axios";
 import {findDOMNode} from "react-dom"
+
 
 
 var modalBolean=false;
@@ -29,6 +31,8 @@ constructor(){
 
 componentDidMount(){
   this.props.getLectures();
+
+
 
 }
 //*************HANDLE MODAL FUNCTIONS*****************////
@@ -65,11 +69,37 @@ handleQuestion(radioButtons){
 }
 
 openModal(){ //Opens Lecture Modal
-  console.log("modal opens and the counter is: ", counter)
+
+
+
+
+  var progress= this.props.user.lectures[0].progress;
+  var currentQuestionNum="";
+  var indexOfCurrentLecture=0;
+
+if(this.props.user.lectures[0].currentQuestionNum!=null){
+  console.log("this.state.currentLecture.lecture is: ", this.state.currentLecture.lecture)
+  console.log("this.props.user.lectures is: ", this.props.user.lectures)
+  currentQuestionNum=this.props.user.lectures[0].currentQuestionNum;
+  indexOfCurrentLecture=this.props.user.lectures.findIndex(function(lecture){
+    return lecture.lectureName==this.state.currentLecture.lecture;
+  }, this)
+  console.log("index of current leccture is: ", indexOfCurrentLecture)
+}
+
+
+
+
+  this.setState({correction:progress,
+                  counter:currentQuestionNum
+                })
+  console.log("this.props.user.lectures[0].progress is: ", this.props.user.lectures[0].progress)
+  console.log("modal opens and correction is: ", this.state.correction)
   this.setState({showModal:true})
   let correctArray=this.state.correction
   lectureLength=this.state.currentLecture.questions.length;
   if(correctArray.length<1){
+    console.log("making a new array because  correctArray is<1")
   for(let i=0; i<lectureLength; i++){
     correctArray.push({questionNr:i,
                           isCorrect:""});
@@ -79,22 +109,34 @@ openModal(){ //Opens Lecture Modal
 }
 
 closeModal(){ //Closes lecture Modal
+
+  var lectureToBeUpdated={currentQuestionNum:this.state.counter,
+                          lectureName:this.state.currentLecture.lecture,
+                          progress:this.state.correction}
+console.log("lectureToBeUpdated is : ", lectureToBeUpdated)
+axios.put("/api/user/"+this.props.user._id+"/lectures", lectureToBeUpdated )
+.then(function(result){console.log("the result from the put function is: ", result.data);})
+.catch(function(err){console.log(err)})
+  this.props.getCurrentUser();
   this.setState({showModal:false,
                 correction:[],
                 counter:0,
-                })}
+                comment:"",
+                })
+
+  }
 
 //***********FUNCTIONS HANDELING CORRECTION*******************//
 questionAnswered(){
   this.setState({answeredQ:true});
   let commentText="";
   var selected=this.state.selectedAnswer;
-    console.log("QUESTIONS ANSWERED: selected item was ", selected );
+
     let currentQuestion={};
 
     //CORRECT ANSWER//
   if(selected === this.state.currentLecture.questions[this.state.counter].correctAnswer){
-      console.log("answer correct!")
+
       currentQuestion={questionNr:this.state.counter,
                           isCorrect:"correct",
                         }
@@ -109,14 +151,12 @@ questionAnswered(){
                         isCorrect:"incorrect",
                       }
     this.updateCorrection( currentQuestion, commentText);
-    console.log("current question is: ", currentQuestion)
+
   }
 }
 
 updateCorrection(currentQuestion, commentText){
   var updatedArray= [...this.state.correction.slice(0, this.state.counter), currentQuestion, ...this.state.correction.slice(this.state.counter+1)]
-  console.log("counter is: ", this.state.counter)
-  console.log("updatedArray is: ", updatedArray)
   this.setState({comment:commentText,
                 correction:updatedArray})
 }
@@ -129,8 +169,11 @@ clearQuestioncomments(currentQuestionNum){
 }
 nextQuestion(){
   var currentQuestionNum=this.state.counter+=1;
-
-this.clearQuestioncomments(currentQuestionNum);
+if(currentQuestionNum==this.state.currentLecture.questions.length){
+this.closeModal();
+}
+else{
+this.clearQuestioncomments(currentQuestionNum);}
 }
 
 checkAnswer(answer){
@@ -157,6 +200,7 @@ onCorrectionClick(questionNr){
 
 renderModal(){
 
+
 var radioButtons= this.state.currentLecture.questions[this.state.counter].answers.map(function( answer, index){
 return(  <Radio name="radioGroup" key={index} onClick={this.checkAnswer.bind(this, answer.answer)}>
   <h6 className="answer">{answer.answer}</h6>
@@ -174,16 +218,22 @@ return(  <Radio name="radioGroup" key={index} onClick={this.checkAnswer.bind(thi
       <Panel>
 
         <Col xs={12} sm={12}>
+          <Row>
+
             <PageHeader>
               {this.state.currentLecture.lecture}
+    
+              <Image className="headerImage" src={this.state.currentLecture.lectureImage}/>
+
             </PageHeader>
+          </Row>
         </Col>
 
-          <Row>
+
               <Well>
                 {this.handleCorrectionButtons()}
               </Well>
-          </Row>
+
         {(this.state.currentLecture.questions[this.state.counter].isVideo)?(<Media><Row><Col xs={12}><Well><video width="100%" controls><source src="/images/S2-Connect-React-to-Store.mp4" type="video/mp4"/> </video></Well></Col></Row></Media>):(this.handleQuestion(radioButtons))}
       </Panel>
   </Row>
@@ -195,7 +245,9 @@ return(  <Radio name="radioGroup" key={index} onClick={this.checkAnswer.bind(thi
 
     </Modal.Footer>
   </Modal>
-  </div>)}
+  </div>)
+
+}
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -219,9 +271,16 @@ console.log("this.state.correction is: ", this.state.correction)
   return this.props.lectures.map(function(lecture){
         return(
             <Col  xs={12} sm={6} md ={4} key={lecture._id} >
+              <Row>
               <Well onClick={this.selectLecture.bind(this, lecture._id)}>
                 <h3>{lecture.lecture}</h3>
+                <Row>
+                  <Well>
+                    <Image src={lecture.lectureImage} responsive/>
+                  </Well>
+                </Row>
               </Well>
+              </Row>
             </Col>)}, this
         )
 }
@@ -260,12 +319,14 @@ this.renderStartPage()
 function mapDispatchToProps(dispatch){
   return bindActionCreators({
     getLectures,
+    getCurrentUser,
     }, dispatch)
 }
 
 function mapStateToProps(state){
   return {
-    lectures:state.lectures.lectures
+    lectures:state.lectures.lectures,
+    user:state.user.loggedInUser,
   }
 }
 
