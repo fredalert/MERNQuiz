@@ -26,6 +26,7 @@ import Profile from "./components/pages/profile"
 import Lectures from "./components/pages/lectures"
 import Logout from "./components/pages/logout"
 import Lecture from "./components/pages/lecture"
+import CreateLecture from "./components/pages/CreateLecture"
 
 
 
@@ -48,6 +49,8 @@ const Routes =(
         <Route path="/profile" component ={Profile}/>
         <Route path="/lectures" component ={Lectures}/>
         <Route path="/lecture" component ={Lecture}/>
+        <Route path="/createlecture" component ={CreateLecture}/>
+
       </Route>
     </Router>
 

@@ -23905,6 +23905,10 @@ var _lecture = __webpack_require__(585);
 
 var _lecture2 = _interopRequireDefault(_lecture);
 
+var _CreateLecture = __webpack_require__(586);
+
+var _CreateLecture2 = _interopRequireDefault(_CreateLecture);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 //STORE
@@ -23935,7 +23939,8 @@ var Routes = _react2.default.createElement(
         _react2.default.createElement(_reactRouter.Route, { path: "/logout", component: _logout2.default }),
         _react2.default.createElement(_reactRouter.Route, { path: "/profile", component: _profile2.default }),
         _react2.default.createElement(_reactRouter.Route, { path: "/lectures", component: _lectures2.default }),
-        _react2.default.createElement(_reactRouter.Route, { path: "/lecture", component: _lecture2.default })
+        _react2.default.createElement(_reactRouter.Route, { path: "/lecture", component: _lecture2.default }),
+        _react2.default.createElement(_reactRouter.Route, { path: "/createlecture", component: _CreateLecture2.default })
       )
     )
   )
@@ -51333,9 +51338,14 @@ var Menu = function (_React$Component) {
               { eventKey: 3, href: "/admin" },
               "Admin"
             ),
+            _react2.default.createElement(
+              _reactBootstrap.NavItem,
+              { eventKey: 4, href: "/createlecture" },
+              "Create Lecture"
+            ),
             this.props.itemNumber > 0 ? _react2.default.createElement(
               _reactBootstrap.NavItem,
-              { eventKey: 4, href: "/cart" },
+              { eventKey: 5, href: "/cart" },
               "My cart ",
               _react2.default.createElement(
                 _reactBootstrap.Badge,
@@ -51345,7 +51355,7 @@ var Menu = function (_React$Component) {
             ) : "",
             this.props.loggedInUser != null ? _react2.default.createElement(
               _reactBootstrap.NavItem,
-              { eventKey: 5, href: "/profile" },
+              { eventKey: 6, href: "/profile" },
               this.props.loggedInUser.email
             ) : ""
           )
@@ -52568,6 +52578,284 @@ var Lecture = function (_React$Component) {
 }(_react2.default.Component);
 
 exports.default = Lecture;
+
+/***/ }),
+/* 586 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactBootstrap = __webpack_require__(28);
+
+var _reactRedux = __webpack_require__(31);
+
+var _redux = __webpack_require__(27);
+
+var _reactDom = __webpack_require__(19);
+
+var _bookActions = __webpack_require__(88);
+
+var _axios = __webpack_require__(37);
+
+var _axios2 = _interopRequireDefault(_axios);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var CreateLecture = function (_React$Component) {
+  _inherits(CreateLecture, _React$Component);
+
+  function CreateLecture() {
+    _classCallCheck(this, CreateLecture);
+
+    var _this = _possibleConstructorReturn(this, (CreateLecture.__proto__ || Object.getPrototypeOf(CreateLecture)).call(this));
+
+    _this.state = { activePage: 1,
+      isVideo: false };
+    return _this;
+  }
+
+  _createClass(CreateLecture, [{
+    key: "renderVideo",
+    value: function renderVideo() {
+      return _react2.default.createElement(
+        _reactBootstrap.Panel,
+        null,
+        _react2.default.createElement(
+          _reactBootstrap.Well,
+          null,
+          _react2.default.createElement(
+            "h6",
+            null,
+            "VIDEOOO"
+          )
+        )
+      );
+    }
+  }, {
+    key: "chooseVideo",
+    value: function chooseVideo() {
+      this.setState({ isVideo: true });
+    }
+  }, {
+    key: "renderQuestion",
+    value: function renderQuestion() {
+      return _react2.default.createElement(
+        _reactBootstrap.Row,
+        null,
+        _react2.default.createElement(
+          _reactBootstrap.Panel,
+          null,
+          _react2.default.createElement(
+            _reactBootstrap.Well,
+            null,
+            _react2.default.createElement(
+              "h6",
+              null,
+              "QUESTION"
+            ),
+            _react2.default.createElement("br", null),
+            _react2.default.createElement("br", null),
+            _react2.default.createElement(
+              _reactBootstrap.FormGroup,
+              { controlId: "lectureName" },
+              _react2.default.createElement(
+                _reactBootstrap.ControlLabel,
+                null,
+                "Questiontext"
+              ),
+              _react2.default.createElement(_reactBootstrap.FormControl, {
+                type: "text",
+                placeholder: "What is 2+2",
+                ref: "lectureName"
+              }),
+              _react2.default.createElement(
+                _reactBootstrap.ControlLabel,
+                null,
+                "Comment to the question"
+              ),
+              _react2.default.createElement(_reactBootstrap.FormControl, {
+                type: "text",
+                placeholder: "When you have 2 apples and adds 2 more you have 4 apples",
+                ref: "lectureDescription"
+              })
+            ),
+            _react2.default.createElement("br", null),
+            _react2.default.createElement("br", null),
+            _react2.default.createElement(
+              "h6",
+              null,
+              "Please write some alternatives and check the correct answer"
+            ),
+            _react2.default.createElement("br", null),
+            _react2.default.createElement("br", null),
+            _react2.default.createElement(
+              _reactBootstrap.FormGroup,
+              null,
+              _react2.default.createElement(
+                _reactBootstrap.InputGroup,
+                null,
+                _react2.default.createElement(
+                  _reactBootstrap.InputGroup.Addon,
+                  null,
+                  _react2.default.createElement("input", { type: "radio", "aria-label": "..." })
+                ),
+                _react2.default.createElement(_reactBootstrap.FormControl, { type: "text" })
+              )
+            )
+          )
+        )
+      );
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      return _react2.default.createElement(
+        _reactBootstrap.Row,
+        { className: "createLectureContainer" },
+        _react2.default.createElement(
+          _reactBootstrap.Row,
+          null,
+          _react2.default.createElement(
+            _reactBootstrap.Panel,
+            null,
+            _react2.default.createElement(
+              _reactBootstrap.Col,
+              { xs: 12, sm: 6 },
+              _react2.default.createElement(
+                _reactBootstrap.Well,
+                null,
+                _react2.default.createElement(
+                  _reactBootstrap.FormGroup,
+                  { controlId: "lectureName" },
+                  _react2.default.createElement(
+                    _reactBootstrap.ControlLabel,
+                    null,
+                    "Name of the lecture"
+                  ),
+                  _react2.default.createElement(_reactBootstrap.FormControl, {
+                    type: "text",
+                    placeholder: "The nazi lecture",
+                    ref: "lectureName"
+                  }),
+                  _react2.default.createElement(
+                    _reactBootstrap.ControlLabel,
+                    null,
+                    "Description of the lecture"
+                  ),
+                  _react2.default.createElement(_reactBootstrap.FormControl, {
+                    type: "text",
+                    placeholder: "A lecture about the nazis and their shortcomings",
+                    ref: "lectureDescription"
+                  })
+                )
+              )
+            )
+          )
+        ),
+        _react2.default.createElement(
+          _reactBootstrap.Row,
+          null,
+          _react2.default.createElement(
+            _reactBootstrap.Panel,
+            null,
+            _react2.default.createElement(
+              _reactBootstrap.Col,
+              { xs: 12 },
+              _react2.default.createElement(
+                _reactBootstrap.Well,
+                null,
+                _react2.default.createElement(_reactBootstrap.Pagination, {
+                  bsSize: "large",
+                  items: 10,
+                  activePage: this.state.activePage,
+                  onSelect: this.handlePaginationSelect.bind(this) }),
+                _react2.default.createElement("br", null)
+              )
+            )
+          )
+        ),
+        _react2.default.createElement(
+          _reactBootstrap.Row,
+          null,
+          _react2.default.createElement(
+            _reactBootstrap.Panel,
+            null,
+            _react2.default.createElement(
+              _reactBootstrap.Well,
+              null,
+              _react2.default.createElement(
+                "h6",
+                null,
+                "Question number ",
+                this.state.activePage
+              ),
+              _react2.default.createElement("br", null),
+              _react2.default.createElement("br", null),
+              _react2.default.createElement(
+                _reactBootstrap.Button,
+                { bsStyle: "primary", onClick: this.chooseVideo.bind(this) },
+                " Add video "
+              ),
+              _react2.default.createElement("br", null),
+              _react2.default.createElement("br", null),
+              _react2.default.createElement(
+                _reactBootstrap.Button,
+                { bsStyle: "primary" },
+                "Add question"
+              ),
+              _react2.default.createElement("br", null),
+              _react2.default.createElement("br", null),
+              this.state.isVideo ? this.renderVideo() : this.renderQuestion()
+            )
+          )
+        ),
+        _react2.default.createElement(
+          _reactBootstrap.Row,
+          null,
+          _react2.default.createElement(
+            _reactBootstrap.Panel,
+            null,
+            _react2.default.createElement(
+              _reactBootstrap.Well,
+              null,
+              _react2.default.createElement(
+                _reactBootstrap.Button,
+                null,
+                "NEXT"
+              )
+            )
+          )
+        )
+      );
+    }
+  }, {
+    key: "handlePaginationSelect",
+    value: function handlePaginationSelect(eventKey) {
+      this.setState({ activePage: eventKey });
+    }
+  }]);
+
+  return CreateLecture;
+}(_react2.default.Component);
+
+exports.default = CreateLecture;
 
 /***/ })
 /******/ ]);
