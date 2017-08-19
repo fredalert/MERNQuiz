@@ -144,13 +144,13 @@ app.get("/user/", function(req, res, next){
 
 app.put("/user/:_id/lectures", function(req,res, next){
   var query= {_id:req.params._id};
-  var options={new:true}
-  var update= {$set:{
-    lectures:req.body,
-  }}
+console.log("req.body is: ", req.body)
+  var update= { $set: {lectures:req.body}
+  }
+  var options = {new:true}
   Users.findOneAndUpdate(query, update, options, function(err, user, next){
     if(err){
-      return next(err);
+      throw err;
     }
     else{
       res.json(user)
@@ -192,14 +192,14 @@ app.delete("/books/:_id", function(req, res, next){
 app.put("/books/:_id", function(req, res, next){
     var query= {_id:req.params._id};
     var book= req.body;
-    var update= {$push:{
+    var update= {$set:{
       title:book.title,
       description:book.description,
       image:book.image,
       price:book.price,
     }};
-    var options={new:true}
-  Books.findOneAndUpdate(query, update, options, function(err, books, next){
+
+  Books.findOneAndUpdate(query, update, function(err, books, next){
       if(err){ return next(err);}
       res.json(books);
   })

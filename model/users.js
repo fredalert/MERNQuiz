@@ -1,14 +1,17 @@
 "use strict"
 var mongoose = require('mongoose');
 var bcrypt = require("bcrypt");
+
 var UserSchema = mongoose.Schema({
  email: String,
  password: String,
  passwordval:String,
- lectures:[{lectureName:String,
-            currentQuestionNum:Number,
-            progress:[{questionNr:Number,
-                      isCorrect:String}]}]
+ lectures:[{
+   lectureName:String,
+    currentQuestionNum:Number,
+    progress:[{questionNr:Number,
+                isCorrect:String}]
+ }]
 });
 
 

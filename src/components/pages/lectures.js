@@ -34,6 +34,8 @@ componentDidMount(){
 
 
 
+
+
 }
 //*************HANDLE MODAL FUNCTIONS*****************////
 handleQuestion(radioButtons){
@@ -68,62 +70,92 @@ handleQuestion(radioButtons){
 
 }
 
-openModal(){ //Opens Lecture Modal
+openModal(){
+  this.setState({showModal:true,
+                  comment:""}
 
+                  ) //Opens Lecture Modal
 
-
-
-  var progress= this.props.user.lectures[0].progress;
-  var currentQuestionNum="";
-  var indexOfCurrentLecture=0;
-
-if(this.props.user.lectures[0].currentQuestionNum!=null){
-  console.log("this.state.currentLecture.lecture is: ", this.state.currentLecture.lecture)
-  console.log("this.props.user.lectures is: ", this.props.user.lectures)
-  currentQuestionNum=this.props.user.lectures[0].currentQuestionNum;
-  indexOfCurrentLecture=this.props.user.lectures.findIndex(function(lecture){
-    return lecture.lectureName==this.state.currentLecture.lecture;
-  }, this)
-  console.log("index of current leccture is: ", indexOfCurrentLecture)
+  let indexOfCurrentLecture=this.props.user.lectures.findIndex(function(lecture){
+    return lecture.lectureName==this.state.currentLecture.lecture
+  },this)
+  console.log("openModal, this.props.user.lectures when openModal is: ", this.props.user.lectures)
+  lectureLength=this.state.currentLecture.questions.length;
+  if(indexOfCurrentLecture===-1){
+    let correctArray=this.state.correction
+    console.log("openModal making a new array because  this.props.user.lectures[0]===undefined")
+  for(let i=0; i<lectureLength; i++){
+    correctArray.push({questionNr:i,
+                          isCorrect:"unanswered"});
+  }
+  this.setState({correction:correctArray})
 }
+else{
+  let currentQuestionNum="";
 
 
-
+  console.log("openModal, this.props.lectures[0] is not undefined" )
+    var progress= this.props.user.lectures[indexOfCurrentLecture].progress;
+  currentQuestionNum=this.props.user.lectures[indexOfCurrentLecture].currentQuestionNum;
 
   this.setState({correction:progress,
                   counter:currentQuestionNum
                 })
-  console.log("this.props.user.lectures[0].progress is: ", this.props.user.lectures[0].progress)
-  console.log("modal opens and correction is: ", this.state.correction)
-  this.setState({showModal:true})
-  let correctArray=this.state.correction
-  lectureLength=this.state.currentLecture.questions.length;
-  if(correctArray.length<1){
-    console.log("making a new array because  correctArray is<1")
-  for(let i=0; i<lectureLength; i++){
-    correctArray.push({questionNr:i,
-                          isCorrect:""});
-  }
-  this.setState({correction:correctArray})}
-  console.log("OPEN MODAL:correction in state is: ", this.state.correction)
+              }
+console.log(console.log("this.props.user.lectures when openModal is ending is: ", this.props.user.lectures))
 }
+
+
+
+
 
 closeModal(){ //Closes lecture Modal
 
-  var lectureToBeUpdated={currentQuestionNum:this.state.counter,
-                          lectureName:this.state.currentLecture.lecture,
-                          progress:this.state.correction}
-console.log("lectureToBeUpdated is : ", lectureToBeUpdated)
-axios.put("/api/user/"+this.props.user._id+"/lectures", lectureToBeUpdated )
-.then(function(result){console.log("the result from the put function is: ", result.data);})
-.catch(function(err){console.log(err)})
-  this.props.getCurrentUser();
-  this.setState({showModal:false,
-                correction:[],
-                counter:0,
-                comment:"",
-                })
+//This part handles the correctionArray. if the lecture exists, the lecture is updated with the updated correction.
+//If it doesnt exist, the lecture is added to the user.
+let usersLectures  =this.props.user.lectures;
+var updatedLectureArray={};
+console.log("closeModal;  this.state.correction is: ", this.state.correction)
+//This function determines the index of the current lecture in the users saved lecture.
+//If the lecture is new to the user the index is -1, and the lecture is added to the user.
+  let indexOfCurrentLecture=this.props.user.lectures.findIndex(function(lecture){
+    return lecture.lectureName==this.state.currentLecture.lecture
+  },this)
 
+  if(indexOfCurrentLecture===-1){
+    let lectureToBePushed={currentQuestionNum:this.state.counter,
+                            lectureName:this.state.currentLecture.lecture,
+                            progress:this.state.correction}
+usersLectures.push(lectureToBePushed)
+updatedLectureArray=usersLectures;
+console.log("closeModal-indexOfCurrentLecture===-1; usersLectures after push is: ", usersLectures)
+  console.log("closeModal-indexOfCurrentLecture===-1; indexOfCurrentLecture is: ", indexOfCurrentLecture)
+  }
+  if(indexOfCurrentLecture>=0){
+    let updatedUserLecture={currentQuestionNum:this.state.counter,
+                            lectureName:this.state.currentLecture.lecture,
+                            progress:this.state.correction}
+  console.log("closeModal-indexOfCurrentLecture>=0; updatedUserLecture is: ", updatedUserLecture )
+
+  updatedLectureArray=[...usersLectures.slice(0, indexOfCurrentLecture), updatedUserLecture, ...usersLectures.slice(indexOfCurrentLecture+1)]
+  console.log("closeModal-indexOfCurrentLecture>=0; , updatedLectureArray is :", updatedLectureArray)
+  console.log("closeModal-indexOfCurrentLecture>=0; this.state.correction is: ", this.state.correction)
+  }
+
+//Adds the updates to the user
+axios.put("/api/user/"+this.props.user._id+"/lectures", updatedLectureArray)
+.then(function(response){
+  return response.data
+})
+.catch(function(err){
+  throw err;
+});
+
+this.setState({showModal:false,
+                counter:0,
+                correction:[]
+              })
+this.props.getCurrentUser();
   }
 
 //***********FUNCTIONS HANDELING CORRECTION*******************//
@@ -155,6 +187,7 @@ questionAnswered(){
   }
 }
 
+//This function updates the bar that keeps track of your progress.
 updateCorrection(currentQuestion, commentText){
   var updatedArray= [...this.state.correction.slice(0, this.state.counter), currentQuestion, ...this.state.correction.slice(this.state.counter+1)]
   this.setState({comment:commentText,
@@ -168,11 +201,21 @@ clearQuestioncomments(currentQuestionNum){
                 });
 }
 nextQuestion(){
-  var currentQuestionNum=this.state.counter+=1;
-if(currentQuestionNum==this.state.currentLecture.questions.length){
+
+  let currentQuestionNum=this.state.counter+1;
+if(currentQuestionNum>=this.state.currentLecture.questions.length){
+this.setState({counter:this.state.counter-1})
 this.closeModal();
+
 }
 else{
+  if(this.state.currentLecture.questions[this.state.counter].isVideo){
+    console.log("starting the videoupdate")
+    let currentQuestion={questionNr:this.state.counter,
+                        isCorrect:"correct",
+                      }
+    this.updateCorrection(currentQuestion, "")
+  }
 this.clearQuestioncomments(currentQuestionNum);}
 }
 
@@ -198,13 +241,37 @@ onCorrectionClick(questionNr){
 }
 /**************************/
 
+renderVideo(){
+  return(
+    <Row>
+    <Media>
+      <Row>
+        <Col xs={12}>
+          <Well>
+            <video width="100%" controls onEnded={this.nextQuestion.bind(this)}>
+              <source src="/images/S2-Connect-React-to-Store.mp4" type="video/mp4"/>
+            </video>
+          </Well>
+        </Col>
+      </Row>
+      <Well>
+        <Button onClick={this.nextQuestion.bind(this)} bsStyle="primary">Continue</Button>
+      </Well>
+    </Media>
+
+    </Row>
+  )
+}
+
 renderModal(){
-
-
+  console.log("renderModal, this.state.counter is: ", this.state.counter )
+  console.log("renderModal, this.state.currentLecture.questions[0] is: ", this.state.currentLecture.questions[0])
 var radioButtons= this.state.currentLecture.questions[this.state.counter].answers.map(function( answer, index){
 return(  <Radio name="radioGroup" key={index} onClick={this.checkAnswer.bind(this, answer.answer)}>
   <h6 className="answer">{answer.answer}</h6>
   </Radio>)}, this)
+
+
 
 
   return(
@@ -222,7 +289,7 @@ return(  <Radio name="radioGroup" key={index} onClick={this.checkAnswer.bind(thi
 
             <PageHeader>
               {this.state.currentLecture.lecture}
-    
+
               <Image className="headerImage" src={this.state.currentLecture.lectureImage}/>
 
             </PageHeader>
@@ -234,7 +301,7 @@ return(  <Radio name="radioGroup" key={index} onClick={this.checkAnswer.bind(thi
                 {this.handleCorrectionButtons()}
               </Well>
 
-        {(this.state.currentLecture.questions[this.state.counter].isVideo)?(<Media><Row><Col xs={12}><Well><video width="100%" controls><source src="/images/S2-Connect-React-to-Store.mp4" type="video/mp4"/> </video></Well></Col></Row></Media>):(this.handleQuestion(radioButtons))}
+        {(this.state.currentLecture.questions[this.state.counter].isVideo)?(this.renderVideo()):(this.handleQuestion(radioButtons))}
       </Panel>
   </Row>
 
@@ -258,7 +325,7 @@ axios.get("api/lectures/"+lectureId)
   .then(function(response){
 
     this.setState({currentLecture:response.data});
-    console.log("first question is lecture is: ", this.state.currentLecture)
+    console.log("selectLecture, this.state.currentLecture is: ", this.state.currentLecture)
     modalBolean=true;
     this.openModal();
     return response.data }.bind(this))
@@ -271,12 +338,12 @@ console.log("this.state.correction is: ", this.state.correction)
   return this.props.lectures.map(function(lecture){
         return(
             <Col  xs={12} sm={6} md ={4} key={lecture._id} >
-              <Row>
-              <Well onClick={this.selectLecture.bind(this, lecture._id)}>
+              <Row >
+              <Well className="selectLectureWell" onClick={this.selectLecture.bind(this, lecture._id)}>
                 <h3>{lecture.lecture}</h3>
                 <Row>
                   <Well>
-                    <Image src={lecture.lectureImage} responsive/>
+                    <Image className="selectLectureImage" src={lecture.lectureImage} responsive/>
                   </Well>
                 </Row>
               </Well>
@@ -296,7 +363,7 @@ renderStartPage(){
               <small>   Where the lectures  are found</small>
             </PageHeader>
         </Col>
-        <Col xs={12} sm={12} md={12} >
+        <Col  xs={12} sm={12} md={12} >
           {(this.props.lectures!=null)?(this.renderLectures()):(console.log("wtf!", this.props.lectures))}
 
         </Col>

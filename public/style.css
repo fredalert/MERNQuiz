@@ -45,8 +45,24 @@ h6.answer{
   background-color: grey;
 }
 
+.unanswered{
+  background-color: lightgrey;
+}
+.unanswered:hover{
+  background-color: grey;
+}
+
 .headerImage{
   display: inline;
   width:30%;
   margin-left: 20%;
+}
+
+.selectLectureImage{
+  height:100px;
+  background-color: green;
+}
+
+.selectLectureWell{
+  margin:4%;
 }
