@@ -3,7 +3,8 @@ var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
-var httpProxy=require("http-proxy")
+var httpProxy=require("http-proxy");
+
 
 
 
@@ -26,6 +27,8 @@ app.use("/api", function(req, res){
 app.use(logger('dev'));
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+
 
 
 //////**************API****************/////

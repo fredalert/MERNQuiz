@@ -1,9 +1,17 @@
 "use strict"
 var mongoose = require('mongoose');
-var lectureSchema = mongoose.Schema(
+
+const Schema = mongoose.Schema;
+var lectureSchema = new Schema(
 {
+  isPublished:{type:Boolean,
+              default:false},
   lecture:{type:String},
   lectureImage:{type:String},
+  creator:{
+    type:Schema.Types.ObjectId,
+    ref:"User"
+  },
   questions: [{
       isVideo:{type:Boolean, default:false},
       videoUrl:{type:String, default:""},
