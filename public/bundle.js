@@ -39026,7 +39026,7 @@ exports.lectureReducers = lectureReducers;
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function lectureReducers() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { lecture: [] };
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { lectures: [] };
   var action = arguments[1];
 
   switch (action.type) {
@@ -39035,7 +39035,7 @@ function lectureReducers() {
       break;
 
     case "POST_LECTURE":
-      return _extends({}, state, { lectures: [].concat(_toConsumableArray(action.payload)) });
+      return _extends({}, state, { currentLecture: action.payload });
       break;
 
     case "UPDATE_LECTURE":
@@ -52362,10 +52362,10 @@ function getLecture(lectureId) {
   };
 }
 
-function postLecture(UserId, lecture) {
+function postLecture(lecture) {
 
   return function (dispatch) {
-    _axios2.default.post("/api/createLecture/" + userId, lecture).then(function (response) {
+    _axios2.default.post("/api/createlecture/", lecture).then(function (response) {
       dispatch({
         type: "POST_LECTURE",
         payload: response.data });
@@ -52506,6 +52506,9 @@ var Lecture = function (_React$Component) {
     value: function closeModal() {
       this.setState({ showModal: false });
     }
+
+    //RENDERING FUNCTIONS//
+
   }, {
     key: "render",
     value: function render() {
@@ -52679,35 +52682,52 @@ var CreateLecture = function (_React$Component) {
 
     var _this = _possibleConstructorReturn(this, (CreateLecture.__proto__ || Object.getPrototypeOf(CreateLecture)).call(this, props));
 
-    _this.handleAlternativeTextChange = function (index) {
+    _this.handleTextChange = function (obj, qindex, aindex) {
       return function (evt) {
+        var lect = _this.state.lecture;
+        switch (obj) {
+          case "lecture":
+            lect.lecture = evt.target.value;
+            break;
+          case "description":
+            lect.description = evt.target.value;
+            break;
+          case "questions.comment":
+            lect.questions[qindex].comment = evt.target.value;
+            break;
+          case "questions.question":
+            lect.questions[qindex].question = evt.target.value;
+            break;
+          case "questions.answers":
+            var newAlternatives = lect.questions[qindex].answers.map(function (answer, stateindex) {
+              if (aindex !== stateindex) return answer;
+              return _extends({}, answer, { answer: evt.target.value });
+            });
+            lect.questions[qindex].answers = newAlternatives;
 
-        var newAlternatives = _this.state.currentAlternativeArray.map(function (alternative, stateindex) {
-          if (index !== stateindex) return alternative;
-          return _extends({}, alternative, { alternativeName: evt.target.value });
-        });
-        _this.setState({ currentAlternativeArray: newAlternatives });
-        evt.preventDefault();
-        console.log("alternativeArray is , ", alternativeArray);
+        }
+        _this.setState({ lecture: lect });
       };
     };
 
     _this.state = { activePage: 1,
       isVideo: false,
       currentAlternatives: 4,
-      lectureArray: [],
+      currentQuestionNum: 0,
+      lecture: { lecture: "",
+        description: "",
+        questions: [{ comment: "",
+          question: "",
+          answers: [{ answer: "" }, { answer: "" }, { answer: "" }, { answer: "" }]
+        }] },
       currentAlternativeArray: []
-
     };
-    _this.handleAlternativeTextChange = _this.handleAlternativeTextChange.bind(_this);
-
     return _this;
   }
 
   _createClass(CreateLecture, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-
       this.helpRenderAlternatives();
     }
 
@@ -52719,8 +52739,8 @@ var CreateLecture = function (_React$Component) {
     //It returns the new array of questions.
 
   }, {
-    key: "updateQuestion",
-    value: function updateQuestion(updatedQuestion, questions) {
+    key: "updateOrCreateQuestion",
+    value: function updateOrCreateQuestion(updatedQuestion, questions) {
       var arrayToBeUpdated = questions;
       var updatedQuestionArray = [];
       if (updatedQuestion._id === "") {
@@ -52734,29 +52754,37 @@ var CreateLecture = function (_React$Component) {
       return updatedQuestionArray;
     }
   }, {
+    key: "addQuestion",
+    value: function addQuestion() {
+      if (1 + this.state.currentQuestionNum >= this.state.lecture.questions.length) {
+        var questionss = this.state.lecture.questions.push({ comment: "",
+          question: "",
+          answers: [{ answer: "" }, { answer: "" }, { answer: "" }, { answer: "" }]
+        });
+        this.setState(_extends({}, this.state.lecture, { questions: questionss }));
+      }
+    }
+  }, {
     key: "nextButtonHandler",
     value: function nextButtonHandler() {
-
-      var currentQuestion = {
-        isVideo: this.state.isVideo,
-        videoUrl: "",
-        question: (0, _reactDom.findDOMNode)(this.refs.question).value,
-        correctAnswer: "",
-        comment: (0, _reactDom.findDOMNode)(this.refs.questionComment).value,
-        image: "",
-        answers: []
-      };
-
-      var lecture = {
-        lecture: (0, _reactDom.findDOMNode)(this.refs.lectureName).value,
-        description: (0, _reactDom.findDOMNode)(this.refs.lectureDescription).value,
-        creator: this.props.user._id,
-        isPublished: false,
-        questions: []
-      };
-      var numberOfQuestions = lecture.questions.length;
-      console.log("nextButtonHandler opens, lecture is", lecture);
-      console.log("currentQuestion is :", currentQuestion);
+      this.addQuestion();
+      var self = this;
+      var newnumber = this.state.currentQuestionNum + 1;
+      if (this.state.lecture.questions.length < 3) {
+        _axios2.default.post("/api/createlecture", this.state.lecture).then(function (result) {
+          self.setState({ lecture: result.data,
+            currentQuestionNum: newnumber });
+        }).catch(function (err) {
+          console.log(err);
+        });
+      } else {
+        _axios2.default.put("/api/updatelecture/" + this.state.lecture._id, this.state.lecture).then(function (result) {
+          self.setState({ lecture: result.data,
+            currentQuestionNum: newnumber });
+        }).catch(function (err) {
+          console.log(err);
+        });
+      }
     }
 
     ////RENDERING FUNCTIONS///////////
@@ -52772,9 +52800,7 @@ var CreateLecture = function (_React$Component) {
           null,
           _react2.default.createElement(
             "form",
-            { method: "post", enctype: "multipart/form-data", action: "api/createlecture/file-upload" },
-            _react2.default.createElement("input", { type: "text", name: "username" }),
-            _react2.default.createElement("input", { type: "password", name: "password" }),
+            { method: "post", encType: "multipart/form-data", action: "api/fileupload" },
             _react2.default.createElement("input", { type: "file", name: "thumbnail" }),
             _react2.default.createElement("input", { type: "submit" })
           )
@@ -52786,8 +52812,8 @@ var CreateLecture = function (_React$Component) {
     value: function helpRenderAlternatives() {
       var alternatives = [];
       for (var i = 1; i <= this.state.currentAlternatives; i++) {
-        alternatives.push({ alternativeName: "Alternative" + i,
-          alternativeNumber: i });
+        alternatives.push({ answer: ""
+        });
       }
       this.setState({ currentAlternativeArray: alternatives });
       return alternatives;
@@ -52795,26 +52821,23 @@ var CreateLecture = function (_React$Component) {
   }, {
     key: "renderQuestion",
     value: function renderQuestion() {
+      var _this2 = this;
 
       var mappedAlternatives = this.state.currentAlternativeArray.map(function (alternative, index) {
-        var _this2 = this;
-
         return _react2.default.createElement(
           "div",
-          { key: alternative.alternativeName },
+          { key: index },
           _react2.default.createElement(_reactBootstrap.Radio, { inline: true, name: "radioGroup" }),
           _react2.default.createElement(
             _reactBootstrap.ControlLabel,
             null,
-            alternative.alternativeNumber
+            index + 1
           ),
           _react2.default.createElement(_reactBootstrap.FormControl, {
             type: "text",
-            placeholder: alternative.alternativeName,
-
-            inputRef: function inputRef(ref) {
-              _this2.input = ref;
-            }
+            placeholder: alternative.answer,
+            value: _this2.state.lecture.questions[_this2.state.currentQuestionNum].answers[index].answer,
+            onChange: _this2.handleTextChange("questions.answers", _this2.state.currentQuestionNum, index)
           })
         );
       }, this);
@@ -52845,8 +52868,9 @@ var CreateLecture = function (_React$Component) {
               ),
               _react2.default.createElement(_reactBootstrap.FormControl, {
                 type: "text",
+                value: this.state.lecture.questions[this.state.currentQuestionNum].question,
                 placeholder: "What is 2+2",
-                ref: "question"
+                onChange: this.handleTextChange("questions.question", this.state.currentQuestionNum)
               }),
               _react2.default.createElement(
                 _reactBootstrap.ControlLabel,
@@ -52856,7 +52880,9 @@ var CreateLecture = function (_React$Component) {
               _react2.default.createElement(_reactBootstrap.FormControl, {
                 type: "text",
                 placeholder: "When you have 2 apples and adds 2 more you have 4 apples",
-                ref: "questionComment"
+                value: this.state.lecture.questions[this.state.currentQuestionNum].comment,
+                onChange: this.handleTextChange("questions.comment", this.state.currentQuestionNum)
+
               })
             ),
             _react2.default.createElement("br", null),
@@ -52887,6 +52913,8 @@ var CreateLecture = function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
+
+      console.log("this.state.lecture is: ", this.state.lecture);
       return _react2.default.createElement(
         _reactBootstrap.Row,
         { className: "createLectureContainer" },
@@ -52913,7 +52941,8 @@ var CreateLecture = function (_React$Component) {
                   _react2.default.createElement(_reactBootstrap.FormControl, {
                     type: "text",
                     placeholder: "The nazi lecture",
-                    ref: "lectureName"
+                    value: this.state.lecture.lecture,
+                    onChange: this.handleTextChange("lecture")
                   }),
                   _react2.default.createElement(
                     _reactBootstrap.ControlLabel,
@@ -52923,7 +52952,8 @@ var CreateLecture = function (_React$Component) {
                   _react2.default.createElement(_reactBootstrap.FormControl, {
                     type: "text",
                     placeholder: "A lecture about the nazis and their shortcomings",
-                    ref: "lectureDescription"
+                    onChange: this.handleTextChange("description")
+
                   })
                 )
               )
@@ -52944,8 +52974,8 @@ var CreateLecture = function (_React$Component) {
                 null,
                 _react2.default.createElement(_reactBootstrap.Pagination, {
                   bsSize: "large",
-                  items: this.state.lectureArray.length + 1,
-                  activePage: this.state.activePage,
+                  items: this.state.lecture.questions.length,
+                  activePage: this.state.currentQuestionNum + 1,
                   onSelect: this.handlePaginationSelect.bind(this) }),
                 _react2.default.createElement("br", null)
               )
@@ -53021,7 +53051,7 @@ var CreateLecture = function (_React$Component) {
   }, {
     key: "handlePaginationSelect",
     value: function handlePaginationSelect(eventKey) {
-      this.setState({ activePage: eventKey });
+      this.setState({ currentQuestionNum: eventKey - 1 });
     }
   }]);
 
@@ -53034,7 +53064,8 @@ function mapDispatchToProps(dispatch) {
 
 function mapStateToProps(state) {
   return {
-    user: state.user.loggedInUser
+    user: state.user.loggedInUser,
+    currentLecture: state.lectures.currentLecture
   };
 }
 

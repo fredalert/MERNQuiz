@@ -16,17 +16,21 @@ constructor(props){
   this.state={activePage:1,
               isVideo:false,
               currentAlternatives:4,
-              lectureArray:[],
+              currentQuestionNum:0,
+              lecture:{lecture:"",
+                      description:"",
+                      questions:[{comment:"",
+                                  question:"",
+                                  answers:  [{answer:""},
+                                             {answer:""},
+                                             {answer:""},
+                                             {answer:""}]
+                                  }]},
               currentAlternativeArray:[],
-
-
 }
-this.handleAlternativeTextChange = this.handleAlternativeTextChange.bind(this);
-
 }
 
 componentDidMount(){
-
   this.helpRenderAlternatives();
 }
 
@@ -36,7 +40,7 @@ componentDidMount(){
 //It needs the current Question Array, and the updated question.
 //If the updated question does not excist in the array, it adds it, otherwise it updates the question.
 //It returns the new array of questions.
-updateQuestion(updatedQuestion, questions){
+updateOrCreateQuestion(updatedQuestion, questions){
   var arrayToBeUpdated=questions;
   let updatedQuestionArray=[];
 if(updatedQuestion._id===""){
@@ -51,33 +55,43 @@ if(updatedQuestion._id===""){
 return updatedQuestionArray;
 }
 
+addQuestion(){
+  if(1+this.state.currentQuestionNum >=this.state.lecture.questions.length){
+    let questionss= this.state.lecture.questions.push({comment:"",
+                question:"",
+                answers:  [{answer:""},
+                           {answer:""},
+                           {answer:""},
+                           {answer:""}]
+  })
+  this.setState({...this.state.lecture, questions:questionss})
+}}
 
 nextButtonHandler(){
+  this.addQuestion();
+let self=this;
+  let newnumber = this.state.currentQuestionNum+1;
+    if(this.state.lecture.questions.length<3){
+    axios.post("/api/createlecture", this.state.lecture)
+    .then(function(result){
+      self.setState({lecture:result.data,
+                      currentQuestionNum:newnumber})
+    })
+    .catch(function(err){
+      console.log(err);
+    })
+}
 
-
-
-  const currentQuestion={
-        isVideo:this.state.isVideo,
-        videoUrl:"",
-        question:findDOMNode(this.refs.question).value,
-        correctAnswer:"",
-        comment: findDOMNode(this.refs.questionComment).value,
-        image: "",
-        answers: []
-  }
-
-
-  const lecture= {
-    lecture:findDOMNode(this.refs.lectureName).value,
-    description:findDOMNode(this.refs.lectureDescription).value,
-    creator:this.props.user._id,
-    isPublished:false,
-    questions:[]
-    }
-    let numberOfQuestions= lecture.questions.length;
-  console.log("nextButtonHandler opens, lecture is", lecture  )
-  console.log("currentQuestion is :", currentQuestion)
-
+else{
+  axios.put("/api/updatelecture/"+this.state.lecture._id, this.state.lecture)
+  .then(function(result){
+    self.setState({lecture:result.data,
+                  currentQuestionNum:newnumber})
+  })
+  .catch(function(err){
+    console.log(err);
+  })
+ }
 }
 
 ////RENDERING FUNCTIONS///////////
@@ -86,9 +100,7 @@ renderVideo(){
   return(
     <Panel>
       <Well>
-        <form method="post" enctype="multipart/form-data" action="api/createlecture/file-upload">
-        <input type="text" name="username"/>
-        <input type="password" name="password"/>
+        <form method="post" encType="multipart/form-data" action="api/fileupload">
         <input type="file" name="thumbnail"/>
         <input type="submit"/>
       </form>
@@ -100,47 +112,56 @@ renderVideo(){
 helpRenderAlternatives(){
   let alternatives= [];
   for(let i = 1; i<=this.state.currentAlternatives; i++){
-    alternatives.push({alternativeName:"Alternative"+i,
-                              alternativeNumber:i                          })
+    alternatives.push({answer:"",
+                                                     })
   }
   this.setState({currentAlternativeArray:alternatives})
 return alternatives;
 }
 
+handleTextChange=(obj, qindex, aindex) => (evt)=>{
+let lect=this.state.lecture;
+switch(obj){
+  case "lecture":
+  lect.lecture=evt.target.value;
+  break;
+  case "description":
+  lect.description=evt.target.value;
+  break;
+  case "questions.comment":
+  lect.questions[qindex].comment=evt.target.value;
+  break;
+  case "questions.question":
+  lect.questions[qindex].question=evt.target.value;
+  break;
+  case "questions.answers":
+  const newAlternatives = lect.questions[qindex].answers.map((answer, stateindex) => {
+          if (aindex !== stateindex) return answer;
+          return { ...answer, answer: evt.target.value };
+        });
+  lect.questions[qindex].answers=newAlternatives;
 
-
-handleAlternativeTextChange=(index) => (evt)=>{
-
-  const newAlternatives = this.state.currentAlternativeArray.map((alternative, stateindex) => {
-        if (index !== stateindex) return alternative;
-        return { ...alternative, alternativeName: evt.target.value };
-      });
-this.setState({currentAlternativeArray:newAlternatives})
-evt.preventDefault();
-console.log("alternativeArray is , ", alternativeArray)
-
+}
+this.setState({lecture:lect})
 }
 
 renderQuestion(){
-
-const mappedAlternatives=this.state.currentAlternativeArray.map(function(alternative, index){
-
-  return(
-    <div key={alternative.alternativeName}>
+const mappedAlternatives=this.state.currentAlternativeArray.map((alternative, index)=>{
+ return(
+    <div key={index}>
     <Radio inline name="radioGroup">
       </Radio>
-      <ControlLabel >{alternative.alternativeNumber}</ControlLabel>
+      <ControlLabel >{index+1}</ControlLabel>
       <FormControl
         type="text"
-        placeholder={alternative.alternativeName}
-        
-        inputRef={ref => { this.input = ref; }}
+        placeholder={alternative.answer}
+        value={this.state.lecture.questions[this.state.currentQuestionNum].answers[index].answer}
+        onChange={this.handleTextChange("questions.answers", this.state.currentQuestionNum, index)}
         />
 </div>
 
   )
 }, this)
-
 
 return(
     <Row>
@@ -153,14 +174,17 @@ return(
             <ControlLabel>Questiontext</ControlLabel>
             <FormControl
               type="text"
+              value={this.state.lecture.questions[this.state.currentQuestionNum].question}
               placeholder="What is 2+2"
-              ref="question"
+              onChange={this.handleTextChange("questions.question", this.state.currentQuestionNum)}
               />
               <ControlLabel>Comment to the question</ControlLabel>
                 <FormControl
                   type="text"
                   placeholder="When you have 2 apples and adds 2 more you have 4 apples"
-                  ref="questionComment"
+                  value={this.state.lecture.questions[this.state.currentQuestionNum].comment}
+                  onChange={this.handleTextChange("questions.comment", this.state.currentQuestionNum)}
+
                   />
           </FormGroup>
           <br/>
@@ -182,6 +206,8 @@ return(
 
 //MAIN RENDER
 render(){
+
+  console.log("this.state.lecture is: ", this.state.lecture)
   return(
 <Row className="createLectureContainer">
 
@@ -194,13 +220,15 @@ render(){
             <FormControl
               type="text"
               placeholder="The nazi lecture"
-              ref="lectureName"
+              value={this.state.lecture.lecture}
+              onChange={this.handleTextChange("lecture")}
               />
               <ControlLabel>Description of the lecture</ControlLabel>
                 <FormControl
                   type="text"
                   placeholder="A lecture about the nazis and their shortcomings"
-                  ref="lectureDescription"
+                  onChange={this.handleTextChange("description")}
+
                   />
           </FormGroup>
       </Well>
@@ -214,8 +242,8 @@ render(){
         <Well>
         <Pagination
            bsSize="large"
-           items={this.state.lectureArray.length+1}
-           activePage={this.state.activePage}
+           items={this.state.lecture.questions.length}
+           activePage={this.state.currentQuestionNum+1}
            onSelect={this.handlePaginationSelect.bind(this)} />
           <br />
         </Well>
@@ -255,7 +283,6 @@ render(){
 
 chooseVideo(){ //Handles a click on the addVideo button
 this.setState({isVideo:true})
-
 }
 
 chooseQuestion(){ //Handles a click on the addQuestio button
@@ -264,18 +291,18 @@ chooseQuestion(){ //Handles a click on the addQuestio button
 
 
 handlePaginationSelect(eventKey){
-this.setState({activePage:eventKey});
+this.setState({currentQuestionNum:eventKey-1});
 }
 }
 
 function mapDispatchToProps(dispatch){
   return bindActionCreators({postLecture, getLectures}, dispatch)
-
 }
 
 function mapStateToProps(state){
   return {
     user:state.user.loggedInUser,
+    currentLecture:state.lectures.currentLecture,
   }
 }
 

@@ -7,6 +7,7 @@ var lectureSchema = new Schema(
   isPublished:{type:Boolean,
               default:false},
   lecture:{type:String},
+  description:{type:String},
   lectureImage:{type:String},
   creator:{
     type:Schema.Types.ObjectId,

@@ -25,10 +25,10 @@ export function getLecture(lectureId){
 
 
 
-export function postLecture(UserId, lecture){
+export function postLecture(lecture){
 
   return function(dispatch){
-    axios.post("/api/createLecture/"+userId, lecture)
+    axios.post("/api/createlecture/", lecture)
     .then(function(response){
       dispatch({
       type:"POST_LECTURE",

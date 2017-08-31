@@ -18,7 +18,8 @@ closeModal(){
   this.setState({showModal:false})
 }
 
-  render(){
+//RENDERING FUNCTIONS//
+render(){
 
     return(
       <div>

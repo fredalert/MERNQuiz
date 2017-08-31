@@ -5,18 +5,14 @@ var bodyParser = require('body-parser');
 var session = require("express-session");
 var MongoStore = require("connect-mongo")(session);
 var fs = require('fs');
-
+var busboy = require('connect-busboy');
 
 
 var app = express();
 
-
-
-
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-
+app.use(busboy());
 app.use(cookieParser());
 
 
@@ -40,6 +36,23 @@ app.use(session({
     ttl:2*24*60*60,
     })
 }))
+
+
+app.post('/fileupload', function(req, res) {
+    var fstream;
+    req.pipe(req.busboy);
+    req.busboy.on('file', function (fieldname, file, filename) {
+        console.log("Uploading: " + filename);
+        fstream = fs.createWriteStream(__dirname + '/public/files/' + filename);
+        file.pipe(fstream);
+        fstream.on('close', function () {
+            
+            res.redirect("back");
+        });
+    });
+});
+
+
 
 //******CART-API********///////
 
@@ -243,15 +256,34 @@ Lectures.findOne({_id:req.params.qId}, function(err, lectur){
 })
 })
 
+//-------UPDATE-LECTURE-------------------------//
+app.put("/updatelecture/:_Lid", function(req, res, next){
+  const lect= req.body;
+  console.log("req.params.Lid is: ", req.params._Lid)
+  console.log("req.body is: ", req.body)
+  const query={_id:req.params.Lid};
+  const update= {$set:{lecture:lect.lecture,
+                        description:lect.description,
+                        questions:lect.questions}};
+  const options={new:true};
+
+  Lectures.findByIdAndUpdate(req.params._Lid, update, options, function(err, lecture){
+    if(err){
+
+      throw err;}
+    console.log("update made lecture is now :", lecture)
+    return res.json(lecture)
+  })
+})
 
 //-------POST-LECTURE-------------------------//
 
-app.post('/lectures', function(req, res, next){
+app.post('/createlecture', function(req, res, next){
   const lect =req.body
 var lectData = new Lectures(lect)
-lectData.save(function(err, lecturre){
+lectData.save(function(err, lecture){
   if(err){throw err}
-  return res.json(lecturre)
+  return res.json(lecture)
 })
 })
 
