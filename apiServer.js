@@ -16,7 +16,6 @@ app.use(busboy());
 app.use(cookieParser());
 
 
-
 //////**************API****************/////
 //**Fungerar inte om den inte finns under alla middleware.**//
 var mongoose=require("mongoose");
@@ -39,15 +38,16 @@ app.use(session({
 
 
 app.post('/fileupload', function(req, res) {
+  console.log("something happened")
     var fstream;
     req.pipe(req.busboy);
     req.busboy.on('file', function (fieldname, file, filename) {
         console.log("Uploading: " + filename);
         fstream = fs.createWriteStream(__dirname + '/public/files/' + filename);
+        let thePath='/files/' + filename;
         file.pipe(fstream);
         fstream.on('close', function () {
-            
-            res.redirect("back");
+            res.json({thePath:thePath})
         });
     });
 });
@@ -289,9 +289,7 @@ lectData.save(function(err, lecture){
 
 //>>>>>>>>CREATE-LECTURE-API<<<<<<<<<<<//
 //-------POST-FILE-------------------------//
-app.post("/createlecture/file-upload", function(req,res, next){
 
-});
 
 
 //////**************END OF API****************/////

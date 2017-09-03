@@ -6,9 +6,12 @@ import {bindActionCreators} from "redux";
 import {findDOMNode} from "react-dom"
 import {getLectures, postLecture} from "../../actions/lectureActions"
 import axios from "axios";
+import Dropzone from 'react-dropzone'
 
 
 let alternativeArray=[];
+
+const handleDropRejected = (...args) => console.log('reject', args)
 
 class CreateLecture extends React.Component{
 constructor(props){
@@ -20,6 +23,8 @@ constructor(props){
               lecture:{lecture:"",
                       description:"",
                       questions:[{comment:"",
+                                  isVideo:false,
+                                  videoUrl:"",
                                   question:"",
                                   answers:  [{answer:""},
                                              {answer:""},
@@ -28,6 +33,7 @@ constructor(props){
                                   }]},
               currentAlternativeArray:[],
 }
+this.handleDrop = this.handleDrop.bind(this)
 }
 
 componentDidMount(){
@@ -40,7 +46,7 @@ componentDidMount(){
 //It needs the current Question Array, and the updated question.
 //If the updated question does not excist in the array, it adds it, otherwise it updates the question.
 //It returns the new array of questions.
-updateOrCreateQuestion(updatedQuestion, questions){
+/*updateOrCreateQuestion(updatedQuestion, questions){
   var arrayToBeUpdated=questions;
   let updatedQuestionArray=[];
 if(updatedQuestion._id===""){
@@ -53,7 +59,7 @@ if(updatedQuestion._id===""){
   updatedQuestionArray= [...arrayToBeUpdated.slice(0, indexOfQuestionToBeUpdated), updatedQuestion, ...arrayToBeUpdated.slice(indexOfQuestionToBeUpdated+1)]
 }
 return updatedQuestionArray;
-}
+}*/
 
 addQuestion(){
   if(1+this.state.currentQuestionNum >=this.state.lecture.questions.length){
@@ -70,8 +76,10 @@ addQuestion(){
 nextButtonHandler(){
   this.addQuestion();
 let self=this;
+console.log("self.state.lecture.questions is: ", self.state.lecture.questions)
   let newnumber = this.state.currentQuestionNum+1;
     if(this.state.lecture.questions.length<3){
+      console.log("entered the post next-handler")
     axios.post("/api/createlecture", this.state.lecture)
     .then(function(result){
       self.setState({lecture:result.data,
@@ -83,6 +91,7 @@ let self=this;
 }
 
 else{
+  console.log("entered the put next-handler")
   axios.put("/api/updatelecture/"+this.state.lecture._id, this.state.lecture)
   .then(function(result){
     self.setState({lecture:result.data,
@@ -96,15 +105,43 @@ else{
 
 ////RENDERING FUNCTIONS///////////
 
+handleDrop=(action) => (files) =>{
+  console.log(action)
+  const formData= new FormData();
+  let file= files[0];
+  formData.append("file", file);
+  let self=this;
+  let lect=this.state.lecture;
+switch(action){
+  case "video":
+  axios.post("/api/fileupload", formData)
+  .then(function(response){
+    lect.questions[self.state.currentQuestionNum].isVideo=true;
+    lect.questions[self.state.currentQuestionNum].videoUrl=response.data.thePath;
+      })
+  .catch(function(err){
+    console.log(err)
+  })
+  break;
+  case "lecture.image":
+  axios.post("/api/fileupload", formData)
+  .then(function(response){
+    lect.lectureImage=response.data.thePath;
+  })
+  .catch(function(err){
+    console.log(err)
+  })
+}
+self.setState({lecture:lect})
+
+}
+
 renderVideo(){
   return(
     <Panel>
-      <Well>
-        <form method="post" encType="multipart/form-data" action="api/fileupload">
-        <input type="file" name="thumbnail"/>
-        <input type="submit"/>
-      </form>
-      </Well>
+    <Dropzone onDrop={ this.handleDrop("video")} accept="video/mp4" multiple={ false } onDropRejected={ handleDropRejected }>
+        Drag a file here or click to upload.
+      </Dropzone>
     </Panel>
   )
 }
@@ -119,9 +156,9 @@ helpRenderAlternatives(){
 return alternatives;
 }
 
-handleTextChange=(obj, qindex, aindex) => (evt)=>{
+handleTextChange=(action, qindex, aindex) => (evt)=>{
 let lect=this.state.lecture;
-switch(obj){
+switch(action){
   case "lecture":
   lect.lecture=evt.target.value;
   break;
@@ -228,9 +265,13 @@ render(){
                   type="text"
                   placeholder="A lecture about the nazis and their shortcomings"
                   onChange={this.handleTextChange("description")}
+                />
+                <Dropzone onDrop={ this.handleDrop("lecture.image")} accept="image/jpg, image/jpeg" multiple={ false } onDropRejected={ handleDropRejected }>
+                    Drag a picture here or click to upload.
+                  </Dropzone>
 
-                  />
           </FormGroup>
+
       </Well>
       </Col>
     </Panel>

@@ -249,7 +249,7 @@ renderVideo(){
         <Col xs={12}>
           <Well>
             <video width="100%" controls onEnded={this.nextQuestion.bind(this)}>
-              <source src="/images/S2-Connect-React-to-Store.mp4" type="video/mp4"/>
+              <source src={this.state.currentLecture.questions[this.state.counter].videoUrl} type="video/mp4"/>
             </video>
           </Well>
         </Col>
