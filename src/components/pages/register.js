@@ -5,7 +5,6 @@ import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
 import {findDOMNode} from "react-dom"
 import {postUserAction} from "../../actions/userActions"
-import {postBookAction, deleteBookAction, getBooks, buttonReset} from "../../actions/bookActions"
 import axios from "axios";
 
 class Register extends React.Component{

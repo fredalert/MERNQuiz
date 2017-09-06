@@ -1,5 +1,5 @@
 import React from "react";
-import {Row, Image, Media, Modal, Badge, Pagination, Col,Well, Radio, Button, PageHeader, Panel, FormGroup, InputGroup, FormControl} from "react-bootstrap";
+import {Row, Image, Grid, Media, Modal, Badge, Pagination, Col,Well, Radio, Button, PageHeader, Panel, FormGroup, InputGroup, FormControl} from "react-bootstrap";
 import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
 import {getLectures} from "../../actions/lectureActions"
@@ -31,8 +31,6 @@ constructor(){
 
 componentDidMount(){
   this.props.getLectures();
-
-
 
 
 
@@ -272,8 +270,6 @@ return(  <Radio name="radioGroup" key={index} onClick={this.checkAnswer.bind(thi
   </Radio>)}, this)
 
 
-
-
   return(
       <div>
       <Modal bsSize="large" show={this.state.showModal} onHide={this.closeModal.bind(this)}>
@@ -337,18 +333,21 @@ renderLectures(){
 console.log("this.state.correction is: ", this.state.correction)
   return this.props.lectures.map(function(lecture){
         return(
-            <Col  xs={12} sm={6} md ={4} key={lecture._id} >
-              <Row >
-              <Well className="selectLectureWell" onClick={this.selectLecture.bind(this, lecture._id)}>
-                <h3>{lecture.lecture}</h3>
-                <Row>
-                  <Well>
-                    <Image className="selectLectureImage" src={lecture.lectureImage} responsive/>
-                  </Well>
-                </Row>
-              </Well>
-              </Row>
-            </Col>)}, this
+
+            <Col  xs={6} md ={4} key={lecture._id} >
+
+              <Media className="lectureThumbnail"   onClick={this.selectLecture.bind(this, lecture._id)}>
+                <Media.Left>
+                <img src={lecture.lectureImage} className="lectureImage"/>
+                </Media.Left>
+                <Media.Body>
+                <Media.Heading>{lecture.lecture}</Media.Heading>
+                <p className="lectureDescription">{lecture.description}</p>
+                </Media.Body>
+              </Media>
+
+            </Col>)
+          }, this
         )
 }
 
@@ -377,7 +376,11 @@ renderStartPage(){
 render(){
 
 return (
-this.renderStartPage()
+  <Grid>
+    <Row>
+{this.renderStartPage()}
+</Row>
+</Grid>
 )
 }
 }

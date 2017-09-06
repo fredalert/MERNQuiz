@@ -6088,66 +6088,7 @@ var route = Object(__WEBPACK_IMPORTED_MODULE_0_prop_types__["oneOfType"])([__WEB
 var routes = Object(__WEBPACK_IMPORTED_MODULE_0_prop_types__["oneOfType"])([route, Object(__WEBPACK_IMPORTED_MODULE_0_prop_types__["arrayOf"])(route)]);
 
 /***/ }),
-/* 68 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.getBooks = getBooks;
-exports.postBookAction = postBookAction;
-exports.buttonReset = buttonReset;
-exports.deleteBookAction = deleteBookAction;
-
-var _axios = __webpack_require__(32);
-
-var _axios2 = _interopRequireDefault(_axios);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function getBooks() {
-  return function (dispatch) {
-    _axios2.default.get("/api/books").then(function (response) {
-      dispatch({ type: "GET_BOOKS",
-        payload: response.data });
-    }).catch(function (err) {
-      dispatch({ type: "GET_BOOKS_REJECTED",
-        payload: err });
-    });
-  };
-}
-
-function postBookAction(book) {
-  return function (dispatch) {
-    _axios2.default.post("/api/books", book).then(function (response) {
-      dispatch({ type: "POST_BOOK", payload: response.data });
-    }).catch(function (err) {
-      dispatch({ type: "POST_BOOK_REJECTED", payload: "Could not post book to database" });
-    });
-  };
-}
-
-function buttonReset() {
-  return function (dispatch) {
-
-    dispatch({ type: "BUTTON_RESET" });
-  };
-}
-
-function deleteBookAction(id) {
-  return function (dispatch) {
-    _axios2.default.delete("/api/books/" + id).then(function (respone) {
-      dispatch({ type: "DELETE_BOOK", payload: id });
-    }).catch(function (err) {
-      dispatch({ type: "DELETE_BOOK_REJECTED", payload: "Sorry, connecting to the dataabase went wrong" });
-    });
-  };
-}
-
-/***/ }),
+/* 68 */,
 /* 69 */
 /***/ (function(module, exports) {
 
@@ -7730,83 +7671,7 @@ var isExtraneousPopstateEvent = exports.isExtraneousPopstateEvent = function isE
 };
 
 /***/ }),
-/* 88 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-exports.getCart = getCart;
-exports.addToCartAction = addToCartAction;
-exports.deleteCartItem = deleteCartItem;
-exports.updateCart = updateCart;
-
-var _axios = __webpack_require__(32);
-
-var _axios2 = _interopRequireDefault(_axios);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-function getCart() {
-  return function (dispatch) {
-    _axios2.default.get("/api/cart").then(function (response) {
-      dispatch({ type: "GET_CART", payload: response.data });
-    }).catch(function (err) {
-      dispatch({ type: "GET_CART_REJECTED", msg: "Someting went wrong when getting the cart" });
-    });
-  };
-}
-
-function addToCartAction(cart) {
-  return function (dispatch) {
-    _axios2.default.post("/api/cart", cart).then(function (response) {
-      dispatch({ type: "ADD_TO_CART",
-        payload: response.data
-      });
-    }).catch(function (err) {
-      dispatch({ type: ADD_TO_CART_REJECTED, msg: "ADD T CART rejected" });
-    });
-  };
-}
-
-function deleteCartItem(cart) {
-  return function (dispatch) {
-    _axios2.default.post("/api/cart", cart).then(function (response) {
-      dispatch({ type: "DELETE_CART_ITEM",
-        payload: response.data
-      });
-    }).catch(function (err) {
-      dispatch({ type: DELETE_CART_REJECTED, msg: "DELETE CART rejected" });
-    });
-  };
-}
-
-function updateCart(_id, unit, cart) {
-  var updatedBookArray = cart;
-  var indexOfUpdatedBook = updatedBookArray.findIndex(function (book) {
-    return book._id === _id;
-  });
-  var updatedBook = _extends({}, updatedBookArray[indexOfUpdatedBook], { quantity: updatedBookArray[indexOfUpdatedBook].quantity + unit });
-
-  var updatedCart = [].concat(_toConsumableArray(updatedBookArray.slice(0, indexOfUpdatedBook)), [updatedBook], _toConsumableArray(updatedBookArray.slice(indexOfUpdatedBook + 1)));
-  return function (dispatch) {
-    _axios2.default.post("/api/cart", updatedCart).then(function (response) {
-      dispatch({ type: "UPDATE_CART", payload: response.data });
-    }).catch(function (err) {
-      dispatch({ type: UPDATE_TO_CART_REJECTED, msg: "update To CART rejected" });
-    });
-  };
-}
-
-/***/ }),
+/* 88 */,
 /* 89 */
 /***/ (function(module, exports) {
 
@@ -23291,547 +23156,8 @@ ToggleButton.propTypes = propTypes;
 /* harmony default export */ __webpack_exports__["a"] = (ToggleButton);
 
 /***/ }),
-/* 260 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _react = __webpack_require__(0);
-
-var _react2 = _interopRequireDefault(_react);
-
-var _reactBootstrap = __webpack_require__(28);
-
-var _reactRedux = __webpack_require__(29);
-
-var _redux = __webpack_require__(24);
-
-var _reactDom = __webpack_require__(16);
-
-var _bookActions = __webpack_require__(68);
-
-var _axios = __webpack_require__(32);
-
-var _axios2 = _interopRequireDefault(_axios);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var BookForm = function (_React$Component) {
-  _inherits(BookForm, _React$Component);
-
-  function BookForm() {
-    _classCallCheck(this, BookForm);
-
-    var _this = _possibleConstructorReturn(this, (BookForm.__proto__ || Object.getPrototypeOf(BookForm)).call(this));
-
-    _this.state = {
-      imageArray: [{}],
-      imgPath: ""
-    };return _this;
-  }
-
-  _createClass(BookForm, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      this.props.getBooks();
-      _axios2.default.get("api/images").then(function (response) {
-        this.setState({ imageArray: response.data });
-      }.bind(this)).catch(function (err) {
-        this.setState({ imageArray: "error loading images in componentDidMount", imgPath: "" });
-      }.bind(this));
-    }
-  }, {
-    key: "onDelete",
-    value: function onDelete() {
-      var id = (0, _reactDom.findDOMNode)(this.refs.delete).value;
-      this.props.deleteBookAction(id);
-    }
-  }, {
-    key: "handleSelect",
-    value: function handleSelect(img) {
-      this.setState({ imgPath: "/images/" + img });
-    }
-  }, {
-    key: "handleSubmit",
-    value: function handleSubmit() {
-      var book = [{
-        image: (0, _reactDom.findDOMNode)(this.refs.image).value,
-        title: (0, _reactDom.findDOMNode)(this.refs.title).value,
-        description: (0, _reactDom.findDOMNode)(this.refs.description).value,
-        price: (0, _reactDom.findDOMNode)(this.refs.price).value }];
-      this.props.postBookAction(book);
-    }
-  }, {
-    key: "resetButton",
-    value: function resetButton() {
-      this.props.buttonReset();
-      (0, _reactDom.findDOMNode)(this.refs.title).value = "";
-      (0, _reactDom.findDOMNode)(this.refs.description).value = "";
-      (0, _reactDom.findDOMNode)(this.refs.price).value = "";
-      this.setState({ img: "" });
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var bookSelectList = this.props.books.map(function (book) {
-        return _react2.default.createElement(
-          "option",
-          { value: book._id, key: book._id },
-          book.title,
-          " "
-        );
-      });
-
-      var imageList = this.state.imageArray.map(function (img, i) {
-        return _react2.default.createElement(
-          _reactBootstrap.MenuItem,
-          { key: i, eventKey: img.name, onClick: this.handleSelect.bind(this, img.name) },
-          img.name
-        );
-      }, this);
-
-      return _react2.default.createElement(
-        _reactBootstrap.Well,
-        null,
-        _react2.default.createElement(
-          _reactBootstrap.Row,
-          null,
-          _react2.default.createElement(
-            _reactBootstrap.Col,
-            { xs: 12, sm: 6 },
-            _react2.default.createElement(
-              _reactBootstrap.Panel,
-              null,
-              _react2.default.createElement(
-                _reactBootstrap.InputGroup,
-                null,
-                _react2.default.createElement(_reactBootstrap.FormControl, { type: "text", ref: "image", value: this.state.imgPath }),
-                _react2.default.createElement(
-                  _reactBootstrap.DropdownButton,
-                  {
-                    componentClass: _reactBootstrap.InputGroup.Button,
-                    id: "input-dropdown-addon",
-                    title: "Select an image",
-                    bsStyle: "primary"
-                  },
-                  imageList
-                )
-              ),
-              _react2.default.createElement(_reactBootstrap.Image, { src: this.state.imgPath, responsive: true })
-            )
-          ),
-          _react2.default.createElement(
-            _reactBootstrap.Col,
-            { xs: 12, sm: 6 },
-            _react2.default.createElement(
-              _reactBootstrap.Panel,
-              null,
-              _react2.default.createElement(
-                _reactBootstrap.FormGroup,
-                { controlId: "title" },
-                _react2.default.createElement(
-                  _reactBootstrap.ControlLabel,
-                  null,
-                  "Title"
-                ),
-                _react2.default.createElement(_reactBootstrap.FormControl, {
-                  type: "text",
-                  placeholder: "Enter title",
-                  ref: "title"
-                })
-              ),
-              _react2.default.createElement(
-                _reactBootstrap.FormGroup,
-                { controlId: "description" },
-                _react2.default.createElement(
-                  _reactBootstrap.ControlLabel,
-                  null,
-                  "Description"
-                ),
-                _react2.default.createElement(_reactBootstrap.FormControl, {
-                  type: "text",
-                  placeholder: "Enter description",
-                  ref: "description"
-                })
-              ),
-              _react2.default.createElement(
-                _reactBootstrap.FormGroup,
-                { controlId: "price" },
-                _react2.default.createElement(
-                  _reactBootstrap.ControlLabel,
-                  null,
-                  "Price"
-                ),
-                _react2.default.createElement(_reactBootstrap.FormControl, {
-                  type: "text",
-                  placeholder: "Enter price",
-                  ref: "price"
-                })
-              ),
-              _react2.default.createElement(
-                _reactBootstrap.Button,
-                {
-                  onClick: !this.props.msg ? this.handleSubmit.bind(this) : this.resetButton.bind(this),
-                  bsStyle: !this.props.style ? "primary" : this.props.style
-
-                },
-                !this.props.msg ? "Save book" : this.props.msg
-              )
-            ),
-            _react2.default.createElement(
-              _reactBootstrap.Panel,
-              { style: { marginTop: "55px" } },
-              _react2.default.createElement(
-                _reactBootstrap.FormGroup,
-                { controlId: "deleteSelectedBook" },
-                _react2.default.createElement(
-                  _reactBootstrap.ControlLabel,
-                  null,
-                  "Select Book"
-                ),
-                _react2.default.createElement(
-                  _reactBootstrap.FormControl,
-                  { ref: "delete", componentClass: "select", placeholder: "select a book" },
-                  _react2.default.createElement(
-                    "option",
-                    { value: "select" },
-                    "select"
-                  ),
-                  bookSelectList
-                )
-              ),
-              _react2.default.createElement(
-                _reactBootstrap.Button,
-                { bsStyle: "danger", onClick: this.onDelete.bind(this) },
-                "Delete Book"
-              )
-            )
-          )
-        )
-      );
-    }
-  }]);
-
-  return BookForm;
-}(_react2.default.Component);
-
-function mapStateToProps(state) {
-  return {
-    books: state.books.books,
-    msg: state.books.msg,
-    style: state.books.style
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return (0, _redux.bindActionCreators)({ postBookAction: _bookActions.postBookAction, deleteBookAction: _bookActions.deleteBookAction, getBooks: _bookActions.getBooks, buttonReset: _bookActions.buttonReset }, dispatch);
-}
-
-exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(BookForm);
-
-/***/ }),
-/* 261 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _react = __webpack_require__(0);
-
-var _react2 = _interopRequireDefault(_react);
-
-var _reactBootstrap = __webpack_require__(28);
-
-var _reactRedux = __webpack_require__(29);
-
-var _redux = __webpack_require__(24);
-
-var _addToCartAction = __webpack_require__(88);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var Cart = function (_React$Component) {
-  _inherits(Cart, _React$Component);
-
-  _createClass(Cart, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      this.props.getCart();
-    }
-  }, {
-    key: "onIncrement",
-    value: function onIncrement(_id) {
-      this.props.updateCart(_id, 1, this.props.cart);
-    }
-  }, {
-    key: "onDecrement",
-    value: function onDecrement(_id, quantity) {
-      if (quantity > 1) {
-        this.props.updateCart(_id, -1, this.props.cart);
-      } else {
-        this.onDelete(_id);
-      }
-    }
-  }]);
-
-  function Cart() {
-    _classCallCheck(this, Cart);
-
-    var _this = _possibleConstructorReturn(this, (Cart.__proto__ || Object.getPrototypeOf(Cart)).call(this));
-
-    _this.state = {
-      showModal: false
-    };
-    return _this;
-  }
-
-  _createClass(Cart, [{
-    key: "open",
-    value: function open() {
-      this.setState({
-        showModal: true
-      });
-    }
-  }, {
-    key: "close",
-    value: function close() {
-      this.setState({
-        showModal: false
-      });
-    }
-  }, {
-    key: "onDelete",
-    value: function onDelete(_id) {
-      var bookArray = this.props.cart;
-
-      var indexOfBook = bookArray.findIndex(function (bookInCart) {
-        return bookInCart._id === _id;
-      });
-      var cartAfterDelete = [].concat(_toConsumableArray(bookArray.slice(0, indexOfBook)), _toConsumableArray(bookArray.slice(indexOfBook + 1)));
-
-      this.props.deleteCartItem(cartAfterDelete);
-    }
-  }, {
-    key: "render",
-    value: function render() {
-
-      if (this.props.cart[0]) {
-
-        return this.renderCart();
-      } else {
-
-        return this.renderEmpty();
-      }
-    }
-  }, {
-    key: "renderEmpty",
-    value: function renderEmpty() {
-      return _react2.default.createElement("div", null);
-    }
-  }, {
-    key: "renderCart",
-    value: function renderCart() {
-      var cartItemList = this.props.cart.map(function (book) {
-        return _react2.default.createElement(
-          _reactBootstrap.Panel,
-          { key: book._id },
-          _react2.default.createElement(
-            _reactBootstrap.Row,
-            null,
-            _react2.default.createElement(
-              _reactBootstrap.Col,
-              { xs: 4, sm: 2 },
-              _react2.default.createElement(_reactBootstrap.Image, { src: book.image, responsive: true })
-            ),
-            _react2.default.createElement(
-              _reactBootstrap.Col,
-              { xs: 6, sm: 4 },
-              _react2.default.createElement(
-                "h6",
-                null,
-                book.title
-              ),
-              _react2.default.createElement(
-                "span",
-                null,
-                "     "
-              )
-            ),
-            _react2.default.createElement(
-              _reactBootstrap.Col,
-              { xs: 6, sm: 2 },
-              _react2.default.createElement(
-                "h6",
-                null,
-                "skr. ",
-                book.price
-              )
-            ),
-            _react2.default.createElement(
-              _reactBootstrap.Col,
-              { xs: 6, sm: 2 },
-              _react2.default.createElement(
-                "h6",
-                null,
-                "qty. ",
-                _react2.default.createElement(
-                  _reactBootstrap.Label,
-                  { bsStyle: "success" },
-                  book.quantity
-                )
-              )
-            ),
-            _react2.default.createElement(
-              _reactBootstrap.Col,
-              { xs: 8, sm: 6 },
-              _react2.default.createElement(
-                _reactBootstrap.ButtonGroup,
-                { style: { minWidth: "200px" } },
-                _react2.default.createElement(
-                  _reactBootstrap.Button,
-                  { onClick: this.onDecrement.bind(this, book._id, book.quantity), bsStyle: "default" },
-                  "-"
-                ),
-                _react2.default.createElement(
-                  _reactBootstrap.Button,
-                  { onClick: this.onIncrement.bind(this, book._id), bsStyle: "default" },
-                  "+"
-                ),
-                _react2.default.createElement(
-                  "span",
-                  null,
-                  "     "
-                ),
-                _react2.default.createElement(
-                  _reactBootstrap.Button,
-                  { onClick: this.onDelete.bind(this, book._id), bsStyle: "danger", bsSize: "small" },
-                  "DELETE"
-                )
-              )
-            )
-          )
-        );
-      }, this);
-      return _react2.default.createElement(
-        _reactBootstrap.Panel,
-        { header: "Cart", bsStyle: "primary" },
-        cartItemList,
-        _react2.default.createElement(
-          _reactBootstrap.Row,
-          null,
-          _react2.default.createElement(
-            _reactBootstrap.Col,
-            { xs: 12 },
-            _react2.default.createElement(
-              "h6",
-              null,
-              "Total amount: ",
-              this.props.totalAmount
-            ),
-            _react2.default.createElement(
-              _reactBootstrap.Button,
-              { onClick: this.open.bind(this), bsStyle: "success", bsSize: "small" },
-              "Proceed to checkout"
-            )
-          )
-        ),
-        _react2.default.createElement(
-          _reactBootstrap.Modal,
-          { show: this.state.showModal, onHide: this.close.bind(this) },
-          _react2.default.createElement(
-            _reactBootstrap.Modal.Header,
-            { closeButton: true },
-            _react2.default.createElement(
-              _reactBootstrap.Modal.Title,
-              null,
-              "Thank you sista!"
-            )
-          ),
-          _react2.default.createElement(
-            _reactBootstrap.Modal.Body,
-            null,
-            _react2.default.createElement(
-              "h6",
-              null,
-              "Your order has been saved"
-            ),
-            _react2.default.createElement(
-              "p",
-              null,
-              "You will recieve an email confirmation"
-            )
-          ),
-          _react2.default.createElement(
-            _reactBootstrap.Modal.Footer,
-            null,
-            _react2.default.createElement(
-              _reactBootstrap.Col,
-              { xs: 6 },
-              _react2.default.createElement(
-                "h6",
-                null,
-                "Total amount:",
-                this.props.totalAmount,
-                " "
-              )
-            ),
-            _react2.default.createElement(
-              _reactBootstrap.Button,
-              { onClick: this.close.bind(this) },
-              "Close"
-            )
-          )
-        )
-      );
-    }
-  }]);
-
-  return Cart;
-}(_react2.default.Component);
-
-function mapStateToProps(state) {
-  return {
-    cart: state.cart.cart,
-    totalAmount: state.cart.totalAmount
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return (0, _redux.bindActionCreators)({ deleteCartItem: _addToCartAction.deleteCartItem,
-    updateCart: _addToCartAction.updateCart,
-    getCart: _addToCartAction.getCart }, dispatch);
-}
-
-exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Cart);
-
-/***/ }),
+/* 260 */,
+/* 261 */,
 /* 262 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -23861,22 +23187,6 @@ var _reduxThunk2 = _interopRequireDefault(_reduxThunk);
 var _index = __webpack_require__(415);
 
 var _index2 = _interopRequireDefault(_index);
-
-var _addToCartAction = __webpack_require__(88);
-
-var _bookActions = __webpack_require__(68);
-
-var _bookslist = __webpack_require__(438);
-
-var _bookslist2 = _interopRequireDefault(_bookslist);
-
-var _cart = __webpack_require__(261);
-
-var _cart2 = _interopRequireDefault(_cart);
-
-var _booksForm = __webpack_require__(260);
-
-var _booksForm2 = _interopRequireDefault(_booksForm);
 
 var _main = __webpack_require__(577);
 
@@ -23916,6 +23226,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 var middleware = (0, _redux.applyMiddleware)(_reduxThunk2.default, _reduxLogger2.default);
 var store = (0, _redux.createStore)(_index2.default, middleware); //
 
+
 //ACTIONS
 
 
@@ -23931,10 +23242,7 @@ var Routes = _react2.default.createElement(
       _react2.default.createElement(
         _reactRouter.Route,
         { path: "/", component: _main2.default },
-        _react2.default.createElement(_reactRouter.IndexRoute, { component: _bookslist2.default }),
-        _react2.default.createElement(_reactRouter.Route, { path: "/admin", component: _booksForm2.default }),
-        _react2.default.createElement(_reactRouter.Route, { path: "/cart", component: _cart2.default }),
-        _react2.default.createElement(_reactRouter.Route, { path: "/about", component: _booksForm2.default }),
+        _react2.default.createElement(_reactRouter.IndexRoute, { component: _lectures2.default }),
         _react2.default.createElement(_reactRouter.Route, { path: "/register", component: _register2.default }),
         _react2.default.createElement(_reactRouter.Route, { path: "/login", component: _login2.default }),
         _react2.default.createElement(_reactRouter.Route, { path: "/logout", component: _logout2.default }),
@@ -38840,141 +38148,19 @@ Object.defineProperty(exports, "__esModule", {
 
 var _redux = __webpack_require__(24);
 
-var _booksReducers = __webpack_require__(416);
-
-var _cartReducers = __webpack_require__(417);
-
 var _usersReducers = __webpack_require__(418);
 
 var _lectureReducers = __webpack_require__(419);
 
 exports.default = (0, _redux.combineReducers)({
-  books: _booksReducers.booksReducers,
-  cart: _cartReducers.cartReducers,
   user: _usersReducers.usersReducers,
   lectures: _lectureReducers.lectureReducers
 
 });
 
 /***/ }),
-/* 416 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-//REDUCER
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-exports.booksReducers = booksReducers;
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-function booksReducers() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { books: [] };
-  var action = arguments[1];
-
-  switch (action.type) {
-    case "GET_BOOKS":
-      return _extends({}, state, { books: [].concat(_toConsumableArray(action.payload)) });
-      break;
-    case "POST_BOOK":
-      return _extends({}, state, { books: [].concat(_toConsumableArray(state.books), _toConsumableArray(action.payload)), msg: "Book saved!, Click to continue!", style: "success" });
-      break;
-    case "POST_BOOKS_REJECTED":
-      return _extends({}, state, { msg: "Something went wrong when posting a book to the database", style: "danger" });
-      break;
-    case "DELETE_BOOK":
-      var bookArray = [].concat(_toConsumableArray(state.books));
-      var indexOfBook = bookArray.findIndex(function (book) {
-        return book._id == action.payload;
-      });
-      return { books: [].concat(_toConsumableArray(bookArray.slice(0, indexOfBook)), _toConsumableArray(bookArray.slice(indexOfBook + 1))) };
-      break;
-    case "BUTTON_RESET":
-      return _extends({}, state, { msg: null, style: "" });
-      break;
-    case "UPDATE_BOOK":
-      var updatedBookArray = [].concat(_toConsumableArray(state.books));
-      var indexOfUpdatedBook = updatedBookArray.findIndex(function (book) {
-        return book._id === action.payload._id;
-      });
-      var updatedBook = _extends({}, updatedBookArray[indexOfUpdatedBook], { title: action.payload.title });
-      return [].concat(_toConsumableArray(updatedBookArray.slice(0, indexOfUpdatedBook)), [updatedBook], _toConsumableArray(updatedBookArray.slice(indexOfUpdatedBook + 1)));
-  }
-  return state;
-}
-
-/***/ }),
-/* 417 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-
-exports.cartReducers = cartReducers;
-exports.default = totals;
-function cartReducers() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { cart: [] };
-  var action = arguments[1];
-
-  switch (action.type) {
-    case "GET_CART":
-      return _extends({}, state, {
-        cart: action.payload,
-        totalAmount: totals(action.payload).amount,
-        totalQuantity: totals(action.payload).quantity });
-    case "ADD_TO_CART":
-      return _extends({}, state, {
-        cart: action.payload,
-        totalAmount: totals(action.payload).amount,
-        totalQuantity: totals(action.payload).quantity });
-      break;
-    case "DELETE_CART_ITEM":
-      return _extends({}, state, {
-        cart: action.payload,
-        totalAmount: totals(action.payload).amount,
-        totalQuantity: totals(action.payload).quantity });
-      break;
-    case "UPDATE_CART":
-      return _extends({}, state, {
-        cart: action.payload,
-        totalAmount: totals(action.payload).amount,
-        totalQuantity: totals(action.payload).quantity });
-  }
-
-  return state;
-}
-
-function totals(bookArr) {
-  var totalAmount = bookArr.map(function (book) {
-    return book.quantity * book.price;
-  }).reduce(function (a, b) {
-    return a + b;
-  }, 0);
-  var totalQty = bookArr.map(function (book) {
-    return book.quantity;
-  }).reduce(function (a, b) {
-    return a + b;
-  }, 0);
-
-  return {
-    amount: totalAmount,
-    quantity: totalQty };
-}
-
-/***/ }),
+/* 416 */,
+/* 417 */,
 /* 418 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -39915,113 +39101,7 @@ module.exports = function spread(callback) {
 
 
 /***/ }),
-/* 438 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _react = __webpack_require__(0);
-
-var _react2 = _interopRequireDefault(_react);
-
-var _reactRedux = __webpack_require__(29);
-
-var _redux = __webpack_require__(24);
-
-var _bookActions = __webpack_require__(68);
-
-var _reactBootstrap = __webpack_require__(28);
-
-var _bookItem = __webpack_require__(576);
-
-var _bookItem2 = _interopRequireDefault(_bookItem);
-
-var _booksForm = __webpack_require__(260);
-
-var _booksForm2 = _interopRequireDefault(_booksForm);
-
-var _cart = __webpack_require__(261);
-
-var _cart2 = _interopRequireDefault(_cart);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var BooksList = function (_React$Component) {
-  _inherits(BooksList, _React$Component);
-
-  function BooksList() {
-    _classCallCheck(this, BooksList);
-
-    return _possibleConstructorReturn(this, (BooksList.__proto__ || Object.getPrototypeOf(BooksList)).apply(this, arguments));
-  }
-
-  _createClass(BooksList, [{
-    key: "componentDidMount",
-    value: function componentDidMount() {
-      this.props.getBooks();
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var bookList = this.props.books.map(function (book) {
-        return _react2.default.createElement(
-          _reactBootstrap.Col,
-          { xs: 12, sm: 6, md: 4, key: book._id },
-          _react2.default.createElement(_bookItem2.default, {
-            _id: book._id,
-            title: book.title,
-            description: book.description,
-            price: book.price,
-            image: book.image
-          })
-        );
-      });
-      return _react2.default.createElement(
-        _reactBootstrap.Grid,
-        null,
-        _react2.default.createElement(
-          _reactBootstrap.Row,
-          null,
-          _react2.default.createElement(_cart2.default, null)
-        ),
-        _react2.default.createElement(
-          _reactBootstrap.Row,
-          null,
-          bookList
-        )
-      );
-    }
-  }]);
-
-  return BooksList;
-}(_react2.default.Component);
-
-function mapStateToProps(state) {
-  return {
-    books: state.books.books
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return (0, _redux.bindActionCreators)({ getBooks: _bookActions.getBooks }, dispatch);
-}
-
-exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(BooksList);
-
-/***/ }),
+/* 438 */,
 /* 439 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -51030,138 +50110,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /***/ }),
-/* 576 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _react = __webpack_require__(0);
-
-var _react2 = _interopRequireDefault(_react);
-
-var _reactBootstrap = __webpack_require__(28);
-
-var _reactRedux = __webpack_require__(29);
-
-var _redux = __webpack_require__(24);
-
-var _addToCartAction = __webpack_require__(88);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var BookItem = function (_React$Component) {
-  _inherits(BookItem, _React$Component);
-
-  function BookItem() {
-    _classCallCheck(this, BookItem);
-
-    return _possibleConstructorReturn(this, (BookItem.__proto__ || Object.getPrototypeOf(BookItem)).apply(this, arguments));
-  }
-
-  _createClass(BookItem, [{
-    key: "handleCart",
-    value: function handleCart() {
-      var book = [].concat(_toConsumableArray(this.props.cart), [{
-        _id: this.props._id,
-        title: this.props.title,
-        description: this.props.description,
-        image: this.props.image,
-        price: this.props.price,
-        quantity: 1
-      }]);
-      if (this.props.cart.length > 0) {
-        var _id = this.props._id;
-        var indexOfBook = this.props.cart.findIndex(function (cart) {
-          return cart._id === _id;
-        });
-        if (indexOfBook < 0) {
-          this.props.addToCartAction(book);
-        } else {
-          this.props.updateCart(_id, 1, this.props.cart);
-        }
-      } else {
-        this.props.addToCartAction(book);
-      }
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      return _react2.default.createElement(
-        _reactBootstrap.Well,
-        null,
-        _react2.default.createElement(
-          _reactBootstrap.Row,
-          null,
-          _react2.default.createElement(
-            _reactBootstrap.Col,
-            { xs: 12, sm: 4 },
-            _react2.default.createElement(_reactBootstrap.Image, { src: this.props.image, responsive: true })
-          ),
-          _react2.default.createElement(
-            _reactBootstrap.Col,
-            { xs: 6, sm: 8 },
-            _react2.default.createElement(
-              "h6",
-              null,
-              this.props.title
-            ),
-            _react2.default.createElement(
-              "p",
-              null,
-              this.props.description
-            ),
-            _react2.default.createElement(
-              "h6",
-              null,
-              "usd. ",
-              this.props.price
-            ),
-            _react2.default.createElement(
-              _reactBootstrap.Button,
-              { onClick: this.handleCart.bind(this), bsStyle: "primary" },
-              "BUY NOW"
-            )
-          )
-        )
-      );
-    }
-  }]);
-
-  return BookItem;
-}(_react2.default.Component);
-
-function mapStateToProps(state) {
-  return {
-    cart: state.cart.cart
-  };
-}
-
-function mapDispatchToProps(dispatch) {
-  return (0, _redux.bindActionCreators)({
-    addToCartAction: _addToCartAction.addToCartAction,
-    updateCart: _addToCartAction.updateCart
-
-  }, dispatch);
-}
-
-exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(BookItem);
-
-/***/ }),
+/* 576 */,
 /* 577 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -51190,8 +50139,6 @@ var _reactRedux = __webpack_require__(29);
 
 var _redux = __webpack_require__(24);
 
-var _addToCartAction = __webpack_require__(88);
-
 var _userActions = __webpack_require__(77);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -51215,7 +50162,6 @@ var Main = function (_React$Component) {
     key: "componentDidMount",
     value: function componentDidMount() {
       this.props.getCurrentUser();
-      this.props.getCart();
     }
   }, {
     key: "render",
@@ -51224,7 +50170,6 @@ var Main = function (_React$Component) {
         "div",
         null,
         _react2.default.createElement(_Menu2.default, {
-          itemNumber: this.props.numberOfItems,
           userEmail: this.props.userEmail,
           loggedInUser: this.props.loggedInUser }),
         this.props.children,
@@ -51238,14 +50183,14 @@ var Main = function (_React$Component) {
 
 function mapStateToProps(state) {
   return {
-    numberOfItems: state.cart.totalQuantity,
+
     userEmail: state.user.email,
     loggedInUser: state.user.loggedInUser
   };
 }
 
 function mapDispatchToProps(dispatch) {
-  return (0, _redux.bindActionCreators)({ getCart: _addToCartAction.getCart,
+  return (0, _redux.bindActionCreators)({
     getCurrentUser: _userActions.getCurrentUser }, dispatch);
 }
 
@@ -51301,8 +50246,8 @@ var Menu = function (_React$Component) {
             null,
             _react2.default.createElement(
               "a",
-              { href: "/" },
-              "My fucking cart"
+              { href: "/lectures" },
+              "Lecture"
             )
           ),
           _react2.default.createElement(_reactBootstrap.Navbar.Toggle, null)
@@ -51343,27 +50288,12 @@ var Menu = function (_React$Component) {
             ),
             _react2.default.createElement(
               _reactBootstrap.NavItem,
-              { eventKey: 3, href: "/admin" },
-              "Admin"
-            ),
-            _react2.default.createElement(
-              _reactBootstrap.NavItem,
               { eventKey: 4, href: "/createlecture" },
               "Create Lecture"
             ),
-            this.props.itemNumber > 0 ? _react2.default.createElement(
-              _reactBootstrap.NavItem,
-              { eventKey: 5, href: "/cart" },
-              "My cart ",
-              _react2.default.createElement(
-                _reactBootstrap.Badge,
-                { className: "badge" },
-                this.props.itemNumber
-              )
-            ) : "",
             this.props.loggedInUser != null ? _react2.default.createElement(
               _reactBootstrap.NavItem,
-              { eventKey: 6, href: "/profile" },
+              { eventKey: 5, href: "/profile" },
               this.props.loggedInUser.email
             ) : ""
           )
@@ -51461,8 +50391,6 @@ var _redux = __webpack_require__(24);
 var _reactDom = __webpack_require__(16);
 
 var _userActions = __webpack_require__(77);
-
-var _bookActions = __webpack_require__(68);
 
 var _axios = __webpack_require__(32);
 
@@ -52231,26 +51159,27 @@ var Lectures = function (_React$Component) {
       return this.props.lectures.map(function (lecture) {
         return _react2.default.createElement(
           _reactBootstrap.Col,
-          { xs: 12, sm: 6, md: 4, key: lecture._id },
+          { xs: 6, md: 4, key: lecture._id },
           _react2.default.createElement(
-            _reactBootstrap.Row,
-            null,
+            _reactBootstrap.Media,
+            { className: "lectureThumbnail", onClick: this.selectLecture.bind(this, lecture._id) },
             _react2.default.createElement(
-              _reactBootstrap.Well,
-              { className: "selectLectureWell", onClick: this.selectLecture.bind(this, lecture._id) },
+              _reactBootstrap.Media.Left,
+              null,
+              _react2.default.createElement("img", { src: lecture.lectureImage, className: "lectureImage" })
+            ),
+            _react2.default.createElement(
+              _reactBootstrap.Media.Body,
+              null,
               _react2.default.createElement(
-                "h3",
+                _reactBootstrap.Media.Heading,
                 null,
                 lecture.lecture
               ),
               _react2.default.createElement(
-                _reactBootstrap.Row,
-                null,
-                _react2.default.createElement(
-                  _reactBootstrap.Well,
-                  null,
-                  _react2.default.createElement(_reactBootstrap.Image, { className: "selectLectureImage", src: lecture.lectureImage, responsive: true })
-                )
+                "p",
+                { className: "lectureDescription" },
+                lecture.description
               )
             )
           )
@@ -52298,7 +51227,15 @@ var Lectures = function (_React$Component) {
     key: "render",
     value: function render() {
 
-      return this.renderStartPage();
+      return _react2.default.createElement(
+        _reactBootstrap.Grid,
+        null,
+        _react2.default.createElement(
+          _reactBootstrap.Row,
+          null,
+          this.renderStartPage()
+        )
+      );
     }
   }]);
 
@@ -52705,6 +51642,7 @@ var CreateLecture = function (_React$Component) {
             _axios2.default.post("/api/fileupload", formData).then(function (response) {
               lect.questions[self.state.currentQuestionNum].isVideo = true;
               lect.questions[self.state.currentQuestionNum].videoUrl = response.data.thePath;
+              self.setState({ lecture: lect });
             }).catch(function (err) {
               console.log(err);
             });
@@ -52712,11 +51650,11 @@ var CreateLecture = function (_React$Component) {
           case "lecture.image":
             _axios2.default.post("/api/fileupload", formData).then(function (response) {
               lect.lectureImage = response.data.thePath;
+              self.setState({ lecture: lect });
             }).catch(function (err) {
               console.log(err);
             });
         }
-        self.setState({ lecture: lect });
       };
     };
 
@@ -52736,6 +51674,9 @@ var CreateLecture = function (_React$Component) {
           case "questions.question":
             lect.questions[qindex].question = evt.target.value;
             break;
+          case "questions.correctAnswer":
+            lect.questions[qindex].correctAnswer = evt.target.value;
+            break;
           case "questions.answers":
             var newAlternatives = lect.questions[qindex].answers.map(function (answer, stateindex) {
               if (aindex !== stateindex) return answer;
@@ -52748,8 +51689,9 @@ var CreateLecture = function (_React$Component) {
       };
     };
 
-    _this.state = { activePage: 1,
+    _this.state = {
       isVideo: false,
+      lectureImage: "",
       currentAlternatives: 4,
       currentQuestionNum: 0,
       lecture: { lecture: "",
@@ -52758,6 +51700,7 @@ var CreateLecture = function (_React$Component) {
           isVideo: false,
           videoUrl: "",
           question: "",
+          correctArray: "",
           answers: [{ answer: "" }, { answer: "" }, { answer: "" }, { answer: "" }]
         }] },
       currentAlternativeArray: []
@@ -52774,55 +51717,43 @@ var CreateLecture = function (_React$Component) {
 
     //////HELPERFUNCTIONS//////////
 
-    //This function adds or updates a question in the questionArray
-    //It needs the current Question Array, and the updated question.
-    //If the updated question does not excist in the array, it adds it, otherwise it updates the question.
-    //It returns the new array of questions.
-    /*updateOrCreateQuestion(updatedQuestion, questions){
-      var arrayToBeUpdated=questions;
-      let updatedQuestionArray=[];
-    if(updatedQuestion._id===""){
-      updatedQuestionArray=questions.push(updatedQuestion)
-    }
-      else{
-        var indexOfQuestionToBeUpdated=arrayToBeUpdated.findIndex(function(question){
-          return question._id===updatedQuestion._id;
-        });
-      updatedQuestionArray= [...arrayToBeUpdated.slice(0, indexOfQuestionToBeUpdated), updatedQuestion, ...arrayToBeUpdated.slice(indexOfQuestionToBeUpdated+1)]
-    }
-    return updatedQuestionArray;
-    }*/
-
   }, {
     key: "addQuestion",
-    value: function addQuestion() {
+    value: function addQuestion(updatedLecture) {
+      var lecturamen = updatedLecture;
       if (1 + this.state.currentQuestionNum >= this.state.lecture.questions.length) {
-        var questionss = this.state.lecture.questions.push({ comment: "",
+        var questionss = updatedLecture.questions.push({ comment: "",
           question: "",
           answers: [{ answer: "" }, { answer: "" }, { answer: "" }, { answer: "" }]
         });
-        this.setState(_extends({}, this.state.lecture, { questions: questionss }));
       }
+      return lecturamen;
     }
   }, {
     key: "nextButtonHandler",
     value: function nextButtonHandler() {
-      this.addQuestion();
+
       var self = this;
       console.log("self.state.lecture.questions is: ", self.state.lecture.questions);
       var newnumber = this.state.currentQuestionNum + 1;
-      if (this.state.lecture.questions.length < 3) {
+      if (this.state.lecture.questions.length < 2) {
+
         console.log("entered the post next-handler");
         _axios2.default.post("/api/createlecture", this.state.lecture).then(function (result) {
-          self.setState({ lecture: result.data,
+          var updatedLecture = result.data;
+          var addedQuestionLecture = self.addQuestion(updatedLecture);
+          self.setState({ lecture: addedQuestionLecture,
             currentQuestionNum: newnumber });
         }).catch(function (err) {
           console.log(err);
         });
       } else {
+
         console.log("entered the put next-handler");
         _axios2.default.put("/api/updatelecture/" + this.state.lecture._id, this.state.lecture).then(function (result) {
-          self.setState({ lecture: result.data,
+          var updatedLecture = result.data;
+          var addedQuestionLecture = self.addQuestion(updatedLecture);
+          self.setState({ lecture: addedQuestionLecture,
             currentQuestionNum: newnumber });
         }).catch(function (err) {
           console.log(err);
@@ -52835,6 +51766,7 @@ var CreateLecture = function (_React$Component) {
   }, {
     key: "renderVideo",
     value: function renderVideo() {
+      var self = this;
       return _react2.default.createElement(
         _reactBootstrap.Panel,
         null,
@@ -52842,6 +51774,15 @@ var CreateLecture = function (_React$Component) {
           _reactDropzone2.default,
           { onDrop: this.handleDrop("video"), accept: "video/mp4", multiple: false, onDropRejected: handleDropRejected },
           "Drag a file here or click to upload."
+        ),
+        _react2.default.createElement(
+          _reactBootstrap.Well,
+          null,
+          _react2.default.createElement(
+            "video",
+            { width: "100%" },
+            _react2.default.createElement("source", { src: self.state.lecture.questions[self.state.currentQuestionNum].videoUrl, type: "video/mp4" })
+          )
         )
       );
     }
@@ -52861,11 +51802,14 @@ var CreateLecture = function (_React$Component) {
     value: function renderQuestion() {
       var _this2 = this;
 
-      var mappedAlternatives = this.state.currentAlternativeArray.map(function (alternative, index) {
+      var mappedAlternatives = this.state.lecture.questions[this.state.currentQuestionNum].answers.map(function (alternative, index) {
         return _react2.default.createElement(
           "div",
           { key: index },
-          _react2.default.createElement(_reactBootstrap.Radio, { inline: true, name: "radioGroup" }),
+          _react2.default.createElement(_reactBootstrap.Radio, { inline: true,
+            name: "radioGroup",
+            value: alternative.answer,
+            onChange: _this2.handleTextChange("questions.correctAnswer", _this2.state.currentQuestionNum, index) }),
           _react2.default.createElement(
             _reactBootstrap.ControlLabel,
             null,
@@ -52951,7 +51895,7 @@ var CreateLecture = function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-
+      var self = this;
       console.log("this.state.lecture is: ", this.state.lecture);
       return _react2.default.createElement(
         _reactBootstrap.Row,
@@ -52995,7 +51939,8 @@ var CreateLecture = function (_React$Component) {
                   _react2.default.createElement(
                     _reactDropzone2.default,
                     { onDrop: this.handleDrop("lecture.image"), accept: "image/jpg, image/jpeg", multiple: false, onDropRejected: handleDropRejected },
-                    "Drag a picture here or click to upload."
+                    "Drag a picture here or click to upload.",
+                    self.state.lecture.lectureImage == "" ? _react2.default.createElement("div", null) : _react2.default.createElement("img", { src: self.state.lecture.lectureImage, className: "selectLectureImage" })
                   )
                 )
               )

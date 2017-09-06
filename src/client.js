@@ -8,17 +8,16 @@ import thunk from "redux-thunk"
 
 
 import reducers from "./reducers/index";
-import {addToCartAction} from "./actions/addToCartAction";
-import {getBookAction, updateBookAction, postBookAction, deleteBookAction} from "./actions/bookActions"
+
+
 
 
 //STORE
 const middleware= applyMiddleware(thunk, logger);
 const store = createStore(reducers, middleware); //
 
-import BooksList from "./components/pages/bookslist";
-import Cart from "./components/pages/cart";
-import BooksForm from "./components/pages/booksForm";
+
+
 import Main from "./components/pages/main";
 import Register from "./components/pages/register";
 import Login from "./components/pages/login";
@@ -39,10 +38,7 @@ const Routes =(
   <div>
     <Router history={browserHistory}>
       <Route path="/" component={Main}>
-        <IndexRoute component={BooksList}/>
-        <Route path="/admin" component={BooksForm}/>
-        <Route path="/cart" component={Cart}/>
-        <Route path="/about" component={BooksForm}/>
+        <IndexRoute component={Lectures}/>
         <Route path="/register" component ={Register}/>
         <Route path="/login" component ={Login}/>
         <Route path="/logout" component ={Logout}/>

@@ -60,11 +60,17 @@ h6.answer{
 
 .selectLectureImage{
   height:100px;
-  background-color: green;
+
 }
 
-.selectLectureWell{
-  margin:4%;
+.lectureImage{
+margin:2%;
+width:150px;
+height:150px;
+}
+
+.lectureDescription{
+  font-size: 10px;
 }
 .createLectureContainer{
   margin-left: 7%;

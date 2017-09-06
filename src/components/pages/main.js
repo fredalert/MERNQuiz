@@ -4,14 +4,14 @@ import Menu from "./Menu";
 import Footer from "./footer"
 import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
-import {getCart} from "../../actions/addToCartAction";
+
 import {getCurrentUser} from "../../actions/userActions"
 
 
 class Main extends React.Component{
 componentDidMount(){
   this.props.getCurrentUser();
-  this.props.getCart();
+
 
 }
 
@@ -19,7 +19,6 @@ componentDidMount(){
     return(
       <div>
       <Menu
-      itemNumber={this.props.numberOfItems}
       userEmail={this.props.userEmail}
       loggedInUser={this.props.loggedInUser}/>
       {this.props.children}
@@ -30,7 +29,7 @@ componentDidMount(){
 
 function mapStateToProps(state){
   return {
-    numberOfItems:state.cart.totalQuantity,
+
     userEmail:state.user.email,
     loggedInUser:state.user.loggedInUser,
   }
@@ -39,7 +38,7 @@ function mapStateToProps(state){
 
     function mapDispatchToProps(dispatch){
       return bindActionCreators(
-        {getCart:getCart,
+        {
           getCurrentUser:getCurrentUser,}
         , dispatch)
     }

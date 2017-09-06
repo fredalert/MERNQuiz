@@ -16,8 +16,9 @@ const handleDropRejected = (...args) => console.log('reject', args)
 class CreateLecture extends React.Component{
 constructor(props){
   super(props);
-  this.state={activePage:1,
+  this.state={
               isVideo:false,
+              lectureImage:"",
               currentAlternatives:4,
               currentQuestionNum:0,
               lecture:{lecture:"",
@@ -26,6 +27,7 @@ constructor(props){
                                   isVideo:false,
                                   videoUrl:"",
                                   question:"",
+                                  correctArray:"",
                                   answers:  [{answer:""},
                                              {answer:""},
                                              {answer:""},
@@ -42,48 +44,37 @@ componentDidMount(){
 
 //////HELPERFUNCTIONS//////////
 
-//This function adds or updates a question in the questionArray
-//It needs the current Question Array, and the updated question.
-//If the updated question does not excist in the array, it adds it, otherwise it updates the question.
-//It returns the new array of questions.
-/*updateOrCreateQuestion(updatedQuestion, questions){
-  var arrayToBeUpdated=questions;
-  let updatedQuestionArray=[];
-if(updatedQuestion._id===""){
-  updatedQuestionArray=questions.push(updatedQuestion)
-}
-  else{
-    var indexOfQuestionToBeUpdated=arrayToBeUpdated.findIndex(function(question){
-      return question._id===updatedQuestion._id;
-    });
-  updatedQuestionArray= [...arrayToBeUpdated.slice(0, indexOfQuestionToBeUpdated), updatedQuestion, ...arrayToBeUpdated.slice(indexOfQuestionToBeUpdated+1)]
-}
-return updatedQuestionArray;
-}*/
-
-addQuestion(){
+addQuestion(updatedLecture){
+  let lecturamen=updatedLecture;
   if(1+this.state.currentQuestionNum >=this.state.lecture.questions.length){
-    let questionss= this.state.lecture.questions.push({comment:"",
+    let questionss= updatedLecture.questions.push({comment:"",
                 question:"",
                 answers:  [{answer:""},
                            {answer:""},
                            {answer:""},
                            {answer:""}]
   })
-  this.setState({...this.state.lecture, questions:questionss})
-}}
+}
+return lecturamen;
+}
 
 nextButtonHandler(){
-  this.addQuestion();
+
 let self=this;
 console.log("self.state.lecture.questions is: ", self.state.lecture.questions)
   let newnumber = this.state.currentQuestionNum+1;
-    if(this.state.lecture.questions.length<3){
+    if(this.state.lecture.questions.length<2){
+
       console.log("entered the post next-handler")
     axios.post("/api/createlecture", this.state.lecture)
     .then(function(result){
-      self.setState({lecture:result.data,
+      let updatedLecture=result.data;
+      let addedQuestionLecture= self.addQuestion(updatedLecture);
+      self.setState({lecture:addedQuestionLecture,
                       currentQuestionNum:newnumber})
+
+
+
     })
     .catch(function(err){
       console.log(err);
@@ -91,16 +82,21 @@ console.log("self.state.lecture.questions is: ", self.state.lecture.questions)
 }
 
 else{
+
   console.log("entered the put next-handler")
   axios.put("/api/updatelecture/"+this.state.lecture._id, this.state.lecture)
   .then(function(result){
-    self.setState({lecture:result.data,
-                  currentQuestionNum:newnumber})
+    let updatedLecture=result.data;
+    let addedQuestionLecture= self.addQuestion(updatedLecture);
+    self.setState({lecture:addedQuestionLecture,
+                    currentQuestionNum:newnumber})
+
   })
   .catch(function(err){
     console.log(err);
   })
  }
+
 }
 
 ////RENDERING FUNCTIONS///////////
@@ -118,6 +114,7 @@ switch(action){
   .then(function(response){
     lect.questions[self.state.currentQuestionNum].isVideo=true;
     lect.questions[self.state.currentQuestionNum].videoUrl=response.data.thePath;
+    self.setState({lecture:lect})
       })
   .catch(function(err){
     console.log(err)
@@ -127,21 +124,29 @@ switch(action){
   axios.post("/api/fileupload", formData)
   .then(function(response){
     lect.lectureImage=response.data.thePath;
+    self.setState({lecture:lect})
   })
   .catch(function(err){
     console.log(err)
   })
 }
-self.setState({lecture:lect})
+
 
 }
 
 renderVideo(){
+  let self=this;
   return(
     <Panel>
     <Dropzone onDrop={ this.handleDrop("video")} accept="video/mp4" multiple={ false } onDropRejected={ handleDropRejected }>
         Drag a file here or click to upload.
+
       </Dropzone>
+      <Well>
+      <video width="100%">
+        <source src={self.state.lecture.questions[self.state.currentQuestionNum].videoUrl} type="video/mp4" />
+      </video>
+      </Well>
     </Panel>
   )
 }
@@ -171,6 +176,9 @@ switch(action){
   case "questions.question":
   lect.questions[qindex].question=evt.target.value;
   break;
+  case "questions.correctAnswer":
+  lect.questions[qindex].correctAnswer=evt.target.value;
+  break;
   case "questions.answers":
   const newAlternatives = lect.questions[qindex].answers.map((answer, stateindex) => {
           if (aindex !== stateindex) return answer;
@@ -183,10 +191,13 @@ this.setState({lecture:lect})
 }
 
 renderQuestion(){
-const mappedAlternatives=this.state.currentAlternativeArray.map((alternative, index)=>{
+const mappedAlternatives=this.state.lecture.questions[this.state.currentQuestionNum].answers.map((alternative, index)=>{
  return(
     <div key={index}>
-    <Radio inline name="radioGroup">
+    <Radio inline
+     name="radioGroup"
+     value={alternative.answer}
+     onChange={this.handleTextChange("questions.correctAnswer", this.state.currentQuestionNum, index)}>
       </Radio>
       <ControlLabel >{index+1}</ControlLabel>
       <FormControl
@@ -243,7 +254,7 @@ return(
 
 //MAIN RENDER
 render(){
-
+let self=this;
   console.log("this.state.lecture is: ", this.state.lecture)
   return(
 <Row className="createLectureContainer">
@@ -268,7 +279,9 @@ render(){
                 />
                 <Dropzone onDrop={ this.handleDrop("lecture.image")} accept="image/jpg, image/jpeg" multiple={ false } onDropRejected={ handleDropRejected }>
                     Drag a picture here or click to upload.
+                    {(self.state.lecture.lectureImage=="")?(<div></div>):(<img src={self.state.lecture.lectureImage} className="selectLectureImage"/>)}
                   </Dropzone>
+
 
           </FormGroup>
 

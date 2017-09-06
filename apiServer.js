@@ -36,6 +36,14 @@ app.use(session({
     })
 }))
 
+///********************////////
+
+
+var Users = require("./model/users.js");
+var Lectures = require("./model/lectures.js");
+
+
+//>>>>>>>>FILEHANDLING-API<<<<<<<<<<<//
 
 app.post('/fileupload', function(req, res) {
   console.log("something happened")
@@ -54,29 +62,6 @@ app.post('/fileupload', function(req, res) {
 
 
 
-//******CART-API********///////
-
-app.post("/cart", function(req, res){ //This function is used to save the cart to our session
-  req.session.cart= req.body;
-  req.session.save(function(err){
-    if(err){
-      throw err;
-    }
-    res.json(req.session.cart);
-  })
-})
-
-app.get("/cart", function(req, res){
-if(req.session.cart !== "undefined"){
-  res.json(req.session.cart)
-}
-})
-
-///********************////////
-
-var Books =require("./model/books.js");
-var Users = require("./model/users.js");
-var Lectures = require("./model/lectures.js");
 //>>>>>>>>USER-API<<<<<<<<<<<//
 //-------ADD-USER-------------------------//
 
@@ -132,9 +117,9 @@ if (req.body.email && req.body.password) {
 
 //-------Logout-USER-------------------------//
 app.get("/user/logout", function(req, res, next){
-  if(req.session){req.destroy(function(err){
+  if(req.session){req.session.destroy(function(err){
     if(err){ throw err;}
-    return res.redirect("/")
+    return res.redirect("/logout")
   })}
 });
 
@@ -166,69 +151,8 @@ console.log("req.body is: ", req.body)
       res.json(user)
     }
   })
-
-})
-//>>>>>>>>BOOKS-API<<<<<<<<<<<//
-
-//-------CREATE-BOOKS-------------------------//
-app.post('/books', function(req, res, next){
- var book = req.body;
- Books.create(book, function(err, books, next){
- if(err){
-next(err);
- }
- res.json(books);
- })
-});
-//-------GET-BOOKS-------------------------//
-app.get("/books", function(req, res){
-  Books.find(function(err, books){
-    if(err){
-       throw err;
-    }
-    else{
-      res.json(books);
-    }
-  })
-})
-//-------DELETE-BOOKS-------------------------//
-app.delete("/books/:_id", function(req, res, next){
-  var query= {_id:req.params._id};
-  Books.remove(query, function(err, books, next){
-    if(err){  console.log("API error on delete", err)}
-    res.json(books);})
-})
-//-------UPDATE-BOOKS-------------------------//
-app.put("/books/:_id", function(req, res, next){
-    var query= {_id:req.params._id};
-    var book= req.body;
-    var update= {$set:{
-      title:book.title,
-      description:book.description,
-      image:book.image,
-      price:book.price,
-    }};
-
-  Books.findOneAndUpdate(query, update, function(err, books, next){
-      if(err){ return next(err);}
-      res.json(books);
-  })
 })
 
-app.get("/images", function(req, res){
-  const imageFolder=__dirname+"/public/images/";
-  const fs = require("fs");
-
-  fs.readdir(imageFolder, function(err, files){
-    if(err){ console.log(err);}
-    const imageArr=[];
-    files.forEach(function(file){
-        imageArr.push({name:file});
-      })
-        return res.json(imageArr);
-  })
-
-})
 
 //>>>>>>>>LECTURE-API<<<<<<<<<<<//
 

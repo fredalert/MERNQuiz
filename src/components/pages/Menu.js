@@ -9,7 +9,7 @@ class Menu extends React.Component{
 <Navbar inverse fixedTop>
    <Navbar.Header>
      <Navbar.Brand>
-       <a href="/">My fucking cart</a>
+       <a href="/lectures">Lecture</a>
      </Navbar.Brand>
      <Navbar.Toggle />
    </Navbar.Header>
@@ -21,10 +21,10 @@ class Menu extends React.Component{
      <Nav pullRight>
       {(this.props.loggedInUser!=null)?(<NavItem eventKey={1} href="/logout">logout</NavItem>):(<NavItem eventKey={1} href="/login">Login</NavItem>)}
       {(this.props.loggedInUser!=null)?(""):(<NavItem eventKey={2} href="/register">Register</NavItem>)}
-       <NavItem eventKey={3} href="/admin">Admin</NavItem>
+
        <NavItem eventKey={4} href="/createlecture">Create Lecture</NavItem>
-       {(this.props.itemNumber>0)?(<NavItem eventKey={5} href="/cart">My cart <Badge className="badge">{this.props.itemNumber}</Badge></NavItem>):("")}
-      {(this.props.loggedInUser!=null)?(<NavItem eventKey={6} href="/profile">{this.props.loggedInUser.email}</NavItem>):("")}
+
+      {(this.props.loggedInUser!=null)?(<NavItem eventKey={5} href="/profile">{this.props.loggedInUser.email}</NavItem>):("")}
 
      </Nav>
    </Navbar.Collapse>
