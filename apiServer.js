@@ -78,8 +78,12 @@ app.post('/user', function(req, res, next) {
       }
         // create object with form input
       var userData = {
+        name:req.body.name,
+        admin:req.body.admin,
+        imageUrl:req.body.imageUrl,
         email: req.body.email,
-        password: req.body.password
+        password: req.body.password,
+
       };
       Users.create(userData, function(err, user, next){
       if(err){
@@ -102,10 +106,14 @@ if (req.body.email && req.body.password) {
       if (error || !user) {
         var err = new Error('Wrong email or password.');
         err.status = 401;
+        
         return next(err);
       }  else {
         req.session.loggedInUserId=user._id;
-        return res.json(user);
+        res.json(user);
+
+
+
       }
     });
   } else {
@@ -118,7 +126,7 @@ if (req.body.email && req.body.password) {
 //-------Logout-USER-------------------------//
 app.get("/user/logout", function(req, res, next){
   if(req.session){req.session.destroy(function(err){
-    if(err){ throw err;}
+    if(err){ throw err}
     return res.redirect("/logout")
   })}
 });

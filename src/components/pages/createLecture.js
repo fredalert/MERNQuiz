@@ -26,6 +26,7 @@ constructor(props){
                       questions:[{comment:"",
                                   isVideo:false,
                                   videoUrl:"",
+                                  imageUrl:"",
                                   question:"",
                                   correctArray:"",
                                   answers:  [{answer:""},
@@ -70,10 +71,9 @@ console.log("self.state.lecture.questions is: ", self.state.lecture.questions)
     .then(function(result){
       let updatedLecture=result.data;
       let addedQuestionLecture= self.addQuestion(updatedLecture);
+
       self.setState({lecture:addedQuestionLecture,
                       currentQuestionNum:newnumber})
-
-
 
     })
     .catch(function(err){
@@ -83,7 +83,7 @@ console.log("self.state.lecture.questions is: ", self.state.lecture.questions)
 
 else{
 
-  console.log("entered the put next-handler")
+
   axios.put("/api/updatelecture/"+this.state.lecture._id, this.state.lecture)
   .then(function(result){
     let updatedLecture=result.data;
@@ -114,6 +114,17 @@ switch(action){
   .then(function(response){
     lect.questions[self.state.currentQuestionNum].isVideo=true;
     lect.questions[self.state.currentQuestionNum].videoUrl=response.data.thePath;
+    self.setState({lecture:lect})
+      })
+  .catch(function(err){
+    console.log(err)
+  })
+  break;
+  case "question.image":
+  axios.post("/api/fileupload", formData)
+  .then(function(response){
+
+    lect.questions[self.state.currentQuestionNum].imageUrl=response.data.thePath;
     self.setState({lecture:lect})
       })
   .catch(function(err){
@@ -232,8 +243,10 @@ return(
                   placeholder="When you have 2 apples and adds 2 more you have 4 apples"
                   value={this.state.lecture.questions[this.state.currentQuestionNum].comment}
                   onChange={this.handleTextChange("questions.comment", this.state.currentQuestionNum)}
-
-                  />
+                />
+              <Dropzone onDrop={ this.handleDrop("question.image", )} accept="image/jpg, image/jpeg" multiple={ false } onDropRejected={ handleDropRejected }>
+                  Click here to add an image!
+              </Dropzone>
           </FormGroup>
           <br/>
           <br/>

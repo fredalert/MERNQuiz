@@ -6,6 +6,7 @@ import {bindActionCreators} from "redux";
 import {findDOMNode} from "react-dom"
 import {loginUserAction} from "../../actions/userActions"
 import axios from "axios";
+import { withRouter } from 'react-router';
 
 class Login extends React.Component{
 
@@ -15,6 +16,11 @@ handleLogin(){
     password:findDOMNode(this.refs.password).value,
     }
   this.props.loginUserAction(user);
+  findDOMNode(this.refs.email).value="";
+  findDOMNode(this.refs.password).value="";
+  
+this.props.router.push('/Profile');
+
 }
 
 render(){

@@ -5,6 +5,9 @@ var Schema = mongoose.Schema;
 
 var UserSchema = new Schema({
  email: String,
+ name: String,
+ admin: Boolean,
+ imageUrl: String,
  password: String,
  createdLectures:[{
    type:Schema.Types.ObjectId,

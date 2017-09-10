@@ -21,7 +21,7 @@ var lectureSchema = new Schema(
       correctAnswer:{type:String, default:""},
       _id:Number,
       comment: {type:String, default:""},
-      image: {type:String, default:""},
+      imageUrl: {type:String, default:""},
       answers: [{_id:Number, answer:{type:String, default:""}}]
     }]
   }

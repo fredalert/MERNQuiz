@@ -11,8 +11,7 @@ import {getCurrentUser} from "../../actions/userActions"
 class Main extends React.Component{
 componentDidMount(){
   this.props.getCurrentUser();
-
-
+  
 }
 
   render(){

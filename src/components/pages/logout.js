@@ -4,8 +4,12 @@ import axios from "axios";
 import {Well, Row, Col } from "react-bootstrap"
 
 class Logout extends React.Component{
+componentDidMount(){
+  axios.get("/api/user/logout");
+  
+}
   render(){
-    axios.get("/api/user/logout");
+
     return(
       <Well>
         <Row>

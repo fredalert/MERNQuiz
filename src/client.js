@@ -26,12 +26,10 @@ import Lectures from "./components/pages/lectures"
 import Logout from "./components/pages/logout"
 import Lecture from "./components/pages/lecture"
 import CreateLecture from "./components/pages/CreateLecture"
-
+import About from "./components/pages/about"
 
 
 //ACTIONS
-
-
 
 const Routes =(
 <Provider store={store}>
@@ -45,6 +43,7 @@ const Routes =(
         <Route path="/profile" component ={Profile}/>
         <Route path="/lectures" component ={Lectures}/>
         <Route path="/lecture" component ={Lecture}/>
+        <Route path="/about" component ={About}/>
         <Route path="/createlecture" component ={CreateLecture}/>
 
       </Route>
