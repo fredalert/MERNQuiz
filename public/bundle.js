@@ -51101,20 +51101,6 @@ var Lectures = function (_React$Component) {
       this.props.getLectures();
     }
 
-    //*************HANDLE START-PAGE FUNCTIONS*****************////
-
-  }, {
-    key: "selectLecture",
-    value: function selectLecture(lectureId) {
-      _axios2.default.get("api/lectures/" + lectureId).then(function (response) {
-        this.setState({ currentLecture: response.data });
-        modalBolean = true;
-        this.openModal();
-        return response.data;
-      }.bind(this)).catch(function (err) {
-        throw err;
-      });
-    }
     //*************HANDLE MODAL FUNCTIONS*****************////
 
     //1. Opens modal by setting showModal-state to true
@@ -51486,7 +51472,7 @@ var Lectures = function (_React$Component) {
       );
     }
 
-    /**************START-PAGE-RENDER-FUNCTIONS*************/
+    /**************START-PAGE-FUNCTIONS*************/
     /*****************************************/
 
     /**************START-PAGE-MAIN-RENDERER*************/
@@ -51564,6 +51550,23 @@ var Lectures = function (_React$Component) {
           )
         );
       }, this);
+    }
+
+    //*************HANDLE START-PAGE FUNCTION*****************////
+
+  }, {
+    key: "selectLecture",
+    value: function selectLecture(lectureId) {
+
+      this.props.router.push("/lectures/?id=" + lectureId);
+      _axios2.default.get("api/lectures/" + lectureId).then(function (response) {
+        this.setState({ currentLecture: response.data });
+        modalBolean = true;
+        this.openModal();
+        return response.data;
+      }.bind(this)).catch(function (err) {
+        throw err;
+      });
     }
 
     /**************MAIN RENDERER*************/

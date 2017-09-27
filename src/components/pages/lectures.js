@@ -34,17 +34,7 @@ componentDidMount(){
 
 }
 
-//*************HANDLE START-PAGE FUNCTIONS*****************////
 
-selectLecture(lectureId){
-axios.get("api/lectures/"+lectureId)
-  .then(function(response){
-    this.setState({currentLecture:response.data});
-    modalBolean=true;
-    this.openModal();
-    return response.data }.bind(this))
-  .catch(function(err){throw err;})
-}
 //*************HANDLE MODAL FUNCTIONS*****************////
 
 //1. Opens modal by setting showModal-state to true
@@ -305,7 +295,7 @@ handleQuestion(radioButtons){
 }
 
 
-/**************START-PAGE-RENDER-FUNCTIONS*************/
+/**************START-PAGE-FUNCTIONS*************/
 /*****************************************/
 
 /**************START-PAGE-MAIN-RENDERER*************/
@@ -349,6 +339,20 @@ console.log("this.state.correction is: ", this.state.correction)
             </Col>)
           }, this
         )
+      }
+
+//*************HANDLE START-PAGE FUNCTION*****************////
+
+      selectLecture(lectureId){
+
+      this.props.router.push("/lectures/?id="+lectureId)
+      axios.get("api/lectures/"+lectureId)
+        .then(function(response){
+          this.setState({currentLecture:response.data});
+          modalBolean=true;
+          this.openModal();
+          return response.data }.bind(this))
+        .catch(function(err){throw err;})
       }
 
 /**************MAIN RENDERER*************/
