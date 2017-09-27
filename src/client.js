@@ -27,6 +27,7 @@ import Logout from "./components/pages/logout"
 import Lecture from "./components/pages/lecture"
 import CreateLecture from "./components/pages/CreateLecture"
 import About from "./components/pages/about"
+import EnsureLoggedInContainer from "./components/pages/ensureUserIsLoggedInContainer"
 
 
 //ACTIONS
@@ -39,12 +40,14 @@ const Routes =(
         <IndexRoute component={Lectures}/>
         <Route path="/register" component ={Register}/>
         <Route path="/login" component ={Login}/>
+        <Route path="/about" component ={About}/>
+        <Route component ={EnsureLoggedInContainer}>
         <Route path="/logout" component ={Logout}/>
         <Route path="/profile" component ={Profile}/>
         <Route path="/lectures" component ={Lectures}/>
         <Route path="/lecture" component ={Lecture}/>
-        <Route path="/about" component ={About}/>
         <Route path="/createlecture" component ={CreateLecture}/>
+        </Route>
 
       </Route>
     </Router>

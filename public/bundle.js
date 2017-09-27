@@ -6338,6 +6338,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.getCurrentUser = getCurrentUser;
 exports.postUserAction = postUserAction;
 exports.loginUserAction = loginUserAction;
+exports.addCreatedLectureToUserAction = addCreatedLectureToUserAction;
 exports.addLectureToUserAction = addLectureToUserAction;
 exports.updateLectureToUserAction = updateLectureToUserAction;
 
@@ -6350,6 +6351,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function getCurrentUser() {
   return function (dispatch) {
     _axios2.default.get("/api/user").then(function (response) {
+
       dispatch({ type: "GET_USER", payload: response.data });
     }).catch(function (err) {
       dispatch({ type: "GET_USER_REJECTED", payload: "Aomething went wrong when getting the user" });
@@ -6373,6 +6375,16 @@ function loginUserAction(user) {
       dispatch({ type: "LOGIN_USER", payload: response.data });
     }).catch(function (err) {
       dispatch({ type: "LOGIN_USER_REJECTED", payload: "Could not login user" });
+    });
+  };
+}
+
+function addCreatedLectureToUserAction(_id) {
+  return function (dispatch) {
+    _axios2.default.post("/api/user/createdLectures", _id).then(function (response) {
+      dispatch({ type: "POST_CREATED_LECTURE_TO_USER", payload: response.data });
+    }).catch(function (err) {
+      dispatch({ type: "POST_CREATED_LECTURE_TO_USER_REJECTED", payload: response.data });
     });
   };
 }
@@ -23375,6 +23387,10 @@ var _about = __webpack_require__(580);
 
 var _about2 = _interopRequireDefault(_about);
 
+var _ensureUserIsLoggedInContainer = __webpack_require__(581);
+
+var _ensureUserIsLoggedInContainer2 = _interopRequireDefault(_ensureUserIsLoggedInContainer);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 //STORE
@@ -23399,12 +23415,16 @@ var Routes = _react2.default.createElement(
         _react2.default.createElement(_reactRouter.IndexRoute, { component: _lectures2.default }),
         _react2.default.createElement(_reactRouter.Route, { path: "/register", component: _register2.default }),
         _react2.default.createElement(_reactRouter.Route, { path: "/login", component: _login2.default }),
-        _react2.default.createElement(_reactRouter.Route, { path: "/logout", component: _logout2.default }),
-        _react2.default.createElement(_reactRouter.Route, { path: "/profile", component: _profile2.default }),
-        _react2.default.createElement(_reactRouter.Route, { path: "/lectures", component: _lectures2.default }),
-        _react2.default.createElement(_reactRouter.Route, { path: "/lecture", component: _lecture2.default }),
         _react2.default.createElement(_reactRouter.Route, { path: "/about", component: _about2.default }),
-        _react2.default.createElement(_reactRouter.Route, { path: "/createlecture", component: _CreateLecture2.default })
+        _react2.default.createElement(
+          _reactRouter.Route,
+          { component: _ensureUserIsLoggedInContainer2.default },
+          _react2.default.createElement(_reactRouter.Route, { path: "/logout", component: _logout2.default }),
+          _react2.default.createElement(_reactRouter.Route, { path: "/profile", component: _profile2.default }),
+          _react2.default.createElement(_reactRouter.Route, { path: "/lectures", component: _lectures2.default }),
+          _react2.default.createElement(_reactRouter.Route, { path: "/lecture", component: _lecture2.default }),
+          _react2.default.createElement(_reactRouter.Route, { path: "/createlecture", component: _CreateLecture2.default })
+        )
       )
     )
   )
@@ -38432,8 +38452,8 @@ var Menu = function (_React$Component) {
             null,
             _react2.default.createElement(
               "a",
-              { href: "/lectures" },
-              "Lecture"
+              { href: "/about" },
+              "About"
             )
           ),
           _react2.default.createElement(_reactBootstrap.Navbar.Toggle, null)
@@ -38444,16 +38464,16 @@ var Menu = function (_React$Component) {
           _react2.default.createElement(
             _reactBootstrap.Nav,
             null,
-            _react2.default.createElement(
-              _reactBootstrap.NavItem,
-              { eventKey: 1, href: "/about" },
-              "About"
-            ),
-            _react2.default.createElement(
+            this.props.loggedInUser != null ? _react2.default.createElement(
               _reactBootstrap.NavItem,
               { eventKey: 2, href: "/lectures" },
               "Lectures"
-            )
+            ) : "",
+            this.props.loggedInUser != null ? _react2.default.createElement(
+              _reactBootstrap.NavItem,
+              { eventKey: 4, href: "/createlecture" },
+              "Create Lecture"
+            ) : ""
           ),
           _react2.default.createElement(
             _reactBootstrap.Nav,
@@ -38471,11 +38491,6 @@ var Menu = function (_React$Component) {
               _reactBootstrap.NavItem,
               { eventKey: 2, href: "/register" },
               "Register"
-            ),
-            _react2.default.createElement(
-              _reactBootstrap.NavItem,
-              { eventKey: 4, href: "/createlecture" },
-              "Create Lecture"
             ),
             this.props.loggedInUser != null ? _react2.default.createElement(
               _reactBootstrap.NavItem,
@@ -50826,6 +50841,10 @@ var _reactRedux = __webpack_require__(45);
 
 var _userActions = __webpack_require__(76);
 
+var _axios = __webpack_require__(48);
+
+var _axios2 = _interopRequireDefault(_axios);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -50844,34 +50863,84 @@ var Profile = function (_React$Component) {
   }
 
   _createClass(Profile, [{
+    key: "createdLectureEditClick",
+    value: function createdLectureEditClick(_id) {
+      this.props.router.push("/createlecture/?id=" + _id);
+    }
+  }, {
+    key: "createdLectureDeleteClick",
+    value: function createdLectureDeleteClick(_id) {
+      _axios2.default.delete("/api/createlecture/" + _id).then(function () {
+        console.log("cool done");
+      }).catch(function (err) {
+        console.log(err);
+      });
+    }
+  }, {
+    key: "clickLecture",
+    value: function clickLecture(_id) {
+      this.props.router.push("/lectures/?id=" + _id);
+    }
+  }, {
     key: "renderProfile",
     value: function renderProfile() {
 
+      var self = this;
       var lectures = this.props.loggedInUser.lectures.map(function (lecture, index) {
         return _react2.default.createElement(
-          "h3",
-          { key: index },
-          " ",
+          _reactBootstrap.Well,
+          { key: index, onClick: this.clickLecture.bind(this, lecture._id) },
           _react2.default.createElement(
-            _reactBootstrap.Label,
-            { bsStyle: "primary", className: "profileLectures" },
+            "h3",
+            null,
+            " ",
             lecture.lectureName
-          )
+          ),
+          _react2.default.createElement(
+            "p",
+            null,
+            "Progress"
+          ),
+          _react2.default.createElement(_reactBootstrap.ProgressBar, { bsStyle: "success", now: lecture.percentCorrect, label: lecture.percentCorrect + "%" }),
+          lecture.isCompleted ? _react2.default.createElement(
+            "div",
+            { className: "done" },
+            _react2.default.createElement(_reactBootstrap.Glyphicon, { bsStyle: "success", glyph: "ok" }),
+            _react2.default.createElement(
+              "p",
+              null,
+              " Done!"
+            )
+          ) : _react2.default.createElement("div", null)
         );
-      });
+      }, this);
 
       var createdLectures = this.props.loggedInUser.createdLectures.map(function (lecture, index) {
         return _react2.default.createElement(
-          "h3",
+          "div",
           { key: index },
-          " ",
           _react2.default.createElement(
-            _reactBootstrap.Label,
-            { bsStyle: "primary", className: "profileLectures" },
-            lecture.lectureName
+            _reactBootstrap.Well,
+            null,
+            _react2.default.createElement(
+              "h3",
+              null,
+              " ",
+              lecture.lecture
+            ),
+            _react2.default.createElement(
+              _reactBootstrap.Badge,
+              { className: "editBadge", onClick: this.createdLectureEditClick.bind(this, lecture._id) },
+              " Edit"
+            ),
+            _react2.default.createElement(
+              _reactBootstrap.Badge,
+              { className: "deleteBadge", bsStyle: "danger", onClick: this.createdLectureDeleteClick.bind(this, lecture._id) },
+              " Delete"
+            )
           )
         );
-      });
+      }, this);
 
       return _react2.default.createElement(
         "div",
@@ -50907,7 +50976,8 @@ var Profile = function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
-      console.log("this.props is :", this.props.location);
+
+      console.log("this.props.loggedInUser is: ", this.props.loggedInUser);
 
       return _react2.default.createElement(
         _reactBootstrap.Panel,
@@ -51030,100 +51100,44 @@ var Lectures = function (_React$Component) {
     value: function componentDidMount() {
       this.props.getLectures();
     }
-    //*************HANDLE MODAL FUNCTIONS*****************////
+
+    //*************HANDLE START-PAGE FUNCTIONS*****************////
 
   }, {
-    key: "handleQuestion",
-    value: function handleQuestion(radioButtons) {
-      return _react2.default.createElement(
-        "div",
-        null,
-        _react2.default.createElement(
-          _reactBootstrap.Row,
-          null,
-          _react2.default.createElement(
-            _reactBootstrap.Well,
-            null,
-            _react2.default.createElement(
-              "h6",
-              null,
-              this.state.comment
-            )
-          )
-        ),
-        _react2.default.createElement(
-          _reactBootstrap.Col,
-          { xs: 12, sm: 12 },
-          _react2.default.createElement(
-            _reactBootstrap.Well,
-            null,
-            _react2.default.createElement(
-              _reactBootstrap.Well,
-              null,
-              _react2.default.createElement(
-                "h6",
-                null,
-                this.state.currentLecture.questions[this.state.counter].question
-              )
-            ),
-            _react2.default.createElement(
-              _reactBootstrap.Well,
-              null,
-              _react2.default.createElement(
-                _reactBootstrap.FormGroup,
-                { ref: "questionsForm" },
-                radioButtons
-              )
-            ),
-            _react2.default.createElement(
-              _reactBootstrap.Row,
-              null,
-              _react2.default.createElement(
-                _reactBootstrap.Col,
-                { xs: 6 },
-                _react2.default.createElement(
-                  _reactBootstrap.Button,
-                  { onClick: this.questionAnswered.bind(this), bsStyle: "primary" },
-                  "Answer"
-                )
-              ),
-              _react2.default.createElement(
-                _reactBootstrap.Col,
-                { xs: 6 },
-                this.state.answeredQ ? _react2.default.createElement(
-                  _reactBootstrap.Button,
-                  { onClick: this.nextQuestion.bind(this), bsStyle: "primary" },
-                  "Continue"
-                ) : _react2.default.createElement("div", null)
-              )
-            )
-          )
-        )
-      );
+    key: "selectLecture",
+    value: function selectLecture(lectureId) {
+      _axios2.default.get("api/lectures/" + lectureId).then(function (response) {
+        this.setState({ currentLecture: response.data });
+        modalBolean = true;
+        this.openModal();
+        return response.data;
+      }.bind(this)).catch(function (err) {
+        throw err;
+      });
     }
+    //*************HANDLE MODAL FUNCTIONS*****************////
+
+    //1. Opens modal by setting showModal-state to true
+    //2. Finds out if current user has started a lecture and finds the index of that lecture.
+    //If lecture is not found, index is -1.
+
   }, {
     key: "openModal",
     value: function openModal() {
       this.setState({ showModal: true,
-        comment: "" }); //Opens Lecture Modal
+        comment: "" });
 
       var indexOfCurrentLecture = this.props.user.lectures.findIndex(function (lecture) {
         return lecture.lectureName == this.state.currentLecture.lecture;
       }, this);
-      console.log("openModal, this.props.user.lectures when openModal is: ", this.props.user.lectures);
-      lectureLength = this.state.currentLecture.questions.length;
       if (indexOfCurrentLecture === -1) {
         var correctArray = this.state.correction;
-        console.log("openModal making a new array because  this.props.user.lectures[0]===undefined");
-        for (var i = 0; i < lectureLength; i++) {
-          correctArray.push({ questionNr: i,
-            isCorrect: "unanswered" });
-        }
+        correctArray.push({ questionNr: i,
+          isCorrect: "unanswered" });
+
         this.setState({ correction: correctArray });
       } else {
         var currentQuestionNum = "";
-
-        console.log("openModal, this.props.lectures[0] is not undefined");
         var progress = this.props.user.lectures[indexOfCurrentLecture].progress;
         currentQuestionNum = this.props.user.lectures[indexOfCurrentLecture].currentQuestionNum;
 
@@ -51131,7 +51145,6 @@ var Lectures = function (_React$Component) {
           counter: currentQuestionNum
         });
       }
-      console.log(console.log("this.props.user.lectures when openModal is ending is: ", this.props.user.lectures));
     }
   }, {
     key: "closeModal",
@@ -51142,7 +51155,6 @@ var Lectures = function (_React$Component) {
       //If it doesnt exist, the lecture is added to the user.
       var usersLectures = this.props.user.lectures;
       var updatedLectureArray = {};
-      console.log("closeModal;  this.state.correction is: ", this.state.correction);
       //This function determines the index of the current lecture in the users saved lecture.
       //If the lecture is new to the user the index is -1, and the lecture is added to the user.
       var indexOfCurrentLecture = this.props.user.lectures.findIndex(function (lecture) {
@@ -51155,32 +51167,27 @@ var Lectures = function (_React$Component) {
           progress: this.state.correction };
         usersLectures.push(lectureToBePushed);
         updatedLectureArray = usersLectures;
-        console.log("closeModal-indexOfCurrentLecture===-1; usersLectures after push is: ", usersLectures);
-        console.log("closeModal-indexOfCurrentLecture===-1; indexOfCurrentLecture is: ", indexOfCurrentLecture);
       }
       if (indexOfCurrentLecture >= 0) {
         var updatedUserLecture = { currentQuestionNum: this.state.counter,
           lectureName: this.state.currentLecture.lecture,
           progress: this.state.correction };
-        console.log("closeModal-indexOfCurrentLecture>=0; updatedUserLecture is: ", updatedUserLecture);
 
         updatedLectureArray = [].concat(_toConsumableArray(usersLectures.slice(0, indexOfCurrentLecture)), [updatedUserLecture], _toConsumableArray(usersLectures.slice(indexOfCurrentLecture + 1)));
-        console.log("closeModal-indexOfCurrentLecture>=0; , updatedLectureArray is :", updatedLectureArray);
-        console.log("closeModal-indexOfCurrentLecture>=0; this.state.correction is: ", this.state.correction);
+
+        //Adds the updates to the user
+        _axios2.default.put("/api/user/" + this.props.user._id + "/lectures", updatedLectureArray).then(function (response) {
+          return response.data;
+        }).catch(function (err) {
+          throw err;
+        });
+
+        this.setState({ showModal: false,
+          counter: 0,
+          correction: []
+        });
+        this.props.getCurrentUser();
       }
-
-      //Adds the updates to the user
-      _axios2.default.put("/api/user/" + this.props.user._id + "/lectures", updatedLectureArray).then(function (response) {
-        return response.data;
-      }).catch(function (err) {
-        throw err;
-      });
-
-      this.setState({ showModal: false,
-        counter: 0,
-        correction: []
-      });
-      this.props.getCurrentUser();
     }
 
     //***********FUNCTIONS HANDELING CORRECTION*******************//
@@ -51240,7 +51247,6 @@ var Lectures = function (_React$Component) {
         this.closeModal();
       } else {
         if (this.state.currentLecture.questions[this.state.counter].isVideo) {
-          console.log("starting the videoupdate");
           var currentQuestion = { questionNr: this.state.counter,
             isCorrect: "correct"
           };
@@ -51264,7 +51270,7 @@ var Lectures = function (_React$Component) {
       return this.state.correction.map(function (item) {
         return _react2.default.createElement(
           _reactBootstrap.Badge,
-          { key: item.questionNr, className: item.isCorrect, onClick: this.onCorrectionClick.bind(this, item.questionNr) },
+          { key: item.questionNr, className: item.isVideo ? "isVideo" : item.isCorrect, onClick: this.onCorrectionClick.bind(this, item.questionNr) },
           item.questionNr + 1
         );
       }, this);
@@ -51278,51 +51284,20 @@ var Lectures = function (_React$Component) {
         answeredQ: false
       });
     }
-    /**************************/
 
-  }, {
-    key: "renderVideo",
-    value: function renderVideo() {
-      return _react2.default.createElement(
-        _reactBootstrap.Row,
-        null,
-        _react2.default.createElement(
-          _reactBootstrap.Media,
-          null,
-          _react2.default.createElement(
-            _reactBootstrap.Row,
-            null,
-            _react2.default.createElement(
-              _reactBootstrap.Col,
-              { xs: 12 },
-              _react2.default.createElement(
-                _reactBootstrap.Well,
-                null,
-                _react2.default.createElement(
-                  "video",
-                  { width: "100%", controls: true, onEnded: this.nextQuestion.bind(this) },
-                  _react2.default.createElement("source", { src: this.state.currentLecture.questions[this.state.counter].videoUrl, type: "video/mp4" })
-                )
-              )
-            )
-          ),
-          _react2.default.createElement(
-            _reactBootstrap.Well,
-            null,
-            _react2.default.createElement(
-              _reactBootstrap.Button,
-              { onClick: this.nextQuestion.bind(this), bsStyle: "primary" },
-              "Continue"
-            )
-          )
-        )
-      );
-    }
+    //////////////////////////////////////////////////////////////////////////
+    /***********RENDER-FUNCTIONS********************************************/
+    //////////////////////////////////////////////////////////////////////////
+
+
+    /**************MODAL-PAGE-RENDER-FUNCTIONS*************/
+    /*****************************************/
+
+    /**************MODAL-PAGE-RENDER-MAIN*************/
+
   }, {
     key: "renderModal",
     value: function renderModal() {
-      console.log("renderModal, this.state.counter is: ", this.state.counter);
-      console.log("renderModal, this.state.currentLecture.questions[0] is: ", this.state.currentLecture.questions[0]);
       var radioButtons = this.state.currentLecture.questions[this.state.counter].answers.map(function (answer, index) {
         return _react2.default.createElement(
           _reactBootstrap.Radio,
@@ -51334,7 +51309,6 @@ var Lectures = function (_React$Component) {
           )
         );
       }, this);
-
       return _react2.default.createElement(
         "div",
         null,
@@ -51395,58 +51369,128 @@ var Lectures = function (_React$Component) {
       );
     }
 
-    //////////////////////////////////////////////////////////////////////////
-    //HANDLES LECTURE_STARTPAGE///////
+    /**************MODAL-PAGE-RENDER-VIDEO*************/
 
   }, {
-    key: "selectLecture",
-    value: function selectLecture(lectureId) {
-      _axios2.default.get("api/lectures/" + lectureId).then(function (response) {
-
-        this.setState({ currentLecture: response.data });
-        console.log("selectLecture, this.state.currentLecture is: ", this.state.currentLecture);
-        modalBolean = true;
-        this.openModal();
-        return response.data;
-      }.bind(this)).catch(function (err) {
-        throw err;
-      });
-    }
-  }, {
-    key: "renderLectures",
-    value: function renderLectures() {
-
-      console.log("this.state.correction is: ", this.state.correction);
-      return this.props.lectures.map(function (lecture) {
-        return _react2.default.createElement(
-          _reactBootstrap.Col,
-          { xs: 6, md: 4, key: lecture._id },
+    key: "renderVideo",
+    value: function renderVideo() {
+      return _react2.default.createElement(
+        _reactBootstrap.Row,
+        null,
+        _react2.default.createElement(
+          _reactBootstrap.Media,
+          null,
           _react2.default.createElement(
-            _reactBootstrap.Media,
-            { className: "lectureThumbnail", onClick: this.selectLecture.bind(this, lecture._id) },
+            _reactBootstrap.Row,
+            null,
             _react2.default.createElement(
-              _reactBootstrap.Media.Left,
+              _reactBootstrap.Col,
+              { xs: 12 },
+              _react2.default.createElement(
+                _reactBootstrap.Well,
+                null,
+                _react2.default.createElement(
+                  "video",
+                  { width: "100%", controls: true, onEnded: this.nextQuestion.bind(this) },
+                  _react2.default.createElement("source", { src: this.state.currentLecture.questions[this.state.counter].videoUrl, type: "video/mp4" })
+                )
+              )
+            )
+          ),
+          _react2.default.createElement(
+            _reactBootstrap.Well,
+            null,
+            _react2.default.createElement(
+              _reactBootstrap.Button,
+              { onClick: this.nextQuestion.bind(this), bsStyle: "primary" },
+              "Continue"
+            )
+          )
+        )
+      );
+    }
+    /**************MODAL-PAGE-RENDER-QUESTIO************/
+
+  }, {
+    key: "handleQuestion",
+    value: function handleQuestion(radioButtons) {
+      return _react2.default.createElement(
+        "div",
+        null,
+        _react2.default.createElement(
+          _reactBootstrap.Row,
+          null,
+          _react2.default.createElement(
+            _reactBootstrap.Well,
+            null,
+            _react2.default.createElement(
+              "h6",
               null,
-              _react2.default.createElement("img", { src: lecture.lectureImage, className: "lectureImage" })
+              this.state.comment
+            )
+          )
+        ),
+        _react2.default.createElement(
+          _reactBootstrap.Col,
+          { xs: 12, sm: 12 },
+          _react2.default.createElement(
+            _reactBootstrap.Well,
+            null,
+            _react2.default.createElement(
+              _reactBootstrap.Well,
+              null,
+              _react2.default.createElement(
+                "h6",
+                null,
+                this.state.currentLecture.questions[this.state.counter].question
+              )
+            ),
+            this.state.currentLecture.questions[this.state.counter].imageUrl === "" ? _react2.default.createElement("div", null) : _react2.default.createElement(
+              _reactBootstrap.Well,
+              null,
+              _react2.default.createElement(_reactBootstrap.Image, { src: this.state.currentLecture.questions[this.state.counter].imageUrl, className: "questionImage" })
             ),
             _react2.default.createElement(
-              _reactBootstrap.Media.Body,
+              _reactBootstrap.Well,
               null,
               _react2.default.createElement(
-                _reactBootstrap.Media.Heading,
-                null,
-                lecture.lecture
+                _reactBootstrap.FormGroup,
+                { ref: "questionsForm" },
+                radioButtons
+              )
+            ),
+            _react2.default.createElement(
+              _reactBootstrap.Row,
+              null,
+              _react2.default.createElement(
+                _reactBootstrap.Col,
+                { xs: 6 },
+                _react2.default.createElement(
+                  _reactBootstrap.Button,
+                  { onClick: this.questionAnswered.bind(this), bsStyle: "primary" },
+                  "Answer"
+                )
               ),
               _react2.default.createElement(
-                "p",
-                { className: "lectureDescription" },
-                lecture.description
+                _reactBootstrap.Col,
+                { xs: 6 },
+                this.state.answeredQ ? _react2.default.createElement(
+                  _reactBootstrap.Button,
+                  { onClick: this.nextQuestion.bind(this), bsStyle: "primary" },
+                  "Continue"
+                ) : _react2.default.createElement("div", null)
               )
             )
           )
-        );
-      }, this);
+        )
+      );
     }
+
+    /**************START-PAGE-RENDER-FUNCTIONS*************/
+    /*****************************************/
+
+    /**************START-PAGE-MAIN-RENDERER*************/
+
   }, {
     key: "renderStartPage",
     value: function renderStartPage() {
@@ -51484,10 +51528,50 @@ var Lectures = function (_React$Component) {
         modalBolean ? this.renderModal() : _react2.default.createElement("div", null)
       );
     }
+
+    /**************RENDER LECTURES*************/
+
+  }, {
+    key: "renderLectures",
+    value: function renderLectures() {
+      console.log("this.state.correction is: ", this.state.correction);
+      return this.props.lectures.map(function (lecture) {
+        return _react2.default.createElement(
+          _reactBootstrap.Col,
+          { xs: 6, md: 4, key: lecture._id },
+          _react2.default.createElement(
+            _reactBootstrap.Media,
+            { className: "lectureThumbnail", onClick: this.selectLecture.bind(this, lecture._id) },
+            _react2.default.createElement(
+              _reactBootstrap.Media.Left,
+              null,
+              _react2.default.createElement("img", { src: lecture.lectureImage, className: "lectureImage" })
+            ),
+            _react2.default.createElement(
+              _reactBootstrap.Media.Body,
+              null,
+              _react2.default.createElement(
+                _reactBootstrap.Media.Heading,
+                null,
+                lecture.lecture
+              ),
+              _react2.default.createElement(
+                "p",
+                { className: "lectureDescription" },
+                lecture.description
+              )
+            )
+          )
+        );
+      }, this);
+    }
+
+    /**************MAIN RENDERER*************/
+    /****************************************/
+
   }, {
     key: "render",
     value: function render() {
-
       return _react2.default.createElement(
         _reactBootstrap.Grid,
         null,
@@ -51903,6 +51987,7 @@ var CreateLecture = function (_React$Component) {
       currentAlternatives: 4,
       currentQuestionNum: 0,
       lecture: { lecture: "",
+        creator: _this.props.user._id,
         description: "",
         questions: [{ comment: "",
           isVideo: false,
@@ -51921,7 +52006,18 @@ var CreateLecture = function (_React$Component) {
   _createClass(CreateLecture, [{
     key: "componentDidMount",
     value: function componentDidMount() {
+      var self = this;
       this.helpRenderAlternatives();
+      var redirectedId = this.props.location.query.id;
+
+      if (redirectedId != undefined) {
+        _axios2.default.get("/api/lectures/" + redirectedId).then(function (result) {
+          console.log("result is : ", result.data);
+          self.setState({ lecture: result.data });
+        }).catch(function (err) {
+          console.log(err);
+        });
+      }
     }
 
     //////HELPERFUNCTIONS//////////
@@ -51941,19 +52037,32 @@ var CreateLecture = function (_React$Component) {
   }, {
     key: "nextButtonHandler",
     value: function nextButtonHandler() {
+      console.log("this.state.lecture._id is :", this.state.lecture._id);
 
       var self = this;
       console.log("self.state.lecture.questions is: ", self.state.lecture.questions);
       var newnumber = this.state.currentQuestionNum + 1;
-      if (this.state.lecture.questions.length < 2) {
-
+      if (this.state.lecture._id == undefined) {
+        var updatedLecture = void 0;
         console.log("entered the post next-handler");
         _axios2.default.post("/api/createlecture", this.state.lecture).then(function (result) {
-          var updatedLecture = result.data;
+          updatedLecture = result.data;
           var addedQuestionLecture = self.addQuestion(updatedLecture);
 
           self.setState({ lecture: addedQuestionLecture,
             currentQuestionNum: newnumber });
+        }).then(function () {
+
+          var currentUserCreatedLectures = self.props.user.createdLectures;
+          currentUserCreatedLectures.push(updatedLecture);
+
+          console.log("currentUserCreatedLectures is :", currentUserCreatedLectures);
+          var currentUserId = self.props.user._id;
+
+          _axios2.default.put("/api/user/" + currentUserId + "/createdLectures", currentUserCreatedLectures).then(function (result) {
+
+            console.log("The result after api is : ", result.data);
+          });
         }).catch(function (err) {
           console.log(err);
         });
@@ -52077,7 +52186,8 @@ var CreateLecture = function (_React$Component) {
               _react2.default.createElement(
                 _reactDropzone2.default,
                 { onDrop: this.handleDrop("question.image"), accept: "image/jpg, image/jpeg", multiple: false, onDropRejected: handleDropRejected },
-                "Click here to add an image!"
+                "Click here to add an image!",
+                _react2.default.createElement(_reactBootstrap.Image, { className: "questionImage", src: this.state.lecture.questions[this.state.currentQuestionNum].imageUrl })
               )
             ),
             _react2.default.createElement("br", null),
@@ -53345,6 +53455,86 @@ var About = function (_React$Component) {
 }(_react2.default.Component);
 
 exports.default = About;
+
+/***/ }),
+/* 581 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactRedux = __webpack_require__(45);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var EnsureLoggedInContainer = function (_React$Component) {
+  _inherits(EnsureLoggedInContainer, _React$Component);
+
+  function EnsureLoggedInContainer() {
+    _classCallCheck(this, EnsureLoggedInContainer);
+
+    return _possibleConstructorReturn(this, (EnsureLoggedInContainer.__proto__ || Object.getPrototypeOf(EnsureLoggedInContainer)).apply(this, arguments));
+  }
+
+  _createClass(EnsureLoggedInContainer, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      var _props = this.props,
+          dispatch = _props.dispatch,
+          currentURL = _props.currentURL;
+
+
+      if (this.props.isLoggedIn == null) {
+        // set the current url/path for future redirection (we use a Redux action)
+        // then redirect (we use a React Router method)
+
+        console.log("not logged in");
+      }
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      if (this.props.isLoggedIn != null) {
+        return this.props.children;
+      } else {
+        return null;
+      }
+    }
+  }]);
+
+  return EnsureLoggedInContainer;
+}(_react2.default.Component);
+
+// Grab a reference to the current URL. If this is a web app and you are
+// using React Router, you can use `ownProps` to find the URL. Other
+// platforms (Native) or routing libraries have similar ways to find
+// the current position in the app.
+
+
+function mapStateToProps(state, ownProps) {
+  return {
+    isLoggedIn: state.user.loggedInUser,
+    currentURL: ownProps.location.pathname
+  };
+}
+
+exports.default = (0, _reactRedux.connect)(mapStateToProps)(EnsureLoggedInContainer);
 
 /***/ })
 /******/ ]);

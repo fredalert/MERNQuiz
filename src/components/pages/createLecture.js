@@ -16,12 +16,14 @@ const handleDropRejected = (...args) => console.log('reject', args)
 class CreateLecture extends React.Component{
 constructor(props){
   super(props);
+
   this.state={
               isVideo:false,
               lectureImage:"",
               currentAlternatives:4,
               currentQuestionNum:0,
               lecture:{lecture:"",
+                      creator:this.props.user._id,
                       description:"",
                       questions:[{comment:"",
                                   isVideo:false,
@@ -40,7 +42,23 @@ this.handleDrop = this.handleDrop.bind(this)
 }
 
 componentDidMount(){
+  let self=this;
   this.helpRenderAlternatives();
+  let redirectedId=this.props.location.query.id;
+
+  if(redirectedId!=undefined){
+    axios.get("/api/lectures/"+redirectedId)
+    .then(function(result){
+      console.log("result is : ", result.data)
+      self.setState({lecture:result.data})
+
+    })
+    .catch(function(err){
+      console.log(err);
+    })
+  }
+
+
 }
 
 //////HELPERFUNCTIONS//////////
@@ -60,26 +78,41 @@ return lecturamen;
 }
 
 nextButtonHandler(){
+  console.log("this.state.lecture._id is :", this.state.lecture._id)
 
 let self=this;
 console.log("self.state.lecture.questions is: ", self.state.lecture.questions)
   let newnumber = this.state.currentQuestionNum+1;
-    if(this.state.lecture.questions.length<2){
-
+    if(this.state.lecture._id==undefined){
+      let updatedLecture;
       console.log("entered the post next-handler")
     axios.post("/api/createlecture", this.state.lecture)
     .then(function(result){
-      let updatedLecture=result.data;
+      updatedLecture=result.data;
       let addedQuestionLecture= self.addQuestion(updatedLecture);
 
       self.setState({lecture:addedQuestionLecture,
                       currentQuestionNum:newnumber})
+    })
 
-    })
-    .catch(function(err){
-      console.log(err);
-    })
-}
+    .then(function(){
+
+      let currentUserCreatedLectures=self.props.user.createdLectures;
+      currentUserCreatedLectures.push(updatedLecture);
+
+      console.log("currentUserCreatedLectures is :", currentUserCreatedLectures)
+      let currentUserId=self.props.user._id
+
+    axios.put("/api/user/"+currentUserId+"/createdLectures", currentUserCreatedLectures).then(
+        function(result){
+
+          console.log("The result after api is : ", result.data)
+        }
+      )})
+      .catch(function(err){
+        console.log(err);
+      })
+      }
 
 else{
 
@@ -246,6 +279,7 @@ return(
                 />
               <Dropzone onDrop={ this.handleDrop("question.image", )} accept="image/jpg, image/jpeg" multiple={ false } onDropRejected={ handleDropRejected }>
                   Click here to add an image!
+                  <Image className="questionImage" src={this.state.lecture.questions[this.state.currentQuestionNum].imageUrl}/>
               </Dropzone>
           </FormGroup>
           <br/>

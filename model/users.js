@@ -2,6 +2,8 @@
 var mongoose = require('mongoose');
 var bcrypt = require("bcrypt");
 var Schema = mongoose.Schema;
+var ProgressKeeperSchema=require("./progressKeeper");
+
 
 var UserSchema = new Schema({
  email: String,
@@ -14,13 +16,12 @@ var UserSchema = new Schema({
    ref:"Lectures"
  }],
  passwordval:String,
- lectures:[{
-   lectureName:String,
-    currentQuestionNum:Number,
-    progress:[{questionNr:Number,
-                isCorrect:String}]
- }]
-});
+ lectures:[ProgressKeeperSchema]
+},
+{
+toJSON: { virtuals: true }});
+
+
 
 
 

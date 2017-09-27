@@ -32,67 +32,42 @@ constructor(){
 componentDidMount(){
   this.props.getLectures();
 
+}
 
+//*************HANDLE START-PAGE FUNCTIONS*****************////
 
+selectLecture(lectureId){
+axios.get("api/lectures/"+lectureId)
+  .then(function(response){
+    this.setState({currentLecture:response.data});
+    modalBolean=true;
+    this.openModal();
+    return response.data }.bind(this))
+  .catch(function(err){throw err;})
 }
 //*************HANDLE MODAL FUNCTIONS*****************////
-handleQuestion(radioButtons){
-  return(
-<div>
-  <Row>
-            <Well>
-                <h6>{this.state.comment}</h6>
-            </Well>
-  </Row>
-  <Col xs={12} sm={12}>
-    <Well>
-          <Well>
-                <h6>{this.state.currentLecture.questions[this.state.counter].question}</h6>
-          </Well>
-          <Well>
-                <FormGroup ref="questionsForm" >
-                      {radioButtons}
-                </FormGroup>
-          </Well>
-        <Row>
-          <Col xs={6}>
-                <Button onClick={this.questionAnswered.bind(this)}bsStyle="primary">Answer</Button>
-          </Col >
-          <Col xs={6}>
-                {(this.state.answeredQ)?(<Button onClick={this.nextQuestion.bind(this)} bsStyle="primary">Continue</Button>):(<div></div>)}
-          </Col >
-        </Row>
-    </Well>
-  </Col>
-</div>)
 
-}
+//1. Opens modal by setting showModal-state to true
+//2. Finds out if current user has started a lecture and finds the index of that lecture.
+//If lecture is not found, index is -1.
 
 openModal(){
   this.setState({showModal:true,
                   comment:""}
-
-                  ) //Opens Lecture Modal
+                  )
 
   let indexOfCurrentLecture=this.props.user.lectures.findIndex(function(lecture){
     return lecture.lectureName==this.state.currentLecture.lecture
   },this)
-  console.log("openModal, this.props.user.lectures when openModal is: ", this.props.user.lectures)
-  lectureLength=this.state.currentLecture.questions.length;
   if(indexOfCurrentLecture===-1){
     let correctArray=this.state.correction
-    console.log("openModal making a new array because  this.props.user.lectures[0]===undefined")
-  for(let i=0; i<lectureLength; i++){
     correctArray.push({questionNr:i,
                           isCorrect:"unanswered"});
-  }
+
   this.setState({correction:correctArray})
 }
 else{
   let currentQuestionNum="";
-
-
-  console.log("openModal, this.props.lectures[0] is not undefined" )
     var progress= this.props.user.lectures[indexOfCurrentLecture].progress;
   currentQuestionNum=this.props.user.lectures[indexOfCurrentLecture].currentQuestionNum;
 
@@ -100,12 +75,7 @@ else{
                   counter:currentQuestionNum
                 })
               }
-console.log(console.log("this.props.user.lectures when openModal is ending is: ", this.props.user.lectures))
 }
-
-
-
-
 
 closeModal(){ //Closes lecture Modal
 
@@ -113,7 +83,6 @@ closeModal(){ //Closes lecture Modal
 //If it doesnt exist, the lecture is added to the user.
 let usersLectures  =this.props.user.lectures;
 var updatedLectureArray={};
-console.log("closeModal;  this.state.correction is: ", this.state.correction)
 //This function determines the index of the current lecture in the users saved lecture.
 //If the lecture is new to the user the index is -1, and the lecture is added to the user.
   let indexOfCurrentLecture=this.props.user.lectures.findIndex(function(lecture){
@@ -126,19 +95,14 @@ console.log("closeModal;  this.state.correction is: ", this.state.correction)
                             progress:this.state.correction}
 usersLectures.push(lectureToBePushed)
 updatedLectureArray=usersLectures;
-console.log("closeModal-indexOfCurrentLecture===-1; usersLectures after push is: ", usersLectures)
-  console.log("closeModal-indexOfCurrentLecture===-1; indexOfCurrentLecture is: ", indexOfCurrentLecture)
+
   }
   if(indexOfCurrentLecture>=0){
     let updatedUserLecture={currentQuestionNum:this.state.counter,
                             lectureName:this.state.currentLecture.lecture,
                             progress:this.state.correction}
-  console.log("closeModal-indexOfCurrentLecture>=0; updatedUserLecture is: ", updatedUserLecture )
 
   updatedLectureArray=[...usersLectures.slice(0, indexOfCurrentLecture), updatedUserLecture, ...usersLectures.slice(indexOfCurrentLecture+1)]
-  console.log("closeModal-indexOfCurrentLecture>=0; , updatedLectureArray is :", updatedLectureArray)
-  console.log("closeModal-indexOfCurrentLecture>=0; this.state.correction is: ", this.state.correction)
-  }
 
 //Adds the updates to the user
 axios.put("/api/user/"+this.props.user._id+"/lectures", updatedLectureArray)
@@ -155,6 +119,8 @@ this.setState({showModal:false,
               })
 this.props.getCurrentUser();
   }
+
+}
 
 //***********FUNCTIONS HANDELING CORRECTION*******************//
 questionAnswered(){
@@ -208,7 +174,6 @@ this.closeModal();
 }
 else{
   if(this.state.currentLecture.questions[this.state.counter].isVideo){
-    console.log("starting the videoupdate")
     let currentQuestion={questionNr:this.state.counter,
                         isCorrect:"correct",
                       }
@@ -226,7 +191,7 @@ checkAnswer(answer){
 handleCorrectionButtons(){
   return this.state.correction.map(function(item){
     return(
-      <Badge key={item.questionNr} className={item.isCorrect} onClick={this.onCorrectionClick.bind(this, item.questionNr)}>{item.questionNr+1}</Badge>
+      <Badge key={item.questionNr} className={(item.isVideo)?("isVideo"):(item.isCorrect)} onClick={this.onCorrectionClick.bind(this, item.questionNr)}>{item.questionNr+1}</Badge>
     )}, this)
 }
 
@@ -237,8 +202,54 @@ onCorrectionClick(questionNr){
     answeredQ:false,
   });
 }
-/**************************/
 
+
+//////////////////////////////////////////////////////////////////////////
+/***********RENDER-FUNCTIONS********************************************/
+//////////////////////////////////////////////////////////////////////////
+
+
+/**************MODAL-PAGE-RENDER-FUNCTIONS*************/
+/*****************************************/
+
+/**************MODAL-PAGE-RENDER-MAIN*************/
+renderModal(){
+var radioButtons= this.state.currentLecture.questions[this.state.counter].answers.map(function( answer, index){
+return(  <Radio name="radioGroup" key={index} onClick={this.checkAnswer.bind(this, answer.answer)}>
+  <h6 className="answer">{answer.answer}</h6>
+  </Radio>)}, this)
+  return(
+      <div>
+      <Modal bsSize="large" show={this.state.showModal} onHide={this.closeModal.bind(this)}>
+            <Modal.Header closeButton>
+              <Modal.Title id="contained-modal-title-sm">{currentLecture.lecture}</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+  <Row>
+      <Panel>
+        <Col xs={12} sm={12}>
+          <Row>
+            <PageHeader>
+              {this.state.currentLecture.lecture}
+              <Image className="headerImage" src={this.state.currentLecture.lectureImage}/>
+            </PageHeader>
+          </Row>
+        </Col>
+              <Well>
+                {this.handleCorrectionButtons()}
+              </Well>
+        {(this.state.currentLecture.questions[this.state.counter].isVideo)?(this.renderVideo()):(this.handleQuestion(radioButtons))}
+      </Panel>
+  </Row>
+  </Modal.Body>
+    <Modal.Footer>
+      <Button onClick={this.closeModal.bind(this)}>Close</Button>
+    </Modal.Footer>
+  </Modal>
+  </div>)
+}
+
+/**************MODAL-PAGE-RENDER-VIDEO*************/
 renderVideo(){
   return(
     <Row>
@@ -256,101 +267,48 @@ renderVideo(){
         <Button onClick={this.nextQuestion.bind(this)} bsStyle="primary">Continue</Button>
       </Well>
     </Media>
-
     </Row>
   )
 }
+/**************MODAL-PAGE-RENDER-QUESTIO************/
 
-renderModal(){
-  console.log("renderModal, this.state.counter is: ", this.state.counter )
-  console.log("renderModal, this.state.currentLecture.questions[0] is: ", this.state.currentLecture.questions[0])
-var radioButtons= this.state.currentLecture.questions[this.state.counter].answers.map(function( answer, index){
-return(  <Radio name="radioGroup" key={index} onClick={this.checkAnswer.bind(this, answer.answer)}>
-  <h6 className="answer">{answer.answer}</h6>
-  </Radio>)}, this)
-
-
+handleQuestion(radioButtons){
   return(
-      <div>
-      <Modal bsSize="large" show={this.state.showModal} onHide={this.closeModal.bind(this)}>
-            <Modal.Header closeButton>
-              <Modal.Title id="contained-modal-title-sm">{currentLecture.lecture}</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
+<div>
   <Row>
-      <Panel>
-
-        <Col xs={12} sm={12}>
-          <Row>
-
-            <PageHeader>
-              {this.state.currentLecture.lecture}
-
-              <Image className="headerImage" src={this.state.currentLecture.lectureImage}/>
-
-            </PageHeader>
-          </Row>
-        </Col>
-
-
-              <Well>
-                {this.handleCorrectionButtons()}
-              </Well>
-
-        {(this.state.currentLecture.questions[this.state.counter].isVideo)?(this.renderVideo()):(this.handleQuestion(radioButtons))}
-      </Panel>
+            <Well>
+                <h6>{this.state.comment}</h6>
+            </Well>
   </Row>
-
-
-  </Modal.Body>
-    <Modal.Footer>
-      <Button onClick={this.closeModal.bind(this)}>Close</Button>
-
-    </Modal.Footer>
-  </Modal>
-  </div>)
-
+  <Col xs={12} sm={12}>
+    <Well>
+          <Well>
+                <h6>{this.state.currentLecture.questions[this.state.counter].question}</h6>
+          </Well>
+              {(this.state.currentLecture.questions[this.state.counter].imageUrl==="")?(<div></div>):(<Well><Image src={this.state.currentLecture.questions[this.state.counter].imageUrl} className="questionImage"/></Well>)}
+          <Well>
+                <FormGroup ref="questionsForm" >
+                      {radioButtons}
+                </FormGroup>
+          </Well>
+        <Row>
+          <Col xs={6}>
+                <Button onClick={this.questionAnswered.bind(this)}bsStyle="primary">Answer</Button>
+          </Col >
+          <Col xs={6}>
+                {(this.state.answeredQ)?(<Button onClick={this.nextQuestion.bind(this)} bsStyle="primary">Continue</Button>):(<div></div>)}
+          </Col >
+        </Row>
+    </Well>
+  </Col>
+</div>)
 }
 
 
-//////////////////////////////////////////////////////////////////////////
-//HANDLES LECTURE_STARTPAGE///////
+/**************START-PAGE-RENDER-FUNCTIONS*************/
+/*****************************************/
 
-selectLecture(lectureId){
-axios.get("api/lectures/"+lectureId)
-  .then(function(response){
-
-    this.setState({currentLecture:response.data});
-    console.log("selectLecture, this.state.currentLecture is: ", this.state.currentLecture)
-    modalBolean=true;
-    this.openModal();
-    return response.data }.bind(this))
-  .catch(function(err){throw err;})
-}
-
-renderLectures(){
-
-console.log("this.state.correction is: ", this.state.correction)
-  return this.props.lectures.map(function(lecture){
-        return(
-
-            <Col  xs={6} md ={4} key={lecture._id} >
-
-              <Media className="lectureThumbnail"   onClick={this.selectLecture.bind(this, lecture._id)}>
-                <Media.Left>
-                <img src={lecture.lectureImage} className="lectureImage"/>
-                </Media.Left>
-                <Media.Body>
-                <Media.Heading>{lecture.lecture}</Media.Heading>
-                <p className="lectureDescription">{lecture.description}</p>
-                </Media.Body>
-              </Media>
-
-            </Col>)
-          }, this
-        )
-}
-
+/**************START-PAGE-MAIN-RENDERER*************/
 renderStartPage(){
 
   return (
@@ -373,8 +331,29 @@ renderStartPage(){
 )
 }
 
-render(){
+/**************RENDER LECTURES*************/
+renderLectures(){
+console.log("this.state.correction is: ", this.state.correction)
+  return this.props.lectures.map(function(lecture){
+        return(
+            <Col  xs={6} md ={4} key={lecture._id} >
+              <Media className="lectureThumbnail"   onClick={this.selectLecture.bind(this, lecture._id)}>
+                <Media.Left>
+                <img src={lecture.lectureImage} className="lectureImage"/>
+                </Media.Left>
+                <Media.Body>
+                <Media.Heading>{lecture.lecture}</Media.Heading>
+                <p className="lectureDescription">{lecture.description}</p>
+                </Media.Body>
+              </Media>
+            </Col>)
+          }, this
+        )
+      }
 
+/**************MAIN RENDERER*************/
+/****************************************/
+render(){
 return (
   <Grid>
     <Row>

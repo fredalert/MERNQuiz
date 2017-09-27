@@ -1,21 +1,50 @@
 "use strict";
 import React from "react"
-import {Row, Well, Label, Col, Panel} from "react-bootstrap";
+import {Row, Badge, Well,Glyphicon,Button, ProgressBar, Label, Col, Panel} from "react-bootstrap";
 import {connect} from "react-redux"
 import {getCurrentUser} from "../../actions/userActions"
+import axios from "axios";
 
 class Profile extends React.Component{
 
+createdLectureEditClick(_id){
+  this.props.router.push("/createlecture/?id="+_id)
+}
+
+createdLectureDeleteClick(_id){
+axios.delete("/api/createlecture/"+_id)
+.then(function(){
+  console.log("cool done")
+})
+.catch(function(err){
+  console.log(err)
+})
+}
+
+
+clickLecture(_id){
+  this.props.router.push("/lectures/?id="+_id)
+}
+
+
 renderProfile(){
 
-
+let self=this;
 let lectures= this.props.loggedInUser.lectures.map(function(lecture, index){
-return( <h3 key={index}> <Label bsStyle="primary" className="profileLectures" >{lecture.lectureName}</Label></h3>)
-})
+return(
+          <Well key={index} onClick={this.clickLecture.bind(this, lecture._id)}>
+            <h3 > {lecture.lectureName}</h3>
+            <p>Progress</p>
+            <ProgressBar bsStyle="success" now={lecture.percentCorrect} label={`${lecture.percentCorrect}%`}/>
+            {(lecture.isCompleted)?(<div className="done"><Glyphicon bsStyle="success" glyph="ok"  /><p> Done!</p></div>):(<div></div>)}
+          </Well>)
+}, this)
 
 let createdLectures= this.props.loggedInUser.createdLectures.map(function(lecture, index){
-  return(<h3 key={index}> <Label bsStyle="primary" className="profileLectures" >{lecture.lectureName}</Label></h3>)
-})
+  return(<div  key={index}><Well><h3> {lecture.lecture}</h3>
+  <Badge className="editBadge" onClick={this.createdLectureEditClick.bind(this, lecture._id)}> Edit</Badge>
+  <Badge className="deleteBadge" bsStyle="danger" onClick={this.createdLectureDeleteClick.bind(this, lecture._id)}> Delete</Badge></Well></div>)
+}, this)
 
   return(
     <div >
@@ -32,7 +61,8 @@ let createdLectures= this.props.loggedInUser.createdLectures.map(function(lectur
 }
 
 render(){
-  console.log("this.props is :", this.props.location)
+
+  console.log("this.props.loggedInUser is: ", this.props.loggedInUser)
 
   return(
   <Panel>
@@ -50,7 +80,10 @@ render(){
     </Row>
   </Panel>
 )
-}}
+}
+
+
+}
 
 
 function mapStateToProps(state){

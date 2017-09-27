@@ -77,14 +77,7 @@ app.post('/user', function(req, res, next) {
         return next(err);
       }
         // create object with form input
-      var userData = {
-        name:req.body.name,
-        admin:req.body.admin,
-        imageUrl:req.body.imageUrl,
-        email: req.body.email,
-        password: req.body.password,
-
-      };
+      var userData = req.body;
       Users.create(userData, function(err, user, next){
       if(err){
      next(err);
@@ -106,14 +99,11 @@ if (req.body.email && req.body.password) {
       if (error || !user) {
         var err = new Error('Wrong email or password.');
         err.status = 401;
-        
+
         return next(err);
       }  else {
         req.session.loggedInUserId=user._id;
         res.json(user);
-
-
-
       }
     });
   } else {
@@ -133,11 +123,13 @@ app.get("/user/logout", function(req, res, next){
 
 //-------GET-USER-------------------------//
 app.get("/user/", function(req, res, next){
-  Users.findById(req.session.loggedInUserId)
+  Users.findById(req.session.loggedInUserId).populate("createdLectures")
   .exec(function (error, user) {
           if (error) {
             return next(error);
           } else {
+            console.log(user)
+
             return res.json(user);
           }
         });
@@ -161,6 +153,23 @@ console.log("req.body is: ", req.body)
   })
 })
 
+//-------PUT-CREATED-LECTURE-TO-USER-------------------------//
+app.put("/user/:_id/createdlectures", function(req,res, next){
+  var query= {_id:req.params._id};
+  console.log("query is :", query)
+console.log("req.body in created lecture to user is: ", req.body)
+  var update= { $set: {createdLectures:req.body}
+  }
+
+  Users.findOneAndUpdate(query, update, function(err, user, next){
+    if(err){
+      throw err;
+    }
+    else{
+      res.json(user)
+    }
+  })
+})
 
 //>>>>>>>>LECTURE-API<<<<<<<<<<<//
 
@@ -179,7 +188,7 @@ app.get("/lectures", function(req, res){
 //-------GET-LECTURE-------------------------//
 
 app.get("/lectures/:qId", function(req, res, next){
-  console.log(req.params.qId)
+  console.log(" enters the single lecture funcc, req.params.qId is :", req.params.qId)
 Lectures.findOne({_id:req.params.qId}, function(err, lectur){
   if (err){return next(err)}
   else{
@@ -217,6 +226,14 @@ lectData.save(function(err, lecture){
   if(err){throw err}
   return res.json(lecture)
 })
+})
+
+app.delete("/createlecture/:_id", function(req,res, next){
+  const _id=req.params._id;
+  Lectures.findByIdAndRemove(_id, function(err, lecture){
+    if (err){throw err;}
+    return res.json(lecture)
+  })
 })
 
 //>>>>>>>>CREATE-LECTURE-API<<<<<<<<<<<//

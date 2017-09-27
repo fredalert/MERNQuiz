@@ -7,6 +7,10 @@ body {
   background-color: orange;
 }
 
+p{
+  display: inline;
+}
+
 .container{
   width:auto;
   max-width:900px;
@@ -33,7 +37,6 @@ h6.answer{
 
 .about-main{
   margin-left:10%;
-
 }
 
 .register-image{
@@ -41,15 +44,30 @@ h6.answer{
   height:80%;
 }
 
-.incorrect{
-  background-color: red;
+.questionImage{
+  width:100%
 }
 
+.incorrect{
+  width:30px;
+  height:30px;
+  margin:2px;
+  background-color: red;
+}
+.isVideo{
+  width:30px;
+  height:30px;
+  margin:2px;
+  background-color: blue;
+}
 .incorrect:hover{
   background-color: grey;
 }
 .correct{
   background-color: green;
+  width:30px;
+  height:30px;
+  margin:2px;
 }
 
 .correct:hover{
@@ -58,6 +76,7 @@ h6.answer{
 
 .unanswered{
   background-color: lightgrey;
+  margin:2px;
 }
 .unanswered:hover{
   background-color: grey;
@@ -89,8 +108,36 @@ background-color: lightgrey;
   margin-right:7%;
 }
 
+
+
+/*******PROFILE*********/
+
 .profileLectures{
   margin:20px;
   background-color: lightgrey;
   display: block;
+}
+
+.done{
+  color: green;
+}
+
+.deleteBadge{
+  padding:10px;
+  margin:2px;
+  background-color: red;
+}
+.deleteBadge:hover{
+
+  background-color: rgba(255,0,0,0.5)
+}
+
+.editBadge{
+  padding: 10px;
+  margin:2px;
+  background-color: green;
+}
+
+.editBadge:hover{
+  background-color: rgba(20,140,20,0.5)
 }

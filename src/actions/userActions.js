@@ -5,6 +5,7 @@ export function getCurrentUser(){
   return function(dispatch){
   axios.get("/api/user")
   .then(function(response){
+
     dispatch({type:"GET_USER", payload:response.data})
   })
   .catch(function(err){
@@ -34,6 +35,18 @@ return function(dispatch){
     })
 }}
 
+export function addCreatedLectureToUserAction(_id){
+  return function(dispatch){
+    axios.post("/api/user/createdLectures", _id)
+      .then(function(response){
+        dispatch({type:"POST_CREATED_LECTURE_TO_USER", payload:response.data})
+      })
+      .catch(function(err){
+        dispatch({type:"POST_CREATED_LECTURE_TO_USER_REJECTED", payload:response.data})
+      })
+
+  }
+}
 
 
 export function addLectureToUserAction(lecture){
