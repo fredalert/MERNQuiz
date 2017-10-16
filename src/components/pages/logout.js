@@ -6,10 +6,10 @@ import {Well, Row, Col } from "react-bootstrap"
 class Logout extends React.Component{
 componentDidMount(){
   axios.get("/api/user/logout");
-  
+
 }
   render(){
-
+    
     return(
       <Well>
         <Row>

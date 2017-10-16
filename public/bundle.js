@@ -6336,11 +6336,14 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.getCurrentUser = getCurrentUser;
+exports.getUsers = getUsers;
 exports.postUserAction = postUserAction;
 exports.loginUserAction = loginUserAction;
 exports.addCreatedLectureToUserAction = addCreatedLectureToUserAction;
 exports.addLectureToUserAction = addLectureToUserAction;
 exports.updateLectureToUserAction = updateLectureToUserAction;
+exports.lastModifiedLecture = lastModifiedLecture;
+exports.isQuestionAnswered = isQuestionAnswered;
 
 var _axios = __webpack_require__(48);
 
@@ -6355,6 +6358,17 @@ function getCurrentUser() {
       dispatch({ type: "GET_USER", payload: response.data });
     }).catch(function (err) {
       dispatch({ type: "GET_USER_REJECTED", payload: "Aomething went wrong when getting the user" });
+    });
+  };
+}
+
+function getUsers() {
+  return function (dispatch) {
+    _axios2.default.get("/api/users").then(function (response) {
+
+      dispatch({ type: "GET_USERS", payload: response.data });
+    }).catch(function (err) {
+      dispatch({ type: "GET_USERS_REJECTED", payload: "Aomething went wrong when getting the users" });
     });
   };
 }
@@ -6399,15 +6413,30 @@ function addLectureToUserAction(lecture) {
   };
 }
 
-function updateLectureToUserAction(_id, lectureSchema) {
-  var updatedLecture = lectures;
-
+function updateLectureToUserAction(_id, lecture) {
+  var updatedLecture = lecture;
   return function (dispatch) {
-    _axios2.default.put("/api/user/lectures/" + id).then(function (response) {
+
+    _axios2.default.put("/api/user/" + _id + "/lectures/", updatedLecture).then(function (response) {
       dispatch({ type: "UPDATE_LECTURE_TO_USER", payload: response.data });
     }).catch(function (err) {
       dispatch({ type: "UPDATE_LECTURE_TO_USER_REJECTED", payload: response.data });
     });
+  };
+}
+
+function lastModifiedLecture(number) {
+
+  return function (dispatch) {
+    _axios2.default.put("/api/user/lectures/" + id).catch(function (err) {
+      dispatch({ type: "UPDATE_LECTURE_TO_USER_REJECTED", payload: response.data });
+    });
+  };
+}
+
+function isQuestionAnswered(bool, result) {
+  return function (dispatch) {
+    dispatch({ type: "QUESTION_IS_ANSWERED", payload: { bool: bool, result: result } });
   };
 }
 
@@ -23391,6 +23420,10 @@ var _ensureUserIsLoggedInContainer = __webpack_require__(581);
 
 var _ensureUserIsLoggedInContainer2 = _interopRequireDefault(_ensureUserIsLoggedInContainer);
 
+var _admin = __webpack_require__(588);
+
+var _admin2 = _interopRequireDefault(_admin);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 //STORE
@@ -23423,7 +23456,8 @@ var Routes = _react2.default.createElement(
           _react2.default.createElement(_reactRouter.Route, { path: "/profile", component: _profile2.default }),
           _react2.default.createElement(_reactRouter.Route, { path: "/lectures", component: _lectures2.default }),
           _react2.default.createElement(_reactRouter.Route, { path: "/lecture", component: _lecture2.default }),
-          _react2.default.createElement(_reactRouter.Route, { path: "/createlecture", component: _CreateLecture2.default })
+          _react2.default.createElement(_reactRouter.Route, { path: "/createlecture", component: _CreateLecture2.default }),
+          _react2.default.createElement(_reactRouter.Route, { path: "/admin", component: _admin2.default })
         )
       )
     )
@@ -38260,19 +38294,30 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 exports.usersReducers = usersReducers;
 function usersReducers() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { user: {} };
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { user: { isAnswered: false, isCorrect: "unanswered" } };
   var action = arguments[1];
 
   switch (action.type) {
     case "POST_USER":
       return _extends({}, state, action.payload);
       break;
+    case "UPDATE_LECTURE_TO_USER":
+      return _extends({}, state, { loggedInUser: action.payload });
+      break;
     case "LOGIN_USER":
       return _extends({}, state, {
         loggedInUser: action.payload });
+      break;
     case "GET_USER":
       return _extends({}, state, {
         loggedInUser: action.payload });
+      break;
+    case "GET_USERS":
+      return _extends({}, state, {
+        allUsers: action.payload });
+      break;
+    case "QUESTION_IS_ANSWERED":
+      return _extends({}, state, { isAnswered: action.payload.bool, isCorrect: action.payload.result });
       break;
   }
   return state;
@@ -38296,12 +38341,17 @@ exports.lectureReducers = lectureReducers;
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 function lectureReducers() {
-  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { lectures: [] };
+  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   var action = arguments[1];
 
   switch (action.type) {
     case "GET_LECTURES":
+      console.log("action.payload is :", action.payload);
       return _extends({}, state, { lectures: [].concat(_toConsumableArray(action.payload)) });
+      break;
+    case "GET_LECTURE":
+      console.log("action.payload is :", action.payload);
+      return _extends({}, state, { currentLecture: action.payload });
       break;
 
     case "POST_LECTURE":
@@ -50839,6 +50889,8 @@ var _reactBootstrap = __webpack_require__(38);
 
 var _reactRedux = __webpack_require__(45);
 
+var _redux = __webpack_require__(34);
+
 var _userActions = __webpack_require__(76);
 
 var _axios = __webpack_require__(48);
@@ -50865,13 +50917,15 @@ var Profile = function (_React$Component) {
   _createClass(Profile, [{
     key: "createdLectureEditClick",
     value: function createdLectureEditClick(_id) {
-      this.props.router.push("/createlecture/?id=" + _id);
+      this.props.router.push("/createlecture?id=" + _id);
     }
   }, {
     key: "createdLectureDeleteClick",
     value: function createdLectureDeleteClick(_id) {
+      var self = this;
       _axios2.default.delete("/api/createlecture/" + _id).then(function () {
         console.log("cool done");
+        self.props.getCurrentUser();
       }).catch(function (err) {
         console.log(err);
       });
@@ -50879,7 +50933,7 @@ var Profile = function (_React$Component) {
   }, {
     key: "clickLecture",
     value: function clickLecture(_id) {
-      this.props.router.push("/lectures/?id=" + _id);
+      this.props.router.push("/lecture?id=" + _id);
     }
   }, {
     key: "renderProfile",
@@ -50889,7 +50943,7 @@ var Profile = function (_React$Component) {
       var lectures = this.props.loggedInUser.lectures.map(function (lecture, index) {
         return _react2.default.createElement(
           _reactBootstrap.Well,
-          { key: index, onClick: this.clickLecture.bind(this, lecture._id) },
+          { key: index, onClick: this.clickLecture.bind(this, lecture.refId) },
           _react2.default.createElement(
             "h3",
             null,
@@ -51019,13 +51073,21 @@ var Profile = function (_React$Component) {
   return Profile;
 }(_react2.default.Component);
 
+function mapDispatchToProps(dispatch) {
+  return (0, _redux.bindActionCreators)({
+
+    getCurrentUser: _userActions.getCurrentUser
+
+  }, dispatch);
+}
+
 function mapStateToProps(state) {
   return {
     loggedInUser: state.user.loggedInUser
   };
 }
 
-exports.default = (0, _reactRedux.connect)(mapStateToProps)(Profile);
+exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Profile);
 
 /***/ }),
 /* 575 */
@@ -51062,19 +51124,11 @@ var _reactDom = __webpack_require__(19);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var modalBolean = false;
-var counter = 0;
-var lectureLength = 0;
-
-var currentLecture = {};
 
 var Lectures = function (_React$Component) {
   _inherits(Lectures, _React$Component);
@@ -51084,13 +51138,9 @@ var Lectures = function (_React$Component) {
 
     var _this = _possibleConstructorReturn(this, (Lectures.__proto__ || Object.getPrototypeOf(Lectures)).call(this));
 
-    _this.state = { showModal: false,
-      answeredQ: false,
-      currentLecture: {},
-      counter: 0,
-      selectedAnswer: "",
-      comment: "",
-      correction: []
+    _this.state = {
+      currentQuestion: 0,
+      currentLecture: {}
     };
     return _this;
   }
@@ -51100,419 +51150,11 @@ var Lectures = function (_React$Component) {
     value: function componentDidMount() {
       this.props.getLectures();
     }
-
-    //*************HANDLE MODAL FUNCTIONS*****************////
-
-    //1. Opens modal by setting showModal-state to true
-    //2. Finds out if current user has started a lecture and finds the index of that lecture.
-    //If lecture is not found, index is -1.
-
   }, {
-    key: "openModal",
-    value: function openModal() {
-      this.setState({ showModal: true,
-        comment: "" });
-
-      var indexOfCurrentLecture = this.props.user.lectures.findIndex(function (lecture) {
-        return lecture.lectureName == this.state.currentLecture.lecture;
-      }, this);
-      if (indexOfCurrentLecture === -1) {
-        var correctArray = this.state.correction;
-        correctArray.push({ questionNr: i,
-          isCorrect: "unanswered" });
-
-        this.setState({ correction: correctArray });
-      } else {
-        var currentQuestionNum = "";
-        var progress = this.props.user.lectures[indexOfCurrentLecture].progress;
-        currentQuestionNum = this.props.user.lectures[indexOfCurrentLecture].currentQuestionNum;
-
-        this.setState({ correction: progress,
-          counter: currentQuestionNum
-        });
-      }
-    }
-  }, {
-    key: "closeModal",
-    value: function closeModal() {
-      //Closes lecture Modal
-
-      //This part handles the correctionArray. if the lecture exists, the lecture is updated with the updated correction.
-      //If it doesnt exist, the lecture is added to the user.
-      var usersLectures = this.props.user.lectures;
-      var updatedLectureArray = {};
-      //This function determines the index of the current lecture in the users saved lecture.
-      //If the lecture is new to the user the index is -1, and the lecture is added to the user.
-      var indexOfCurrentLecture = this.props.user.lectures.findIndex(function (lecture) {
-        return lecture.lectureName == this.state.currentLecture.lecture;
-      }, this);
-
-      if (indexOfCurrentLecture === -1) {
-        var lectureToBePushed = { currentQuestionNum: this.state.counter,
-          lectureName: this.state.currentLecture.lecture,
-          progress: this.state.correction };
-        usersLectures.push(lectureToBePushed);
-        updatedLectureArray = usersLectures;
-      }
-      if (indexOfCurrentLecture >= 0) {
-        var updatedUserLecture = { currentQuestionNum: this.state.counter,
-          lectureName: this.state.currentLecture.lecture,
-          progress: this.state.correction };
-
-        updatedLectureArray = [].concat(_toConsumableArray(usersLectures.slice(0, indexOfCurrentLecture)), [updatedUserLecture], _toConsumableArray(usersLectures.slice(indexOfCurrentLecture + 1)));
-
-        //Adds the updates to the user
-        _axios2.default.put("/api/user/" + this.props.user._id + "/lectures", updatedLectureArray).then(function (response) {
-          return response.data;
-        }).catch(function (err) {
-          throw err;
-        });
-
-        this.setState({ showModal: false,
-          counter: 0,
-          correction: []
-        });
-        this.props.getCurrentUser();
-      }
-    }
-
-    //***********FUNCTIONS HANDELING CORRECTION*******************//
-
-  }, {
-    key: "questionAnswered",
-    value: function questionAnswered() {
-      this.setState({ answeredQ: true });
-      var commentText = "";
-      var selected = this.state.selectedAnswer;
-
-      var currentQuestion = {};
-
-      //CORRECT ANSWER//
-      if (selected === this.state.currentLecture.questions[this.state.counter].correctAnswer) {
-
-        currentQuestion = { questionNr: this.state.counter,
-          isCorrect: "correct"
-        };
-        commentText = "Correct Answer!";
-        this.updateCorrection(currentQuestion, commentText);
-      }
-      //INCORRECT ANSWER//
-      else {
-          commentText = "Sorry! That was incorrect!, the correct answer is: " + this.state.currentLecture.questions[this.state.counter].correctAnswer;
-          currentQuestion = { questionNr: this.state.counter,
-            isCorrect: "incorrect"
-          };
-          this.updateCorrection(currentQuestion, commentText);
-        }
-    }
-
-    //This function updates the bar that keeps track of your progress.
-
-  }, {
-    key: "updateCorrection",
-    value: function updateCorrection(currentQuestion, commentText) {
-      var updatedArray = [].concat(_toConsumableArray(this.state.correction.slice(0, this.state.counter)), [currentQuestion], _toConsumableArray(this.state.correction.slice(this.state.counter + 1)));
-      this.setState({ comment: commentText,
-        correction: updatedArray });
-    }
-  }, {
-    key: "clearQuestioncomments",
-    value: function clearQuestioncomments(currentQuestionNum) {
-      this.setState({ counter: currentQuestionNum,
-        answeredQ: false,
-        comment: ""
-      });
-    }
-  }, {
-    key: "nextQuestion",
-    value: function nextQuestion() {
-
-      var currentQuestionNum = this.state.counter + 1;
-      if (currentQuestionNum >= this.state.currentLecture.questions.length) {
-        this.setState({ counter: this.state.counter - 1 });
-        this.closeModal();
-      } else {
-        if (this.state.currentLecture.questions[this.state.counter].isVideo) {
-          var currentQuestion = { questionNr: this.state.counter,
-            isCorrect: "correct"
-          };
-          this.updateCorrection(currentQuestion, "");
-        }
-        this.clearQuestioncomments(currentQuestionNum);
-      }
-    }
-  }, {
-    key: "checkAnswer",
-    value: function checkAnswer(answer) {
-      this.setState({ selectedAnswer: answer });
-    }
-
-    //THESE FUNCTION HANDLES THE CORRECTION-BAR//
-    //If clicked the question number changes. They also change color whether the question was correctly or incorrectly answered//
-
-  }, {
-    key: "handleCorrectionButtons",
-    value: function handleCorrectionButtons() {
-      return this.state.correction.map(function (item) {
-        return _react2.default.createElement(
-          _reactBootstrap.Badge,
-          { key: item.questionNr, className: item.isVideo ? "isVideo" : item.isCorrect, onClick: this.onCorrectionClick.bind(this, item.questionNr) },
-          item.questionNr + 1
-        );
-      }, this);
-    }
-  }, {
-    key: "onCorrectionClick",
-    value: function onCorrectionClick(questionNr) {
-      this.setState({
-        counter: questionNr,
-        comment: "",
-        answeredQ: false
-      });
-    }
-
-    //////////////////////////////////////////////////////////////////////////
-    /***********RENDER-FUNCTIONS********************************************/
-    //////////////////////////////////////////////////////////////////////////
-
-
-    /**************MODAL-PAGE-RENDER-FUNCTIONS*************/
-    /*****************************************/
-
-    /**************MODAL-PAGE-RENDER-MAIN*************/
-
-  }, {
-    key: "renderModal",
-    value: function renderModal() {
-      var radioButtons = this.state.currentLecture.questions[this.state.counter].answers.map(function (answer, index) {
-        return _react2.default.createElement(
-          _reactBootstrap.Radio,
-          { name: "radioGroup", key: index, onClick: this.checkAnswer.bind(this, answer.answer) },
-          _react2.default.createElement(
-            "h6",
-            { className: "answer" },
-            answer.answer
-          )
-        );
-      }, this);
-      return _react2.default.createElement(
-        "div",
-        null,
-        _react2.default.createElement(
-          _reactBootstrap.Modal,
-          { bsSize: "large", show: this.state.showModal, onHide: this.closeModal.bind(this) },
-          _react2.default.createElement(
-            _reactBootstrap.Modal.Header,
-            { closeButton: true },
-            _react2.default.createElement(
-              _reactBootstrap.Modal.Title,
-              { id: "contained-modal-title-sm" },
-              currentLecture.lecture
-            )
-          ),
-          _react2.default.createElement(
-            _reactBootstrap.Modal.Body,
-            null,
-            _react2.default.createElement(
-              _reactBootstrap.Row,
-              null,
-              _react2.default.createElement(
-                _reactBootstrap.Panel,
-                null,
-                _react2.default.createElement(
-                  _reactBootstrap.Col,
-                  { xs: 12, sm: 12 },
-                  _react2.default.createElement(
-                    _reactBootstrap.Row,
-                    null,
-                    _react2.default.createElement(
-                      _reactBootstrap.PageHeader,
-                      null,
-                      this.state.currentLecture.lecture,
-                      _react2.default.createElement(_reactBootstrap.Image, { className: "headerImage", src: this.state.currentLecture.lectureImage })
-                    )
-                  )
-                ),
-                _react2.default.createElement(
-                  _reactBootstrap.Well,
-                  null,
-                  this.handleCorrectionButtons()
-                ),
-                this.state.currentLecture.questions[this.state.counter].isVideo ? this.renderVideo() : this.handleQuestion(radioButtons)
-              )
-            )
-          ),
-          _react2.default.createElement(
-            _reactBootstrap.Modal.Footer,
-            null,
-            _react2.default.createElement(
-              _reactBootstrap.Button,
-              { onClick: this.closeModal.bind(this) },
-              "Close"
-            )
-          )
-        )
-      );
-    }
-
-    /**************MODAL-PAGE-RENDER-VIDEO*************/
-
-  }, {
-    key: "renderVideo",
-    value: function renderVideo() {
-      return _react2.default.createElement(
-        _reactBootstrap.Row,
-        null,
-        _react2.default.createElement(
-          _reactBootstrap.Media,
-          null,
-          _react2.default.createElement(
-            _reactBootstrap.Row,
-            null,
-            _react2.default.createElement(
-              _reactBootstrap.Col,
-              { xs: 12 },
-              _react2.default.createElement(
-                _reactBootstrap.Well,
-                null,
-                _react2.default.createElement(
-                  "video",
-                  { width: "100%", controls: true, onEnded: this.nextQuestion.bind(this) },
-                  _react2.default.createElement("source", { src: this.state.currentLecture.questions[this.state.counter].videoUrl, type: "video/mp4" })
-                )
-              )
-            )
-          ),
-          _react2.default.createElement(
-            _reactBootstrap.Well,
-            null,
-            _react2.default.createElement(
-              _reactBootstrap.Button,
-              { onClick: this.nextQuestion.bind(this), bsStyle: "primary" },
-              "Continue"
-            )
-          )
-        )
-      );
-    }
-    /**************MODAL-PAGE-RENDER-QUESTIO************/
-
-  }, {
-    key: "handleQuestion",
-    value: function handleQuestion(radioButtons) {
-      return _react2.default.createElement(
-        "div",
-        null,
-        _react2.default.createElement(
-          _reactBootstrap.Row,
-          null,
-          _react2.default.createElement(
-            _reactBootstrap.Well,
-            null,
-            _react2.default.createElement(
-              "h6",
-              null,
-              this.state.comment
-            )
-          )
-        ),
-        _react2.default.createElement(
-          _reactBootstrap.Col,
-          { xs: 12, sm: 12 },
-          _react2.default.createElement(
-            _reactBootstrap.Well,
-            null,
-            _react2.default.createElement(
-              _reactBootstrap.Well,
-              null,
-              _react2.default.createElement(
-                "h6",
-                null,
-                this.state.currentLecture.questions[this.state.counter].question
-              )
-            ),
-            this.state.currentLecture.questions[this.state.counter].imageUrl === "" ? _react2.default.createElement("div", null) : _react2.default.createElement(
-              _reactBootstrap.Well,
-              null,
-              _react2.default.createElement(_reactBootstrap.Image, { src: this.state.currentLecture.questions[this.state.counter].imageUrl, className: "questionImage" })
-            ),
-            _react2.default.createElement(
-              _reactBootstrap.Well,
-              null,
-              _react2.default.createElement(
-                _reactBootstrap.FormGroup,
-                { ref: "questionsForm" },
-                radioButtons
-              )
-            ),
-            _react2.default.createElement(
-              _reactBootstrap.Row,
-              null,
-              _react2.default.createElement(
-                _reactBootstrap.Col,
-                { xs: 6 },
-                _react2.default.createElement(
-                  _reactBootstrap.Button,
-                  { onClick: this.questionAnswered.bind(this), bsStyle: "primary" },
-                  "Answer"
-                )
-              ),
-              _react2.default.createElement(
-                _reactBootstrap.Col,
-                { xs: 6 },
-                this.state.answeredQ ? _react2.default.createElement(
-                  _reactBootstrap.Button,
-                  { onClick: this.nextQuestion.bind(this), bsStyle: "primary" },
-                  "Continue"
-                ) : _react2.default.createElement("div", null)
-              )
-            )
-          )
-        )
-      );
-    }
-
-    /**************START-PAGE-FUNCTIONS*************/
-    /*****************************************/
-
-    /**************START-PAGE-MAIN-RENDERER*************/
-
-  }, {
-    key: "renderStartPage",
-    value: function renderStartPage() {
-
-      return _react2.default.createElement(
-        "div",
-        null,
-        _react2.default.createElement(
-          _reactBootstrap.Row,
-          null,
-          _react2.default.createElement(
-            _reactBootstrap.Panel,
-            null,
-            _react2.default.createElement(
-              _reactBootstrap.Col,
-              { xs: 12, sm: 12 },
-              _react2.default.createElement(
-                _reactBootstrap.PageHeader,
-                null,
-                "The Lectures page",
-                _react2.default.createElement(
-                  "small",
-                  null,
-                  "   Where the lectures  are found"
-                )
-              )
-            ),
-            _react2.default.createElement(
-              _reactBootstrap.Col,
-              { xs: 12, sm: 12, md: 12 },
-              this.props.lectures != null ? this.renderLectures() : console.log("wtf!", this.props.lectures)
-            )
-          )
-        ),
-        modalBolean ? this.renderModal() : _react2.default.createElement("div", null)
-      );
+    key: "selectLecture",
+    value: function selectLecture(_id) {
+      this.props.getLecture(_id);
+      this.props.router.push("/lecture?id=" + _id);
     }
 
     /**************RENDER LECTURES*************/
@@ -51552,21 +51194,42 @@ var Lectures = function (_React$Component) {
       }, this);
     }
 
-    //*************HANDLE START-PAGE FUNCTION*****************////
+    /**************START-PAGE-MAIN-RENDERER*************/
 
   }, {
-    key: "selectLecture",
-    value: function selectLecture(lectureId) {
-
-      this.props.router.push("/lectures/?id=" + lectureId);
-      _axios2.default.get("api/lectures/" + lectureId).then(function (response) {
-        this.setState({ currentLecture: response.data });
-        modalBolean = true;
-        this.openModal();
-        return response.data;
-      }.bind(this)).catch(function (err) {
-        throw err;
-      });
+    key: "renderStartPage",
+    value: function renderStartPage() {
+      return _react2.default.createElement(
+        "div",
+        null,
+        _react2.default.createElement(
+          _reactBootstrap.Row,
+          null,
+          _react2.default.createElement(
+            _reactBootstrap.Panel,
+            null,
+            _react2.default.createElement(
+              _reactBootstrap.Col,
+              { xs: 12, sm: 12 },
+              _react2.default.createElement(
+                _reactBootstrap.PageHeader,
+                null,
+                "The Lectures page",
+                _react2.default.createElement(
+                  "small",
+                  null,
+                  "   Where the lectures  are found"
+                )
+              )
+            ),
+            _react2.default.createElement(
+              _reactBootstrap.Col,
+              { xs: 12, sm: 12, md: 12 },
+              this.props.lectures ? this.renderLectures() : console.log("wtf!", this.props.lectures)
+            )
+          )
+        )
+      );
     }
 
     /**************MAIN RENDERER*************/
@@ -51575,6 +51238,7 @@ var Lectures = function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
+      console.log("this.props.lectures is :", this.props.lectures);
       return _react2.default.createElement(
         _reactBootstrap.Grid,
         null,
@@ -51593,7 +51257,8 @@ var Lectures = function (_React$Component) {
 function mapDispatchToProps(dispatch) {
   return (0, _redux.bindActionCreators)({
     getLectures: _lectureActions.getLectures,
-    getCurrentUser: _userActions.getCurrentUser
+    getCurrentUser: _userActions.getCurrentUser,
+    getLecture: _lectureActions.getLecture
   }, dispatch);
 }
 
@@ -51699,6 +51364,26 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactBootstrap = __webpack_require__(38);
 
+var _reactRedux = __webpack_require__(45);
+
+var _userActions = __webpack_require__(76);
+
+var _lectureActions = __webpack_require__(258);
+
+var _redux = __webpack_require__(34);
+
+var _renderQuestion = __webpack_require__(584);
+
+var _renderQuestion2 = _interopRequireDefault(_renderQuestion);
+
+var _renderProgressBar = __webpack_require__(586);
+
+var _renderProgressBar2 = _interopRequireDefault(_renderProgressBar);
+
+var _renderVideo = __webpack_require__(587);
+
+var _renderVideo2 = _interopRequireDefault(_renderVideo);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -51707,141 +51392,232 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
+var lectureIndex = 0;
+var currentQuestionNumber = 0;
+
 var Lecture = function (_React$Component) {
   _inherits(Lecture, _React$Component);
 
-  function Lecture() {
+  function Lecture(props) {
     _classCallCheck(this, Lecture);
 
-    var _this = _possibleConstructorReturn(this, (Lecture.__proto__ || Object.getPrototypeOf(Lecture)).call(this));
+    var _this = _possibleConstructorReturn(this, (Lecture.__proto__ || Object.getPrototypeOf(Lecture)).call(this, props));
 
-    _this.setState = { showModal: false };
+    _this.props.getLecture(_this.props.location.query.id);
+    _this.state = {
+      isFinished: false
+    };
     return _this;
   }
 
+  //Hitta vilken index föreläsningen har i anvädnarens array av gjorda föreläslningar.
+
+
   _createClass(Lecture, [{
-    key: "openModal",
-    value: function openModal() {
-      this.setState({ showModal: true });
+    key: "findingIndexFunction",
+    value: function findingIndexFunction() {
+      console.log("entering the findingIndexFunction, self.props.currentLecture._id is: ", this.props.currentLecture._id);
+      var self = this;
+      lectureIndex = this.props.user.lectures.findIndex(function (lecture) {
+        return lecture.refId == self.props.currentLecture._id;
+      });
     }
   }, {
-    key: "closeModal",
-    value: function closeModal() {
-      this.setState({ showModal: false });
+    key: "settingUpLecture",
+    value: function settingUpLecture() {
+      var self = this;
+      var newProgress = { currentQuestionNum: 0,
+        lectureName: this.props.currentLecture.lecture,
+        refId: this.props.currentLecture._id,
+        progress: [] };
+      if (lectureIndex == -1) {
+        for (var i = 0; i < this.props.currentLecture.questions.length; i++) {
+          newProgress.progress.push({ isCorrect: "unanswered" });
+        }
+        var lecturesToBeUpdated = this.props.user.lectures;
+        lecturesToBeUpdated.push(newProgress);
+        this.props.updateLectureToUserAction(this.props.user._id, lecturesToBeUpdated);
+      } else {
+        currentQuestionNumber = this.props.user.lectures[lectureIndex].currentQuestionNum;
+      }
+    }
+  }, {
+    key: "renderProgressBar",
+    value: function renderProgressBar() {
+      return _react2.default.createElement(
+        "div",
+        null,
+        _react2.default.createElement(_renderProgressBar2.default, { lectureIndex: lectureIndex, currentQuestionNumber: this.props.user.lectures[lectureIndex].currentQuestionNum, progress: this.props.user.lectures[lectureIndex].progress })
+      );
     }
 
-    //RENDERING FUNCTIONS//
+    //VIDEO/QUESTION
+
+  }, {
+    key: "renderVideo",
+    value: function renderVideo() {
+      this.props.isQuestionAnswered(true);
+      return _react2.default.createElement(
+        "div",
+        null,
+        _react2.default.createElement(_renderVideo2.default, { videoUrl: this.props.currentLecture.questions[currentQuestionNumber].videoUrl })
+      );
+    }
+  }, {
+    key: "renderQuestion",
+    value: function renderQuestion() {
+      return _react2.default.createElement(_renderQuestion2.default, { user: this.props.user, currentLecture: this.props.currentLecture, lectureIndex: lectureIndex });
+    }
+
+    //BUTTON
+
+    //ButtonFunctions
+
+
+  }, {
+    key: "nextHandler",
+    value: function nextHandler() {
+
+      this.props.isQuestionAnswered(false, "unanswered");
+      console.log("hi next handler");
+
+      var lecturesToBeUpdated = this.props.user.lectures;
+      lecturesToBeUpdated[lectureIndex].currentQuestionNum += 1;
+      if (lecturesToBeUpdated[lectureIndex].currentQuestionNum > this.props.currentLecture.questions.length - 1) {
+
+        this.setState({ isFinished: true });
+        lecturesToBeUpdated[lectureIndex].currentQuestionNum = this.props.currentLecture.questions.length - 1;
+      } else {
+
+        this.props.updateLectureToUserAction(this.props.user._id, lecturesToBeUpdated);
+      }
+    }
+  }, {
+    key: "previousHandler",
+    value: function previousHandler() {
+      this.props.isQuestionAnswered(false);
+      console.log("hi previousHandler");
+      var lecturesToBeUpdated = this.props.user.lectures;
+      lecturesToBeUpdated[lectureIndex].currentQuestionNum -= 1;
+      this.props.updateLectureToUserAction(this.props.user._id, lecturesToBeUpdated);
+    }
+  }, {
+    key: "renderButtons",
+    value: function renderButtons() {
+      var self = this;
+      console.log("this.props.isAnswered is :", this.props.isAnswered);
+      return _react2.default.createElement(
+        "div",
+        null,
+        currentQuestionNumber > 0 ? _react2.default.createElement(
+          _reactBootstrap.Button,
+          { bsStyle: "primary", onClick: this.previousHandler.bind(this) },
+          "PREVIOUS"
+        ) : _react2.default.createElement("div", null),
+        this.props.isAnswered === false || currentQuestionNumber >= this.props.currentLecture.questions.length ? _react2.default.createElement("div", null) : _react2.default.createElement(
+          _reactBootstrap.Button,
+          { bsStyle: "success", className: "next-button", onClick: this.nextHandler.bind(this) },
+          "CONTINUE"
+        )
+      );
+    }
+  }, {
+    key: "renderFinishedLecture",
+    value: function renderFinishedLecture() {
+      console.log("entering the finished function");
+
+      return _react2.default.createElement(
+        "div",
+        null,
+        _react2.default.createElement(
+          "h6",
+          null,
+          "LECUTRE IS FINISHED!"
+        )
+      );
+    }
+  }, {
+    key: "renderLecture",
+    value: function renderLecture() {
+
+      var self = this;
+      this.findingIndexFunction();
+      this.settingUpLecture();
+      return _react2.default.createElement(
+        "div",
+        null,
+        this.state.isFinished ? this.renderFinishedLecture() : _react2.default.createElement(
+          _reactBootstrap.Col,
+          { xs: 12, className: "lecture-main" },
+          _react2.default.createElement(
+            _reactBootstrap.Row,
+            null,
+            _react2.default.createElement(
+              "h6",
+              null,
+              this.props.currentLecture.lecture
+            ),
+            _react2.default.createElement(
+              _reactBootstrap.Well,
+              null,
+              _react2.default.createElement(
+                _reactBootstrap.Row,
+                { id: "progress" },
+                _react2.default.createElement(
+                  _reactBootstrap.Well,
+                  null,
+                  _react2.default.createElement(
+                    "h6",
+                    null,
+                    self.renderProgressBar()
+                  )
+                )
+              ),
+              _react2.default.createElement(
+                _reactBootstrap.Row,
+                null,
+                _react2.default.createElement(
+                  _reactBootstrap.Well,
+                  null,
+                  _react2.default.createElement(
+                    "h6",
+                    null,
+                    self.props.currentLecture.questions[this.props.user.lectures[lectureIndex].currentQuestionNum].isVideo ? self.renderVideo() : self.renderQuestion()
+                  )
+                )
+              ),
+              _react2.default.createElement(
+                _reactBootstrap.Row,
+                null,
+                _react2.default.createElement(
+                  _reactBootstrap.Well,
+                  null,
+                  _react2.default.createElement(
+                    "h6",
+                    null,
+                    self.renderButtons()
+                  )
+                )
+              )
+            )
+          )
+        )
+      );
+    }
+
+    //MAIN RENDER
 
   }, {
     key: "render",
     value: function render() {
 
       return _react2.default.createElement(
-        "div",
-        null,
+        _reactBootstrap.Col,
+        { xs: 12 },
         _react2.default.createElement(
-          _reactBootstrap.Modal,
-          { bsSize: "large", show: this.state.showModal.bind(this), onHide: this.closeModal.bind(this) },
-          _react2.default.createElement(
-            _reactBootstrap.Modal.Header,
-            { closeButton: true },
-            _react2.default.createElement(
-              _reactBootstrap.Modal.Title,
-              { id: "contained-modal-title-sm" },
-              "Modal heading"
-            )
-          ),
-          _react2.default.createElement(
-            _reactBootstrap.Modal.Body,
-            null,
-            _react2.default.createElement(
-              _reactBootstrap.Row,
-              null,
-              _react2.default.createElement(
-                _reactBootstrap.Panel,
-                null,
-                _react2.default.createElement(
-                  _reactBootstrap.Col,
-                  { xs: 12, sm: 12 },
-                  _react2.default.createElement(
-                    _reactBootstrap.PageHeader,
-                    null,
-                    this.props.lecture
-                  )
-                ),
-                _react2.default.createElement(
-                  _reactBootstrap.Col,
-                  { xs: 12, sm: 12 },
-                  _react2.default.createElement(
-                    _reactBootstrap.Well,
-                    null,
-                    _react2.default.createElement(
-                      _reactBootstrap.Well,
-                      null,
-                      _react2.default.createElement(
-                        "h6",
-                        null,
-                        "So the fucking question is is this cool?"
-                      )
-                    ),
-                    _react2.default.createElement(
-                      _reactBootstrap.Well,
-                      null,
-                      _react2.default.createElement(
-                        _reactBootstrap.FormGroup,
-                        null,
-                        _react2.default.createElement(
-                          _reactBootstrap.Radio,
-                          { name: "radioGroup" },
-                          _react2.default.createElement(
-                            "h6",
-                            null,
-                            "My man"
-                          )
-                        ),
-                        _react2.default.createElement(
-                          _reactBootstrap.Radio,
-                          { name: "radioGroup" },
-                          _react2.default.createElement(
-                            "h6",
-                            null,
-                            "Down with the ball"
-                          )
-                        ),
-                        _react2.default.createElement(
-                          _reactBootstrap.Radio,
-                          { name: "radioGroup" },
-                          _react2.default.createElement(
-                            "h6",
-                            null,
-                            "If something is wrong"
-                          )
-                        )
-                      )
-                    ),
-                    _react2.default.createElement(
-                      _reactBootstrap.Well,
-                      null,
-                      _react2.default.createElement(
-                        _reactBootstrap.Button,
-                        { bsStyle: "primary" },
-                        "Answer"
-                      )
-                    )
-                  )
-                )
-              )
-            )
-          ),
-          _react2.default.createElement(
-            _reactBootstrap.Modal.Footer,
-            null,
-            _react2.default.createElement(
-              _reactBootstrap.Button,
-              { onClick: this.closeModal.bind(this) },
-              "Close"
-            )
-          )
+          _reactBootstrap.Row,
+          null,
+          this.props.currentLecture != undefined ? this.renderLecture() : _react2.default.createElement("div", null)
         )
       );
     }
@@ -51850,7 +51626,23 @@ var Lecture = function (_React$Component) {
   return Lecture;
 }(_react2.default.Component);
 
-exports.default = Lecture;
+function mapDispatchToProps(dispatch) {
+  return (0, _redux.bindActionCreators)({
+    updateLectureToUserAction: _userActions.updateLectureToUserAction,
+    getLecture: _lectureActions.getLecture,
+    isQuestionAnswered: _userActions.isQuestionAnswered
+  }, dispatch);
+}
+
+function mapStateToProps(state) {
+  return {
+    currentLecture: state.lectures.currentLecture,
+    user: state.user.loggedInUser,
+    isAnswered: state.user.isAnswered
+  };
+}
+
+exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Lecture);
 
 /***/ }),
 /* 578 */
@@ -53538,6 +53330,469 @@ function mapStateToProps(state, ownProps) {
 }
 
 exports.default = (0, _reactRedux.connect)(mapStateToProps)(EnsureLoggedInContainer);
+
+/***/ }),
+/* 582 */,
+/* 583 */,
+/* 584 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactBootstrap = __webpack_require__(38);
+
+var _reactRedux = __webpack_require__(45);
+
+var _userActions = __webpack_require__(76);
+
+var _redux = __webpack_require__(34);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var currentQuestion = {};
+var userLectures = [];
+var isCorrect = "unanswered";
+var isAnswered = false;
+
+var RenderQuestion = function (_React$Component) {
+  _inherits(RenderQuestion, _React$Component);
+
+  _createClass(RenderQuestion, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      this.props.isQuestionAnswered(false, "unanswered");
+    }
+  }]);
+
+  function RenderQuestion() {
+    _classCallCheck(this, RenderQuestion);
+
+    var _this = _possibleConstructorReturn(this, (RenderQuestion.__proto__ || Object.getPrototypeOf(RenderQuestion)).call(this));
+
+    _this.state = {
+      isAnswered: false
+    };
+    return _this;
+  }
+
+  _createClass(RenderQuestion, [{
+    key: "handleAnswer",
+    value: function handleAnswer() {
+      console.log("handleAnswer started");
+      this.props.updateLectureToUserAction(this.props.user._id, userLectures);
+      this.props.isQuestionAnswered(true, isCorrect);
+      isCorrect = this.props.isCorrect;
+      isAnswered = this.props.isAnswered;
+    }
+  }, {
+    key: "checkAnswer",
+    value: function checkAnswer(answer) {
+      userLectures = this.props.user.lectures;
+
+      if (answer === currentQuestion.correctAnswer) {
+        userLectures[this.props.lectureIndex].progress[this.props.user.lectures[this.props.lectureIndex].currentQuestionNum].isCorrect = "correct";
+      } else {
+        userLectures[this.props.lectureIndex].progress[this.props.user.lectures[this.props.lectureIndex].currentQuestionNum].isCorrect = "incorrect";
+      }
+      isCorrect = "comment-" + userLectures[this.props.lectureIndex].progress[this.props.user.lectures[this.props.lectureIndex].currentQuestionNum].isCorrect;
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      currentQuestion = this.props.currentLecture.questions[this.props.user.lectures[this.props.lectureIndex].currentQuestionNum];
+
+      var radioButtons = currentQuestion.answers.map(function (answer, index) {
+        return _react2.default.createElement(
+          _reactBootstrap.Radio,
+          { name: "radioGroup", key: index, onClick: this.checkAnswer.bind(this, answer.answer) },
+          _react2.default.createElement(
+            "h6",
+            { className: "answer" },
+            answer.answer
+          )
+        );
+      }, this);
+
+      return _react2.default.createElement(
+        "div",
+        null,
+        _react2.default.createElement(
+          _reactBootstrap.Row,
+          null,
+          _react2.default.createElement(
+            _reactBootstrap.Well,
+            null,
+            _react2.default.createElement(
+              "h6",
+              null,
+              currentQuestion.question
+            )
+          )
+        ),
+        currentQuestion.imageUrl == "" ? _react2.default.createElement("div", null) : _react2.default.createElement(
+          _reactBootstrap.Row,
+          null,
+          _react2.default.createElement(
+            _reactBootstrap.Well,
+            null,
+            _react2.default.createElement(_reactBootstrap.Image, { src: currentQuestion.imageUrl, className: "questionImage" })
+          )
+        ),
+        _react2.default.createElement(
+          _reactBootstrap.Row,
+          null,
+          this.props.isCorrect == "unanswered" ? _react2.default.createElement("div", null) : _react2.default.createElement(
+            _reactBootstrap.Well,
+            { id: this.props.isCorrect != "unanswered" ? this.props.isCorrect : "unanswered" },
+            _react2.default.createElement(
+              "h6",
+              null,
+              currentQuestion.comment
+            )
+          )
+        ),
+        _react2.default.createElement(
+          _reactBootstrap.Row,
+          null,
+          _react2.default.createElement(
+            _reactBootstrap.Well,
+            null,
+            radioButtons
+          )
+        ),
+        _react2.default.createElement(
+          _reactBootstrap.Row,
+          null,
+          _react2.default.createElement(
+            _reactBootstrap.Well,
+            null,
+            this.props.isAnswered ? _react2.default.createElement("div", null) : _react2.default.createElement(
+              _reactBootstrap.Button,
+              { onClick: this.handleAnswer.bind(this) },
+              "ANSWER"
+            )
+          )
+        )
+      );
+    }
+  }]);
+
+  return RenderQuestion;
+}(_react2.default.Component);
+
+function mapStateToProps(state) {
+  return {
+    currentLecture: state.lectures.currentLecture,
+    user: state.user.loggedInUser,
+    isAnswered: state.user.isAnswered,
+    isCorrect: state.user.isCorrect
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return (0, _redux.bindActionCreators)({
+    updateLectureToUserAction: _userActions.updateLectureToUserAction,
+    isQuestionAnswered: _userActions.isQuestionAnswered
+
+  }, dispatch);
+}
+
+exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(RenderQuestion);
+
+/***/ }),
+/* 585 */,
+/* 586 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactBootstrap = __webpack_require__(38);
+
+var _reactRedux = __webpack_require__(45);
+
+var _userActions = __webpack_require__(76);
+
+var _redux = __webpack_require__(34);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var RenderProgressBar = function (_React$Component) {
+  _inherits(RenderProgressBar, _React$Component);
+
+  function RenderProgressBar() {
+    _classCallCheck(this, RenderProgressBar);
+
+    return _possibleConstructorReturn(this, (RenderProgressBar.__proto__ || Object.getPrototypeOf(RenderProgressBar)).apply(this, arguments));
+  }
+
+  _createClass(RenderProgressBar, [{
+    key: "paginationChoice",
+    value: function paginationChoice(index) {
+      var lecturesToBeUpdated = this.props.user.lectures;
+      lecturesToBeUpdated[this.props.lectureIndex].currentQuestionNum = index;
+      this.props.isQuestionAnswered(false, "unanswered");
+      this.props.updateLectureToUserAction(this.props.user._id, lecturesToBeUpdated);
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var self = this;
+      var progress = this.props.progress.map(function (answer, index) {
+        return _react2.default.createElement(
+          _reactBootstrap.Badge,
+          { key: index, id: self.props.currentQuestionNumber == index ? "currentQuestion" : "", onClick: this.paginationChoice.bind(this, index), className: answer.isCorrect },
+          index + 1
+        );
+      }, this);
+      return _react2.default.createElement(
+        "div",
+        null,
+        _react2.default.createElement(
+          _reactBootstrap.Well,
+          null,
+          _react2.default.createElement(
+            "h6",
+            null,
+            "Question number ",
+            this.props.currentQuestionNumber + 1
+          ),
+          _react2.default.createElement(
+            "div",
+            { id: "progressbadges" },
+            progress
+          )
+        )
+      );
+    }
+  }]);
+
+  return RenderProgressBar;
+}(_react2.default.Component);
+
+function mapStateToProps(state) {
+  return {
+
+    user: state.user.loggedInUser
+
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return (0, _redux.bindActionCreators)({
+    updateLectureToUserAction: _userActions.updateLectureToUserAction,
+    isQuestionAnswered: _userActions.isQuestionAnswered
+
+  }, dispatch);
+}
+
+exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(RenderProgressBar);
+
+/***/ }),
+/* 587 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactBootstrap = __webpack_require__(38);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var RenderVideo = function (_React$Component) {
+  _inherits(RenderVideo, _React$Component);
+
+  function RenderVideo() {
+    _classCallCheck(this, RenderVideo);
+
+    return _possibleConstructorReturn(this, (RenderVideo.__proto__ || Object.getPrototypeOf(RenderVideo)).apply(this, arguments));
+  }
+
+  _createClass(RenderVideo, [{
+    key: "handleEndedVideo",
+    value: function handleEndedVideo() {
+      console.log("video ended");
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      return _react2.default.createElement(
+        _reactBootstrap.Media,
+        null,
+        _react2.default.createElement(
+          _reactBootstrap.Row,
+          null,
+          _react2.default.createElement(
+            _reactBootstrap.Col,
+            { xs: 12 },
+            _react2.default.createElement(
+              _reactBootstrap.Well,
+              null,
+              _react2.default.createElement(
+                "video",
+                { width: "100%", controls: true, onEnded: this.handleEndedVideo.bind(this) },
+                _react2.default.createElement("source", { src: this.props.videoUrl, type: "video/mp4" })
+              )
+            )
+          )
+        )
+      );
+    }
+  }, {
+    key: "handleEndedVideo",
+    value: function handleEndedVideo() {
+      console.log("video has ended");
+    }
+  }]);
+
+  return RenderVideo;
+}(_react2.default.Component);
+
+exports.default = RenderVideo;
+
+/***/ }),
+/* 588 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _reactBootstrap = __webpack_require__(38);
+
+var _reactRedux = __webpack_require__(45);
+
+var _redux = __webpack_require__(34);
+
+var _userActions = __webpack_require__(76);
+
+var _axios = __webpack_require__(48);
+
+var _axios2 = _interopRequireDefault(_axios);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Admin = function (_React$Component) {
+  _inherits(Admin, _React$Component);
+
+  function Admin() {
+    _classCallCheck(this, Admin);
+
+    return _possibleConstructorReturn(this, (Admin.__proto__ || Object.getPrototypeOf(Admin)).apply(this, arguments));
+  }
+
+  _createClass(Admin, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      this.props.getUsers();
+    }
+  }, {
+    key: "renderUsers",
+    value: function renderUsers() {
+      var users = this.props.users.map(function (user, index) {
+        return _react2.default.createElement(
+          "h6",
+          { key: index },
+          user.name
+        );
+      });
+      return _react2.default.createElement(
+        "div",
+        null,
+        users
+      );
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      return _react2.default.createElement(
+        "div",
+        null,
+        this.props.users ? this.renderUsers() : _react2.default.createElement("div", null)
+      );
+    }
+  }]);
+
+  return Admin;
+}(_react2.default.Component);
+
+function mapDispatchToProps(dispatch) {
+  return (0, _redux.bindActionCreators)({
+    getUsers: _userActions.getUsers
+  }, dispatch);
+}
+
+function mapStateToProps(state) {
+  return {
+    users: state.user.allUsers
+  };
+}
+
+exports.default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Admin);
 
 /***/ })
 /******/ ]);

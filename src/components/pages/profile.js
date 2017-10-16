@@ -2,19 +2,22 @@
 import React from "react"
 import {Row, Badge, Well,Glyphicon,Button, ProgressBar, Label, Col, Panel} from "react-bootstrap";
 import {connect} from "react-redux"
+import {bindActionCreators} from "redux";
 import {getCurrentUser} from "../../actions/userActions"
 import axios from "axios";
 
 class Profile extends React.Component{
 
 createdLectureEditClick(_id){
-  this.props.router.push("/createlecture/?id="+_id)
+  this.props.router.push("/createlecture?id="+_id)
 }
 
 createdLectureDeleteClick(_id){
+  let self=this;
 axios.delete("/api/createlecture/"+_id)
 .then(function(){
   console.log("cool done")
+  self.props.getCurrentUser();
 })
 .catch(function(err){
   console.log(err)
@@ -23,7 +26,7 @@ axios.delete("/api/createlecture/"+_id)
 
 
 clickLecture(_id){
-  this.props.router.push("/lectures/?id="+_id)
+  this.props.router.push("/lecture?id="+_id)
 }
 
 
@@ -32,7 +35,7 @@ renderProfile(){
 let self=this;
 let lectures= this.props.loggedInUser.lectures.map(function(lecture, index){
 return(
-          <Well key={index} onClick={this.clickLecture.bind(this, lecture._id)}>
+          <Well key={index} onClick={this.clickLecture.bind(this, lecture.refId)}>
             <h3 > {lecture.lectureName}</h3>
             <p>Progress</p>
             <ProgressBar bsStyle="success" now={lecture.percentCorrect} label={`${lecture.percentCorrect}%`}/>
@@ -85,6 +88,15 @@ render(){
 
 }
 
+function mapDispatchToProps(dispatch){
+  return bindActionCreators({
+
+    getCurrentUser,
+
+    }, dispatch)
+}
+
+
 
 function mapStateToProps(state){
   return {
@@ -95,4 +107,4 @@ function mapStateToProps(state){
 
 
 
-export default connect(mapStateToProps)(Profile);
+export default connect(mapStateToProps, mapDispatchToProps)(Profile);

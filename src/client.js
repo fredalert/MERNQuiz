@@ -28,6 +28,7 @@ import Lecture from "./components/pages/lecture"
 import CreateLecture from "./components/pages/CreateLecture"
 import About from "./components/pages/about"
 import EnsureLoggedInContainer from "./components/pages/ensureUserIsLoggedInContainer"
+import Admin from "./components/pages/admin"
 
 
 //ACTIONS
@@ -47,6 +48,7 @@ const Routes =(
         <Route path="/lectures" component ={Lectures}/>
         <Route path="/lecture" component ={Lecture}/>
         <Route path="/createlecture" component ={CreateLecture}/>
+        <Route path="/admin" component ={Admin}/>
         </Route>
 
       </Route>

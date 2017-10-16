@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 var ProgressKeeperSchema =new Schema({
 
     lectureName:String,
-    id:String,
+    refId:String,
      currentQuestionNum:Number,
      progress:[{questionNr:Number,
                  isCorrect:String}],

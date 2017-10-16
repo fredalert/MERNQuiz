@@ -13,6 +13,18 @@ export function getCurrentUser(){
   })
 }}
 
+export function getUsers(){
+  return function(dispatch){
+  axios.get("/api/users")
+  .then(function(response){
+
+    dispatch({type:"GET_USERS", payload:response.data})
+  })
+  .catch(function(err){
+    dispatch({type:"GET_USERS_REJECTED", payload:"Aomething went wrong when getting the users"})
+  })
+}}
+
 export function postUserAction(user){
 return function(dispatch){
   axios.post("/api/user", user)
@@ -49,6 +61,8 @@ export function addCreatedLectureToUserAction(_id){
 }
 
 
+
+
 export function addLectureToUserAction(lecture){
   return function(dispatch){
     axios.post("/api/user/lectures", lecture)
@@ -62,12 +76,11 @@ export function addLectureToUserAction(lecture){
   }
 }
 
-export function updateLectureToUserAction(_id, lectureSchema){
-let updatedLecture=lectures;
-
-
+export function updateLectureToUserAction(_id, lecture){
+let updatedLecture=lecture;
   return function(dispatch){
-    axios.put("/api/user/lectures/"+ id)
+
+    axios.put("/api/user/"+_id+"/lectures/", updatedLecture)
     .then(function(response){
       dispatch({type:"UPDATE_LECTURE_TO_USER", payload:response.data})
     })
@@ -77,3 +90,22 @@ let updatedLecture=lectures;
 
     }
   }
+
+  export function lastModifiedLecture(number){
+
+    return function(dispatch){
+      axios.put("/api/user/lectures/"+ id)
+
+
+      .catch(function(err){
+        dispatch({type:"UPDATE_LECTURE_TO_USER_REJECTED", payload:response.data})
+      })
+
+      }
+    }
+
+
+export function isQuestionAnswered(bool, result){
+  return function(dispatch){
+  dispatch({type:"QUESTION_IS_ANSWERED", payload:{bool, result}})}
+}

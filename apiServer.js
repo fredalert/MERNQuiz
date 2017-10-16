@@ -135,6 +135,20 @@ app.get("/user/", function(req, res, next){
         });
   });
 
+//-------GET-USERS-------------------------//
+  app.get("/users/", function(req, res, next){
+    Users.find(req.session.loggedInUserId)
+    .exec(function (error, users) {
+            if (error) {
+              return next(error);
+            } else {
+              console.log(users)
+
+              return res.json(users);
+            }
+          });
+    });
+
 //-------ADD-PROGRESS-TO-USER-------------------------//
 
 app.put("/user/:_id/lectures", function(req,res, next){

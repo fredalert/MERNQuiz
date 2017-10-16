@@ -34,41 +34,53 @@ h6.answer{
   margin-left: 30px;
 }
 
-
+/***********ABOUT**************/
 .about-main{
   margin-left:10%;
 }
 
+/**********************REGISTER**************************/
 .register-image{
   width:100%;
   height:80%;
 }
 
-.questionImage{
-  width:100%
+/********************LECTURE*********************/
+.next-button{
+  margin-left: 20%;
 }
 
-.incorrect{
-  width:30px;
-  height:30px;
-  margin:2px;
-  background-color: red;
+/*progressBar*/
+#progress{
+  height:50%
 }
-.isVideo{
-  width:30px;
-  height:30px;
-  margin:2px;
-  background-color: blue;
+
+#currentQuestion{
+  font-size: 14px;
+
 }
-.incorrect:hover{
-  background-color: grey;
+#progressbadges{
+  margin-top: 20px;
+  margin-left: 20px;
 }
+
 .correct{
   background-color: green;
   width:30px;
   height:30px;
   margin:2px;
 }
+.incorrect{
+  width:30px;
+  height:30px;
+  margin:2px;
+  background-color: red;
+}
+
+.incorrect:hover{
+  background-color: grey;
+}
+
 
 .correct:hover{
   background-color: grey;
@@ -82,15 +94,59 @@ h6.answer{
   background-color: grey;
 }
 
+
+/*question*/
+#questionComment{
+
+}
+
+.lecture-main{
+  width:80%;
+  margin-left: 10%;
+  margin-top:5%;
+}
+
+.questionImage{
+  width:100%
+}
+
+
+
+/*video*/
+.isVideo{
+  width:30px;
+  height:30px;
+  margin:2px;
+  background-color: blue;
+}
+
 .headerImage{
   display: inline;
   width:30%;
   margin-left: 20%;
 }
 
+#comment-correct{
+background-color: green;
+}
+#comment-incorrect{
+background-color: red;
+}
+
+
+
+
+
+/***************LECTURES***************************/
+
 .selectLectureImage{
   height:100px;
+}
+.lectureThumbnail{
+  margin: 4px;
+  background-color: rgba(100,100,100, 0.2);
 
+  border-style:hidden;
 }
 
 .lectureImage{
@@ -110,7 +166,7 @@ background-color: lightgrey;
 
 
 
-/*******PROFILE*********/
+/*******PROFILE*************************/
 
 .profileLectures{
   margin:20px;

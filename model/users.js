@@ -11,6 +11,7 @@ var UserSchema = new Schema({
  admin: Boolean,
  imageUrl: String,
  password: String,
+ lastModifiedLecture:Number,
  createdLectures:[{
    type:Schema.Types.ObjectId,
    ref:"Lectures"
@@ -18,6 +19,7 @@ var UserSchema = new Schema({
  passwordval:String,
  lectures:[ProgressKeeperSchema]
 },
+
 {
 toJSON: { virtuals: true }});
 
