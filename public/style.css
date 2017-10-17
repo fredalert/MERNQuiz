@@ -56,7 +56,10 @@ h6.answer{
 }
 
 #currentQuestion{
-  font-size: 14px;
+  border-style: solid;
+  border-width: 3px;
+  border-color: grey;
+  font-size: 15px;
 
 }
 #progressbadges{

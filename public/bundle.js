@@ -53461,10 +53461,15 @@ var RenderQuestion = function (_React$Component) {
           this.props.isCorrect == "unanswered" ? _react2.default.createElement("div", null) : _react2.default.createElement(
             _reactBootstrap.Well,
             { id: this.props.isCorrect != "unanswered" ? this.props.isCorrect : "unanswered" },
-            _react2.default.createElement(
+            this.props.isCorrect === "comment-correct" ? _react2.default.createElement(
               "h6",
               null,
+              "Correct! ",
               currentQuestion.comment
+            ) : _react2.default.createElement(
+              "h6",
+              null,
+              "incorrect"
             )
           )
         ),

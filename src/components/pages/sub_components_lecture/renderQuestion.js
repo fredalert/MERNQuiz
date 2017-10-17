@@ -72,9 +72,9 @@ return(  <Radio name="radioGroup" key={index} onClick={this.checkAnswer.bind(thi
     <Row>
     {(this.props.isCorrect=="unanswered")?(<div></div>):
     (<Well id={(this.props.isCorrect!="unanswered")?(this.props.isCorrect):("unanswered")}>
-      <h6>
-       {currentQuestion.comment}
-      </h6>
+
+       {(this.props.isCorrect==="comment-correct")?(<h6>Correct! {currentQuestion.comment}</h6>):(<h6>incorrect</h6>)}
+
     </Well>)}
 
     </Row>
