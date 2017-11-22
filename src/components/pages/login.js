@@ -8,23 +8,38 @@ import {loginUserAction} from "../../actions/userActions"
 import axios from "axios";
 import { withRouter } from 'react-router';
 
+let isSent=false;
 class Login extends React.Component{
 
+  constructor(){
+    super();
+    this.state={
+      isSent:false
+    }
+  }
+
 handleLogin(){
+  this.setState({isSent:true});
   const user= {
     email:findDOMNode(this.refs.email).value,
     password:findDOMNode(this.refs.password).value,
     }
   this.props.loginUserAction(user);
-  findDOMNode(this.refs.email).value="";
-  findDOMNode(this.refs.password).value="";
-  
-this.props.router.push('/Profile');
+
+
+
 
 }
 
 render(){
+  
+
+if(this.props.user!=undefined){
+
+  this.props.router.push("/Profile")
+}
 return(
+  <div>
 <Row>
   <Col xs={12} sm={6}>
     <Panel>
@@ -40,16 +55,22 @@ return(
             <ControlLabel>Password</ControlLabel>
             <FormControl
               type="password"
-              placeholder="Enter password"
+              placeholder="Ange ditt lösenord"
               ref="password"
               />
         </FormGroup>
 
 
+
         <Button onClick={(this.handleLogin).bind(this)}>Login</Button>
+
     </Panel>
   </Col>
 </Row>
+<div>
+{(this.state.isSent)?(<Well><h6>Sorry log in failed</h6></Well>):(<div></div>)}
+</div>
+</div>
 )
 }
 }
@@ -59,4 +80,10 @@ function mapDispatchToProps(dispatch){
 
 }
 
-export default connect(null, mapDispatchToProps)(Login)
+function mapStateToProps(state){
+  return {
+    user:state.user.loggedInUser,
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login)

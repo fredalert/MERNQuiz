@@ -6,11 +6,14 @@ var ProgressKeeperSchema=require("./progressKeeper");
 
 
 var UserSchema = new Schema({
- email: String,
- name: String,
+ email: {type:String,
+        required:true},
+ name: {type:String,
+        required:true},
  admin: Boolean,
  imageUrl: String,
- password: String,
+ password: {type:String,
+            required:true},
  lastModifiedLecture:Number,
  createdLectures:[{
    type:Schema.Types.ObjectId,

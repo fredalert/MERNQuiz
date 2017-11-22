@@ -79,16 +79,21 @@ app.post('/user', function(req, res, next) {
         // create object with form input
       var userData = req.body;
       Users.create(userData, function(err, user, next){
+
       if(err){
      next(err);
       }
+
+      user.isRegSuccess=true;
       res.json(user);
       })
     }
     else {
-      var err = new Error('All fields required.');
-      err.status = 400;
-      return next(err);
+      console.log("else happens")
+      var error = new Error('All fields required.');
+      error.status=400;
+
+      return next(error)
     }
 });
 
@@ -104,6 +109,7 @@ if (req.body.email && req.body.password) {
       }  else {
         req.session.loggedInUserId=user._id;
         res.json(user);
+
       }
     });
   } else {
@@ -115,9 +121,9 @@ if (req.body.email && req.body.password) {
 
 //-------Logout-USER-------------------------//
 app.get("/user/logout", function(req, res, next){
-  if(req.session){req.session.destroy(function(err){
+  if(req.session){req.session.destroy(function(err, user){
     if(err){ throw err}
-    return res.redirect("/logout")
+    return res.json(user);
   })}
 });
 
@@ -227,6 +233,18 @@ app.put("/updatelecture/:_Lid", function(req, res, next){
 
       throw err;}
     console.log("update made lecture is now :", lecture)
+    return res.json(lecture)
+  })
+})
+
+app.put("/updateforum:_Lid", function(req, res, next){
+  const lect= req.body;
+  const query={_id:req.params._Lid};
+  const update= {$set:{forum:req.body}};
+  const options={new:true};
+  Lectures.findByIdAndUpdate(req.params._Lid, update, options, function(err, lecture){
+    if(err){
+      throw err;}
     return res.json(lecture)
   })
 })

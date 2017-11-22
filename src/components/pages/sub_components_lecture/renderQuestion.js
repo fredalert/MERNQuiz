@@ -1,5 +1,5 @@
 import React from "react";
-import {Row, Modal, Col,Well, Radio, Image, Button, PageHeader, Panel, FormGroup, InputGroup, FormControl} from "react-bootstrap";
+import {Row, Modal, Col,Well, Radio, Image, Badge, Button, Glyphicon, PageHeader, Panel, FormGroup, InputGroup, FormControl} from "react-bootstrap";
 import {connect} from "react-redux";
 import {updateLectureToUserAction, isQuestionAnswered} from "../../../actions/userActions"
 import {bindActionCreators} from "redux";
@@ -18,6 +18,7 @@ class RenderQuestion extends React.Component{
     super();
     this.state={
       isAnswered:false,
+
     }
   }
 
@@ -41,14 +42,13 @@ class RenderQuestion extends React.Component{
     }
     isCorrect="comment-"+userLectures[this.props.lectureIndex].progress[this.props.user.lectures[this.props.lectureIndex].currentQuestionNum].isCorrect;
 
-
   }
 
 render(){
 currentQuestion=this.props.currentLecture.questions[this.props.user.lectures[this.props.lectureIndex].currentQuestionNum];
 
 let radioButtons= currentQuestion.answers.map(function( answer, index){
-return(  <Radio name="radioGroup" key={index} onClick={this.checkAnswer.bind(this, answer.answer)}>
+return(  <Radio name="radioGroup" key={index} active={false} onClick={this.checkAnswer.bind(this, answer.answer)}>
   <h6 className="answer">{answer.answer}</h6>
   </Radio>)}, this)
 
@@ -71,9 +71,15 @@ return(  <Radio name="radioGroup" key={index} onClick={this.checkAnswer.bind(thi
 
     <Row>
     {(this.props.isCorrect=="unanswered")?(<div></div>):
-    (<Well id={(this.props.isCorrect!="unanswered")?(this.props.isCorrect):("unanswered")}>
+    (<Well >
 
-       {(this.props.isCorrect==="comment-correct")?(<h6>Correct! {currentQuestion.comment}</h6>):(<h6>incorrect</h6>)}
+       {(this.props.isCorrect==="comment-correct")?(<div><Badge className={this.props.isCorrect}>
+                                                        <Glyphicon bsStyle="success" glyph="ok" />
+                                                    </Badge>
+                                                    <h6>Rätt svar!  {currentQuestion.comment}</h6></div>):(<div><Badge className={this.props.isCorrect}>
+                                                                                                     <Glyphicon bsStyle="success" glyph="ok" />
+                                                                                                 </Badge>
+                                                                                                 <h6>Fel svar!  {currentQuestion.comment}</h6></div>)}
 
     </Well>)}
 
@@ -83,12 +89,9 @@ return(  <Radio name="radioGroup" key={index} onClick={this.checkAnswer.bind(thi
       <Well>
         {radioButtons}
       </Well>
-    </Row>
-    <Row>
-      <Well>
-      {(this.props.isAnswered)?(<div></div>):(<Button onClick={this.handleAnswer.bind(this)}>ANSWER</Button>)}
-      </Well>
-    </Row>
+
+      {(this.props.isAnswered)?(<div></div>):(<Button className="answerButton" bsStyle="success" onClick={this.handleAnswer.bind(this)}>Svara</Button>)}
+      </Row>
 
   </div>
 )
@@ -107,7 +110,8 @@ function mapStateToProps(state){
 function mapDispatchToProps(dispatch){
   return bindActionCreators({
     updateLectureToUserAction,
-    isQuestionAnswered
+    isQuestionAnswered,
+
 
     }, dispatch)
 }

@@ -51,13 +51,13 @@ let createdLectures= this.props.loggedInUser.createdLectures.map(function(lectur
 
   return(
     <div >
-    <h1>Hi {this.props.loggedInUser.name}</h1>
+    <h1>Hej {this.props.loggedInUser.name}</h1>
       <Well><h3>Lectures</h3>
       {lectures}
       </Well>
       <Well>
       <h3>Created Lectures</h3>
-        {createdLectures}
+        {(this.props.loggedInUser==null)?(<div></div>):(createdLectures)}
       </Well>
     </div>
   )
@@ -76,7 +76,9 @@ render(){
       <Col xs={12} sm={6}>
         <Row>
           <Well>
-          {(this.props.loggedInUser!=null)?(<img src={this.props.loggedInUser.imageUrl}/>):(<div></div>)}
+          <h3>Profilbild</h3>
+          {(this.props.loggedInUser!=null)?(<div><img src={this.props.loggedInUser.imageUrl}/>
+                                                      <h6>E-mail: {this.props.loggedInUser.email}</h6></div>):(<div></div>)}
           </Well>
         </Row>
       </Col>

@@ -53,3 +53,17 @@ export function updateLecture(UserId, lecture){
     })
     }
   }
+
+  export function updateForum(lectureId, comment){
+    return function(dispatch){
+      axios.put("/api/updateforum"+lectureId, comment)
+      .then(function(response){
+        dispatch({
+          type:"UPDATE_FORUM",
+          payload:response.data
+        })})
+      .catch(function(err){
+        dispatch({type:"UPDATE_FORUM_REJECTED", message:err})
+      })
+      }
+    }

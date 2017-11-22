@@ -1,7 +1,8 @@
 "use strict"
 var mongoose = require('mongoose');
-
 const Schema = mongoose.Schema;
+
+var ForumSchema=require("./forumSchema");
 var lectureSchema = new Schema(
 {
   isPublished:{type:Boolean,
@@ -9,6 +10,7 @@ var lectureSchema = new Schema(
   lecture:{type:String},
   description:{type:String},
   lectureImage:{type:String},
+  forum:[ForumSchema],
   creator:{
     type:Schema.Types.ObjectId,
     ref:"User"

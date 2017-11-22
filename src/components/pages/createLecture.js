@@ -259,7 +259,7 @@ return(
     <Row>
     <Panel>
       <Well>
-        <h6>QUESTION</h6>
+        <h6>FRÅGA</h6>
         <br/>
         <br/>
           <FormGroup controlId="Question">
@@ -267,25 +267,25 @@ return(
             <FormControl
               type="text"
               value={this.state.lecture.questions[this.state.currentQuestionNum].question}
-              placeholder="What is 2+2"
+              placeholder="Vad är Sveriges huvudstad?"
               onChange={this.handleTextChange("questions.question", this.state.currentQuestionNum)}
               />
-              <ControlLabel>Comment to the question</ControlLabel>
+              <ControlLabel>Kommentar till frågan</ControlLabel>
                 <FormControl
                   type="text"
-                  placeholder="When you have 2 apples and adds 2 more you have 4 apples"
+                  placeholder="Stockholm är Sveriges huvudstad sedan 1708"
                   value={this.state.lecture.questions[this.state.currentQuestionNum].comment}
                   onChange={this.handleTextChange("questions.comment", this.state.currentQuestionNum)}
                 />
               <Dropzone onDrop={ this.handleDrop("question.image", )} accept="image/jpg, image/jpeg" multiple={ false } onDropRejected={ handleDropRejected }>
-                  Click here to add an image!
+                  Klicka här för att lägga till en bild
                   <Image className="questionImage" src={this.state.lecture.questions[this.state.currentQuestionNum].imageUrl}/>
               </Dropzone>
           </FormGroup>
           <br/>
           <br/>
 
-          <h6>Please write some alternatives and check the correct answer</h6>
+          <h6>Skriv några alternativ. Checka det alternativ som är rätt svar.</h6>
           <br/><br/>
           <form>
           <FormGroup>
@@ -314,14 +314,14 @@ let self=this;
             <ControlLabel>Name of the lecture</ControlLabel>
             <FormControl
               type="text"
-              placeholder="The nazi lecture"
+              placeholder="Nazistföreläsningen"
               value={this.state.lecture.lecture}
               onChange={this.handleTextChange("lecture")}
               />
               <ControlLabel>Description of the lecture</ControlLabel>
                 <FormControl
                   type="text"
-                  placeholder="A lecture about the nazis and their shortcomings"
+                  placeholder="En föreläsning om nazisterna och deras illdåd"
                   onChange={this.handleTextChange("description")}
                 />
                 <Dropzone onDrop={ this.handleDrop("lecture.image")} accept="image/jpg, image/jpeg" multiple={ false } onDropRejected={ handleDropRejected }>
@@ -354,7 +354,7 @@ let self=this;
   <Row>
     <Panel>
     <Well>
-      <h6>Question number {this.state.activePage}</h6>
+      <h6>Fråga nummer {this.state.activePage}</h6>
       <br/>
       <br/>
       <Button bsStyle="primary" onClick={this.chooseVideo.bind(this)}> Add video </Button>
@@ -373,7 +373,7 @@ let self=this;
     <Panel>
     <Well>
       <Button onClick={this.nextButtonHandler.bind(this)}>
-      NEXT
+      NÄSTA
       </Button>
     </Well>
     </Panel>

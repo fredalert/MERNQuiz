@@ -1,24 +1,46 @@
 "use strict"
 import React from "react";
-import axios from "axios";
+import {connect} from "react-redux"
+import {bindActionCreators} from "redux";
+import {logoutUserAction} from "../../actions/userActions"
 import {Well, Row, Col } from "react-bootstrap"
+
+
 
 class Logout extends React.Component{
 componentDidMount(){
-  axios.get("/api/user/logout");
+this.props.logoutUserAction();
 
 }
   render(){
-    
+    console.log(this.props.loggedInUser)
+
     return(
       <Well>
         <Row>
         <Col>
-          <h3>You have succesfully logged out</h3>
+          <h3>Du har nu loggat ut!</h3>
         </Col>
         </Row>
       </Well>
     )
   }}
 
-export default Logout;
+
+  function mapDispatchToProps(dispatch){
+    return bindActionCreators({
+
+      logoutUserAction,
+
+      }, dispatch)
+  }
+
+
+
+  function mapStateToProps(state){
+    return {
+      loggedInUser:state.user.loggedInUser,
+    }
+  }
+
+export default connect(mapStateToProps, mapDispatchToProps)(Logout);

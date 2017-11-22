@@ -19,12 +19,12 @@ class RenderProgressBar extends React.Component{
 render(){
   let self=this;
   let progress=this.props.progress.map(function(answer, index){
-    return( <Badge key={index} id={(self.props.currentQuestionNumber==index)?("currentQuestion"):("")} onClick={this.paginationChoice.bind(this, index)} className={answer.isCorrect}>{index+1}</Badge>
+    return( <Badge key={index} id={(self.props.currentQuestionNumber==index)?("currentQuestion"):("")} onClick={this.paginationChoice.bind(this, index)} className={answer.isCorrect}>{(answer.isCorrect=="video")?(index+1 +" video"):(index+1)}</Badge>
   )}, this)
   return(
     <div >
     <Well>
-    <h6>Question number {this.props.currentQuestionNumber+1}</h6>
+    <h6>Fråga nummer {this.props.currentQuestionNumber+1}</h6>
     <div id="progressbadges">{progress}</div>
     </Well>
     </div>

@@ -19,6 +19,10 @@ export function lectureReducers(state={}, action){
 case "UPDATE_LECTURE":
 return {...state, lectures:[...action.payload]}
 break;
+
+case "UPDATE_FORUM":
+return {...state, currentLecture:action.payload}
+break;
 }
 
   return state;

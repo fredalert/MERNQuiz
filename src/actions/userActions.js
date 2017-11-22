@@ -32,7 +32,8 @@ return function(dispatch){
     dispatch({type:"POST_USER", payload:response.data})
   })
   .catch(function(err){
-    dispatch({type:"POST_USER_REJECTED", payload:"Could not post user to database"})
+    console.log("err is :", err)
+    dispatch({type:"POST_USER_REJECTED", payload:"Registering lyckades tyvärr inte, har du fyllt i alla obligatoriska fält?"})
   })
 }}
 
@@ -46,6 +47,19 @@ return function(dispatch){
       dispatch({type:"LOGIN_USER_REJECTED", payload:"Could not login user"})
     })
 }}
+
+export function logoutUserAction(){
+return function(dispatch){
+  axios.get("api/user/logout")
+    .then(function(response){
+      dispatch({type:"LOGOUT_USER", payload:null})
+    })
+    .catch(function(err){
+      dispatch({type:"LOGOUT_USER_REJECTED", payload:"Could not logout user"})
+    })
+}}
+
+
 
 export function addCreatedLectureToUserAction(_id){
   return function(dispatch){
@@ -108,4 +122,9 @@ let updatedLecture=lecture;
 export function isQuestionAnswered(bool, result){
   return function(dispatch){
   dispatch({type:"QUESTION_IS_ANSWERED", payload:{bool, result}})}
+}
+
+export function renderForumModal(bool){
+  return function(dispatch){
+  dispatch({type:"RENDER_FORUM", payload:{bool}})}
 }

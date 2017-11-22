@@ -58,8 +58,8 @@ console.log("this.state.correction is: ", this.state.correction)
           <Row>
             <Panel>
               <Col xs={12} sm={12}>
-                  <PageHeader>The Lectures page
-                    <small>   Where the lectures  are found</small>
+                  <PageHeader>Föreläsningssidan
+                    <small>   Där du hittar föreläsningarna</small>
                   </PageHeader>
               </Col>
               <Col  xs={12} sm={12} md={12} >
